@@ -160,4 +160,4 @@ def generate_spack_matrix(args, experiment, command=None):
 
     if args.outfile:
         utils.write_json(matrix, args.outfile)
-    print("::set-output name=containers::%s\n" % json.dumps(matrix))
+    print("::set-output name=matrix::%s\n" % json.dumps(matrix))
