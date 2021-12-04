@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install Spliced
-        uses: ./action/install
+        run: pip install -e .
       - name: Generate Matrix
         uses: ./action/matrix
         id: matrix

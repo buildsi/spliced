@@ -160,4 +160,7 @@ def generate_spack_matrix(args, experiment, command=None):
 
     if args.outfile:
         utils.write_json(matrix, args.outfile)
+    else:
+        print(json.dumps(matrix, indent=4))
     print("::set-output name=matrix::%s\n" % json.dumps(matrix))
+    print('echo "matrix=%s" >> $GITHUB_ENV' % json.dumps(matrix))
