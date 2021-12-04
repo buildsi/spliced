@@ -31,4 +31,5 @@ jobs:
       - name: Show result
         env:
            matrix: ${{ steps.matrix.outputs.matrix }}
-        run: echo ${matrix}
+        run: |
+           printf "${{ env.matrix }}\n"
