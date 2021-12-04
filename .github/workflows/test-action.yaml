@@ -26,7 +26,7 @@ jobs:
         uses: ./action/matrix
         id: matrix
         with:
-          yaml: ./spliced/curl.yaml
+          yaml: ./examples/curl.yaml
 
       - name: Show result
         env:
