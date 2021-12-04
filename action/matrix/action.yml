@@ -1,0 +1,25 @@
+name: "Spiced Matrix Generation"
+description: "Generate a spliced matrix given an input YAML file"
+inputs:
+  yaml:
+    description: path to the config YAML
+    required: true
+  container:
+    description: A optional container base to include in the matrix
+    required: false
+
+outputs:
+  matrix:
+    description: matrix of spliced builds
+    value: ${{ steps.matrix.outputs.matrix }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate matrix
+      id: matrix
+      env:
+        INPUT_YAML: ${{ inputs.yaml }}
+        INPUT_CONTAINER: ${{ inputs.container }}
+      run: ${{ github.action_path }}/scripts/generate.sh
+      shell: bash

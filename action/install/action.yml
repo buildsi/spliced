@@ -1,0 +1,21 @@
+name: 'Spliced Install Action'
+description: "install spliced"
+inputs:
+  branch:
+    description: The branch of spack to use (defaults to develop)
+    required: true
+    default: develop
+  release:
+    description: A spack release to use (if defined, overrides branch)
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Spliced
+      env:
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_RELEASE: ${{ inputs.release }}
+      run: ${{ github.action_path }}/scripts/install.sh
+      shell: bash
