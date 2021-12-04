@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install Spliced
-        uses: ./actions/install
+        uses: ./action/install
 
   generate-matrix:
     runs-on: ubuntu-latest
@@ -21,9 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install Spliced
-        uses: ./actions/install
+        uses: ./action/install
       - name: Generate Matrix
-        uses: ./actions/matrix
+        uses: ./action/matrix
         id: matrix
         with:
           yaml: ./spliced/curl.yaml
