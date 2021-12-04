@@ -4,7 +4,7 @@ inputs:
   branch:
     description: The branch of spack to use (defaults to develop)
     required: true
-    default: develop
+    default: main
   release:
     description: A spack release to use (if defined, overrides branch)
     required: false
