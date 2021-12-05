@@ -287,16 +287,22 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
 
+
 def spack_clone(*args, **kwargs):
     import tempfile
+
     spack = os.path.join(tempfile.gettempdir(), "spack")
     if not os.path.exists(spack):
-        os.system("git clone -b vsoch/db-17-splice --depth 1 https://github.com/vsoch/spack %s" % spack)
-    path = "%s/bin:%s" %(spack, os.environ["PATH"])
+        os.system(
+            "git clone -b vsoch/db-17-splice --depth 1 https://github.com/vsoch/spack %s"
+            % spack
+        )
+    path = "%s/bin:%s" % (spack, os.environ["PATH"])
     os.putenv("PATH", path)
     os.environ["PATH"] = path
     add_spack_to_path()
 
+
 def setup(app):
     app.add_css_file("sphinx-argparse.css")
-    app.connect('config-inited', spack_clone)
+    app.connect("config-inited", spack_clone)

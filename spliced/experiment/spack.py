@@ -15,13 +15,13 @@ import logging
 import time
 import subprocess
 
-if 1==1:
-#try:
+if 1 == 1:
+    # try:
     import spack.binary_distribution as bindist
     import spack.rewiring
     import spack.bootstrap
     from spack.spec import Spec
-#except Exception as e:
+# except Exception as e:
 #    sys.exit("This needs to be run from spack python, also: %s" % e)
 
 
