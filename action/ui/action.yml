@@ -42,6 +42,8 @@ runs:
 
     - name: Install dependencies
       run: pip install -r ${{ github.action_path }}/scripts/requirements.txt     
+      shell: bash
+
     - name: Generate User Interface
       env:
         INPUT_ARTIFACTS: ${{ inputs.artifacts }}
