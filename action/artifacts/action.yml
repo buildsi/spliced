@@ -18,13 +18,31 @@ inputs:
     description: name of output directory to save to (defaults to artifacts)
     required: true
     default: artifacts
+  branch:
+    description: The branch of spack to use (defaults to develop)
+    required: true
+    default: main
+  release:
+    description: A spack release to use (if defined, overrides branch)
+    required: false
+    default: ""
 
 runs:
   using: "composite"
   steps:
-    - name: Install dependencies
-      run: pip install requests
+    - name: Set Root Directory
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: ${{ github.action_path }}/scripts/set_root.sh
       shell: bash
+
+    - name: Install Spliced
+      env:
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_RELEASE: ${{ inputs.release }}
+      run: ${{ env.ACTION_ROOT }}/install/scripts/install.sh
+      shell: bash
+
     - name: Retrieve artifacts
       env:
         INPUT_REPOSITORY: ${{ inputs.repository }}

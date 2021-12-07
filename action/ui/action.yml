@@ -1,0 +1,49 @@
+name: "Spliced Uesr Interface"
+description: "Generate a spliced user interface given a root of artifact results"
+inputs:
+  experiment:
+    description: If defined, only generate site for this results subfolder
+    required: false
+  artifacts:
+    description: path to artifacts root (defaults to artifacts)
+    required: true
+    default: artifacts
+  docs:
+    description: Path to root to generate site (defaults to docs)
+    required: true
+    default: docs
+  branch:
+    description: The branch of spack to use (defaults to develop)
+    required: true
+    default: main
+  release:
+    description: A spack release to use (if defined, overrides branch)
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set Root Directory
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: ${{ github.action_path }}/scripts/set_root.sh
+      shell: bash
+
+    - name: Install Spliced
+      env:
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_RELEASE: ${{ inputs.release }}
+      run: ${{ env.ACTION_ROOT }}/install/scripts/install.sh
+      shell: bash
+
+    - name: Install dependencies
+      run: pip install -r ${{ github.action_path }}/scripts/requirements.txt     
+    - name: Generate User Interface
+      env:
+        INPUT_ARTIFACTS: ${{ inputs.artifacts }}
+        INPUT_EXPERIMENT: ${{ inputs.experiment }}
+        INPUT_DOCS: ${{ inputs.docs }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: ${{ github.action_path }}/scripts/generate.sh
+      shell: bash

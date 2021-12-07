@@ -9,12 +9,16 @@ import tempfile
 import time
 import shutil
 import requests
+import jsonschema
 import pathlib
 
 from datetime import datetime, timedelta
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
+
+# Only add artifacts that validate
+from spliced.schemas import spliced_result_schema
 
 here = os.environ.get("GITHUB_WORKSPACE") or os.getcwd()
 
@@ -251,6 +255,12 @@ def download_artifacts(artifacts, output, days):
 
             if not has_predictions:
                 print("Skipping %s, does not have predictions." % filename)
+                continue
+
+            try:
+                jsonschema.validate(data, schema=spliced_result_schema)
+            except:
+                print("%s is not valid for the current result schema." % filename)
                 continue
 
             relpath = filename.replace(tmp, "").strip(os.sep)

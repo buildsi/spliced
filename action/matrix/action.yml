@@ -7,6 +7,14 @@ inputs:
   container:
     description: A optional container base to include in the matrix
     required: false
+  branch:
+    description: The branch of spack to use (defaults to develop)
+    required: true
+    default: main
+  release:
+    description: A spack release to use (if defined, overrides branch)
+    required: false
+    default: ""
 
 outputs:
   matrix:
@@ -16,6 +24,20 @@ outputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Set Root Directory
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: ${{ github.action_path }}/scripts/set_root.sh
+      shell: bash
+
+    - name: Install Spliced
+      env:
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_RELEASE: ${{ inputs.release }}
+      run: ${{ env.ACTION_ROOT }}/install/scripts/install.sh
+      shell: bash
+
     - name: Generate matrix
       id: matrix
       env:

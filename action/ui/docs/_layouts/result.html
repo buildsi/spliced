@@ -1,0 +1,181 @@
+---
+layout: default
+---
+
+<header>
+<link rel='stylesheet' href='https://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css'>
+<link rel='stylesheet' href='https://cdn.datatables.net/responsive/1.0.4/css/dataTables.responsive.css'>
+</header>
+
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css'>
+<link rel='stylesheet' href='https://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css'>
+<link rel='stylesheet' href='https://cdn.datatables.net/responsive/1.0.4/css/dataTables.responsive.css'>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;400;600&display=swap" rel="stylesheet"> 
+
+<style>
+body { 
+  font-size: 140%; 
+}
+
+h3 {
+  font-family"Source Sans Pro", sans-serif !important;
+  font-size: 40.8px !important;
+  font-weight: 700 !important;
+  padding-bottom:10px !important;
+}
+
+
+h2 {
+  font-family"Source Sans Pro", sans-serif !important;
+  font-size: 28.8px !important;
+  font-weight: 700 !important;
+  padding-bottom:10px !important;
+}
+
+table caption {
+	padding: .5em 0;
+}
+
+table.dataTable th,
+table.dataTable td {
+  white-space: nowrap;
+}
+
+tr.group,
+tr.group:hover {
+    background-color: #ddd !important;
+}
+</style>
+
+  <div class="container">
+    <div id="post-info">
+      <h3>{{page.title}}</h3>
+      <span>
+        Updated on
+        <span style="display: initial;" class="cat-class">{{page.date | date: "%d/%m/%Y"}}</span>
+        {% for cat in page.categories %}
+          {% for catDat in site.data.categories %}
+            {% if catDat.slug == cat %}
+              {% assign catego = catDat %}
+            {% endif %}
+          {% endfor %}
+          {% if catego %}
+            <a class="cat-class cat-commas" href="{{site.baseurl}}/categories#{{cat | slugify}}">{{ catego.name }}</a>{% unless forloop.last %},{% else %}.{% endunless %}
+          {% endif %}
+        {% endfor %}<a style="float:right" href="https://github.com/{{ site.repository }}/edit/main/{{ page.path }}" target="_blank">🗒️ Edit on GitHub</a>
+        <br> <a style="float:left" href={{ site.baseurl }}"><< Home</a>
+      </span>
+    </div>
+
+    <div class="divider"></div>
+    <div class="row thi-post">
+      <div class="col s12">
+        {{ content }}
+ 
+        <br>
+        <p>This plot shows the top level splice outcomes, meaning across testers. For example, if a package or splice didn't concretize we will see it here.</p>
+        <h2>Outcomes</h2>
+        <p><ul>{% for outcome in page.outcomes %}<li>{{ outcome[0] }}: {{ outcome[1]}}</li>{% endfor %}</ul></p>
+        
+        <h2>Plot of Outcomes</h2>
+        <p>Across an experiment, we have multiple testers. However, sometimes there is a failure unrelated to the tester. For example, a concretization fails, spack can't install
+        the package, and then we can't be sure if the splice failed (or otherwise had a bad outcome) or if it's spack. This is a visualization of the outcomes above, colored by the
+        values indicated.</p>
+        
+        {% if page.pdf %}<a href="{{ site.baseurl }}{{ page.url }}/{{ page.pdf }}">Download PDF</a> |{% endif %}           
+        {% if page.png %}<a href="{{ site.baseurl }}{{ page.url }}/{{ page.png }}">Download PNG</a> |{% endif %}           
+        {% if page.svg %}<a href="{{ site.baseurl }}{{ page.url }}/{{ page.svg }}">Download SVG</a>{% endif %}           
+        {% if page.svg %}<img src="{{ site.baseurl }}{{ page.url }}{{ page.svg }}"/>{% endif %}
+
+        {% if page.results %}
+        <h2>Results</h2>
+        <p>Since results (and outputs) can vary across testers, we provide an interactive table here for you to explore instead of trying to shove them into a visualization. The raw data is provided alongside each results directory, so you are free to grab it to generate a custom visualization to your liking.</p>
+
+  <table id="results-table"  class="table table-bordered table-hover dt-responsive display" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th>Tester</th>
+            <th>Package</th>
+            <th>Splice</th>
+            <th>Binary</th>
+            <th>Library</th>
+            <th>Prediction</th>
+            <th>Message</th>
+            <th>Return Code</th>
+            <th>Command</th>
+            <th>Outcome</th>
+        </tr>
+     </thead>      
+      </table>{% endif %}
+      <hr> 
+      </div>
+    </div>
+
+    <div class="tag-list">
+      {% for tag in page.tags %}
+      {% capture test %}{{tag | slice: 0}}{% endcapture %}
+      {% capture testup %}{{tag | slice: 0 | upcase}}{% endcapture %}
+      <a class="tag-chip" href="{{site.baseurl}}/tags#{{tag | slugify}}{% if test == testup %}_cap{% endif %}"><div class="chip z-depth-1">{{tag}}</div></a>
+      {% endfor %}
+    </div>
+    {% include search_form.html %}
+  </div>
+
+<script src="//code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script>
+{% if page.results %}$(document).ready(function() {
+  $.getJSON("{{ page.results }}", function(data) {
+
+     var results = []
+
+     // Flatten data
+     $.each(data, function(tester, resultlist){
+         $.each(resultlist, function(i, result){
+             result['tester'] = tester
+
+             result['binary'] = result['binary'].split(/[\\/]/).pop();
+             if (result['lib']) {
+                 result['lib'] = result['lib'].split(/[\\/]/).pop();
+             }
+             results.push(result)
+         })
+     })
+     console.log(results);
+     
+     var table = $('#results-table').DataTable({
+      data: results,
+        "columnDefs": [
+            {"visible": false, "targets": 2 }
+        ],
+        "order": [[ 0, 'asc' ]],
+          columns: [
+                  { data: 'tester', title: "Tester" },
+                  { data: 'package', title: "Package" },
+                  { data: 'splice', title: "Splice" },
+                  { data: 'binary', title: "Binary" },
+                  { data: 'lib', title: "Library" },
+                  { data: 'prediction', title: "Prediction" },
+                  { data: 'message', title: "Message" },
+                  { data: 'return_code', title: "Return Code" },
+                  { data: 'command', title: "Command" },
+                  { data: 'result', title: "Outcome" },
+                ],
+
+        "displayLength": 25,
+
+        // Color tests by status (pass or fail)
+        "rowCallback": function(row, data) {
+             if ( data.result == "splice-success" ) {
+                  $('td:eq(1)', row).css('background-color', 'darkgreen').css('color', 'white');
+             } else {             
+                  $('td:eq(1)', row).css('background-color', 'crimson').css('color', 'white');
+             }
+        },
+      });
+   });
+
+});{% endif %}
+</script>
