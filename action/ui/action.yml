@@ -20,6 +20,9 @@ inputs:
     description: A spack release to use (if defined, overrides branch)
     required: false
     default: ""
+  repo:
+    description: Repository name for config basename (defaults to current)
+    required: false
 
 runs:
   using: "composite"
@@ -45,5 +48,8 @@ runs:
         INPUT_EXPERIMENT: ${{ inputs.experiment }}
         INPUT_DOCS: ${{ inputs.docs }}
         ACTION_PATH: ${{ github.action_path }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        INPUT_REPO: ${{ inputs.repo }}
+
       run: ${{ github.action_path }}/scripts/generate.sh
       shell: bash

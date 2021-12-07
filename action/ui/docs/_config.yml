@@ -1,8 +1,6 @@
 title: Spack Splices
 description: I want to write it down, and for it to be pretty.
-baseurl: "/spack-splices-results"
 url: ""
-repository: buildsi/spack-splices-results
 paginate: 28
 
 banner: "/assets/img/banner.png" # site banner (load when someone share your page url)
