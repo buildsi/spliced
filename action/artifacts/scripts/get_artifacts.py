@@ -244,7 +244,11 @@ def download_artifacts(artifacts, output, days):
         # Loop through files, add those that aren't present
         for filename in recursive_find(tmp):
 
-            data = read_json(filename)
+            try:
+                data = read_json(filename)
+            except:
+                print("%s is not valid json, cannot parse." % filename)
+                continue
 
             # We can load any valid result (does not need to have predictions)
             try:
