@@ -109,7 +109,12 @@ class LibabigailPrediction(Prediction):
                 for replace_lib in replace_libs:
 
                     # Run abicompat to make a prediction
-                    command = "%s %s %s" % (self.abicompat, original_lib, replace_lib)
+                    command = "%s %s %s" % (
+                        self.abicompat,
+                        binary,
+                        original_lib,
+                        replace_lib,
+                    )
                     res = utils.run_command(command)
 
                     # Additional debugging
@@ -173,7 +178,7 @@ class LibabigailPrediction(Prediction):
 
                         # Run abicompat to make a prediction
                         res = utils.run_command(
-                            "%s %s %s" % (self.abicompat, original, lib)
+                            "%s %s %s" % (self.abicompat, binary, original, lib)
                         )
                         res["binary"] = binary
                         res["splice_type"] = "same_lib"
