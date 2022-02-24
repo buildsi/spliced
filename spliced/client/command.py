@@ -112,7 +112,7 @@ def generate_spack_commands(args, experiment, command=None):
                 experiment.replace,
                 experiment.name,
             )
-            if args.tests:
+            if args.tests or experiment.tests:
                 cmd = "%s --tests" % cmd
             if command:
                 cmd = "%s %s" % (cmd, command)
@@ -155,7 +155,7 @@ def generate_spack_matrix(args, experiment, command=None):
                 experiment.replace,
                 experiment.name,
             )
-            if args.tests:
+            if args.tests or experiment.tests:
                 cmd = "%s --tests" % cmd
             if command:
                 cmd = "%s %s" % (cmd, command)
