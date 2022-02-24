@@ -181,7 +181,7 @@ class Experiment:
     def validate(self):
         jsonschema.validate(instance=self.config, schema=spliced.schemas.spliced_schema)
 
-    def add_splice(self, result, success=False, splice=None):
+    def add_splice(self, result, success=False, splice=None, command=None):
         """Add a splice to the experiment
 
         A splice can either be successful (so it will have libs, binaries, etc)
@@ -192,7 +192,7 @@ class Experiment:
             splice=splice or self.splice,
             result=result,
             success=success,
-            command=self.command,
+            command=command or self.command,
             experiment=self.name,
             replace=self.replace,
         )

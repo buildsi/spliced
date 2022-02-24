@@ -36,7 +36,8 @@ class SpackExperiment(Experiment):
         """
         Perform a splice with a SpecA (a specific spec with a binary),
         and SpecB (the high level spec that is a dependency that we can test
-        across versions).
+        across versions). If tests is defined and true on the experiment,
+        run spack tests after for it (given install success).
 
         Arguments:
         package (specA_name): the name of the main package we are splicing up
@@ -205,6 +206,10 @@ class SpackExperiment(Experiment):
             return
 
         # If we get here, a success case!
+
+        # if a command is desired from spack directly
+        if not self.command and "tests" in self.config and self.config["tests"] == True:
+            self.config["command"] = "spack test %s" % spliced_spec
         splice = self.add_splice("splice-success", success=True, splice=splice_name)
 
         # Prepare the libs / binaries for the splice (also include original dependency paths)
