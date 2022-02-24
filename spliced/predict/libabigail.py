@@ -27,7 +27,7 @@ class LibabigailPrediction(Prediction):
         Find abicompat and add to class
         """
         abicompat = utils.which("abicompat")
-        if not abicompat["message"]:
+        if not abicompat:
             logger.warning("abicompat not found on path, will look for spack instead.")
 
             # Try getting from spack
@@ -54,14 +54,14 @@ class LibabigailPrediction(Prediction):
                 )
                 return
 
-        if not abicompat["message"]:
+        if not abicompat:
             logger.error(
                 "You must either have abicompat (libabigail) on the path, or spack."
             )
             return
 
         # This is the executable path
-        self.abicompat = abicompat["message"]
+        self.abicompat = abicompat
 
     def predict(self, splice):
         """
