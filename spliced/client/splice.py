@@ -37,6 +37,12 @@ def run_spack_experiment(args, command):
             args.package, args.splice, args.experiment, command, args.replace
         )
 
+    # Do we have a request to run tests?
+    if args.tests and (
+        "tests" not in experiment.config or not experiment.config["tests"]
+    ):
+        experiment.config["tests"] = True
+
     # Perform the splice!
     experiment.run()
 

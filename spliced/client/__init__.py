@@ -158,6 +158,15 @@ def get_parser():
             help="A configuration file to run a splice prediction.",
         )
 
+    for cmd in [matrix, command, splice]:
+        cmd.add_argument(
+            "--tests",
+            dest="tests",
+            help="If the experiment runner provides tests, use them.",
+            default=False,
+            action="store_true",
+        )
+
     for subparser in [command, matrix, splice]:
         subparser.add_argument(
             "-o",
