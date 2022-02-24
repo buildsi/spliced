@@ -25,7 +25,7 @@ class SymbolatorPrediction(Prediction):
             and "original" in splice.libs
             and splice.libs["spliced"]
         ):
-            self.splice_equivalent_libs(splice, self.libs["spliced"])
+            self.splice_equivalent_libs(splice, splice.libs["spliced"])
 
         # Case 2: We are mocking a splice, and we have TWO sets of libs: some original, and some to replace with
         elif "dep" in splice.libs and "replace" in splice.libs:
