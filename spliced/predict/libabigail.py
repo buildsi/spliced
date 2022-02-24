@@ -68,7 +68,7 @@ class LibabigailPrediction(Prediction):
         Run libabigail to add to the predictions
         """
         # If no splice libs, cut out early
-        if not splice.libs:
+        if not splice.libs or not self.abicompat:
             return
 
         if not self.abicompat:
