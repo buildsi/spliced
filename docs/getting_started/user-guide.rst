@@ -34,6 +34,7 @@ spliced currently has the following predictors:
  - **actual**: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our "ground truth" for the other predictors that aren't actually testing anything, but just predicting.
  - **libabigail**: is a `library provided by RedHat <https://sourceware.org/libabigail/>`_ that provides tooling for assessing ABI compatibility.
  - **symbolator**: is a `simple library developed by the group here <https://github.com/buildsi/symbolator>`_ that makes predictions based on comparing symbol sets.
+ - **spack-test**: will, given that the splice has an id that matches a spack dag hash, run tests associated with that spec.
  - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is not added yet, but will be eventually.
 
 Config File
