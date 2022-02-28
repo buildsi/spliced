@@ -197,10 +197,6 @@ class SpackExperiment(Experiment):
             return
 
         # If we get here, a success case!
-
-        # if a command is desired from spack directly
-        if not self.command and "tests" in self.config and self.config["tests"] == True:
-            self.config["command"] = "spack test run %s" % spliced_spec
         splice = self.add_splice("splice-success", success=True, splice=splice_name)
 
         # Prepare the libs / binaries for the splice (also include original dependency paths)

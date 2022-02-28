@@ -13,7 +13,6 @@ properties = {
     "package": {"type": "string"},
     "replace": {"type": ["string", "null"]},
     "command": {"type": ["string", "null"]},
-    "tests": {"type": ["boolean", "null"]},
 }
 
 spliced_schema = {

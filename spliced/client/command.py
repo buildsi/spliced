@@ -110,8 +110,6 @@ def generate_spack_commands(args, experiment, command=None):
                 experiment.replace,
                 experiment.name,
             )
-            if args.tests or experiment.tests:
-                cmd = "%s --tests" % cmd
             if command:
                 cmd = "%s %s" % (cmd, command)
             commands.append(cmd)
@@ -152,14 +150,11 @@ def generate_spack_matrix(args, experiment, command=None):
                 experiment.replace,
                 experiment.name,
             )
-            if args.tests or experiment.tests:
-                cmd = "%s --tests" % cmd
             if command:
                 cmd = "%s %s" % (cmd, command)
             matrix.append(
                 {
                     "command": cmd,
-                    "tests": args.tests,
                     "package": package,
                     "runner": "spack",
                     "splice": experiment.splice,

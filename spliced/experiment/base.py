@@ -217,10 +217,6 @@ class Experiment:
         return self.config.get("splice")
 
     @property
-    def tests(self):
-        return self.config.get("tests") in ["true", True]
-
-    @property
     def splice_versions(self):
         return self.config.get("splice_versions") or self._splice_versions
 
