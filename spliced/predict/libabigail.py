@@ -67,12 +67,12 @@ class LibabigailPrediction(Prediction):
         """
         Run libabigail to add to the predictions
         """
+        if not self.abicompat:
+            self.find_abicompat()
+
         # If no splice libs, cut out early
         if not splice.libs or not self.abicompat:
             return
-
-        if not self.abicompat:
-            self.find_abicompat()
 
         # We have TWO cases here:
         # Case 1: We ONLY have a list of libs that were spliced.
@@ -149,7 +149,7 @@ class LibabigailPrediction(Prediction):
 
         # If we have spliced binaries, this means the spack splice was successful.
         # Otherwise, we do not, but we have the original deps to test
-        binaries = splice.get_binaries()
+        binaries = splice.get_binaries()        
 
         # Assemble a set of predictions
         predictions = []
