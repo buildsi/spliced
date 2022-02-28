@@ -159,15 +159,8 @@ to a specific number of predictors, use `--predictor` for each.
     $ spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbolator
 
 The above would run the experiment with a symbolator prediction.
-Note that the "actual" run is always performed if a command is provided, but not if it isn't. You can also ask spack to run its tests
-as the "sanity check" :
-
-.. code-block:: console
-
-    $ spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbolator --tests
-
- Here is what an entire run looks like, with a testing command and 
-output saved to a json file with `--outfile`
+Note that the "actual" run is always performed if a command is provided, but not if it isn't. 
+Here is what an entire run looks like, with a testing command and  output saved to a json file with `--outfile`
 
 .. code-block:: console
 
