@@ -4,14 +4,12 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 from .base import Prediction
-from spliced.logger import logger
 from symbolator.asp import PyclingoDriver, ABIGlobalSolverSetup, ABICompatSolverSetup
 from symbolator.facts import get_facts
 from symbolator.corpus import JsonCorpusLoader, Corpus
 
 import itertools
 import os
-import re
 
 
 class SymbolatorPrediction(Prediction):

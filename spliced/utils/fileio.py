@@ -145,16 +145,6 @@ def write_file(filename, content, mode="w"):
     return filename
 
 
-def write_json(json_obj, filename, mode="w", print_pretty=True):
-    """Write json to a filename"""
-    with open(filename, mode) as filey:
-        if print_pretty:
-            filey.writelines(print_json(json_obj))
-        else:
-            filey.writelines(json.dumps(json_obj))
-    return filename
-
-
 def print_json(json_obj):
     """Print json pretty"""
     return json.dumps(json_obj, indent=4, separators=(",", ": "))
@@ -165,8 +155,3 @@ def read_file(filename, mode="r"):
     with open(filename, mode) as filey:
         content = filey.read()
     return content
-
-
-def read_json(filename, mode="r"):
-    """Read a json file to a dictionary."""
-    return json.loads(read_file(filename))

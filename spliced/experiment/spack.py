@@ -9,11 +9,6 @@ from .base import Experiment
 import os
 import sys
 import shlex
-from glob import glob
-import json
-import logging
-import time
-import subprocess
 
 try:
     import spack.binary_distribution as bindist
@@ -36,8 +31,7 @@ class SpackExperiment(Experiment):
         """
         Perform a splice with a SpecA (a specific spec with a binary),
         and SpecB (the high level spec that is a dependency that we can test
-        across versions). If tests is defined and true on the experiment,
-        run spack tests after for it (given install success).
+        across versions).
 
         Arguments:
         package (specA_name): the name of the main package we are splicing up
@@ -61,9 +55,6 @@ class SpackExperiment(Experiment):
         # The second library we can try splicing all versions
         # This is the splice IN and splice OUT
         spec_spliced = Spec(self.splice)
-
-        # Return list of spliced specs!
-        splices = []
 
         # A splice with the same package as the library is the first type
         # For this case, we already have a version in mind
@@ -281,6 +272,9 @@ class SpackExperiment(Experiment):
         # And add libs for the spliced dependency (each from original and spliced)
         splice.libs["spliced"] = add_libraries(spliced_spec, spliced_lib)
         splice.libs["original"] = add_libraries(original, spliced_lib)
+
+        # Add the dag hash as the identifier
+        splice.add_identifier("/" + spliced_spec.dag_hash()[0:6])
 
 
 def add_libraries(spec, library_name=None):

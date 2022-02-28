@@ -1,6 +1,7 @@
 from .base import Prediction, Actual
 from .symbolator import SymbolatorPrediction
 from .libabigail import LibabigailPrediction
+from .spack import SpackTest
 
 
 def get_predictors(names=None):
@@ -11,6 +12,7 @@ def get_predictors(names=None):
     predictors = {
         "symbolator": SymbolatorPrediction(),
         "libabigail": LibabigailPrediction(),
+        "spack-test": SpackTest(),
     }
     if names:
         keepers = {}

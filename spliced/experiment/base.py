@@ -44,6 +44,13 @@ class Splice:
         self.result = result
         self.splice = splice
         self.command = command
+        self.id = None
+
+    def add_identifier(self, identifier):
+        """
+        Add some experiment specific identifier (e.g., dag hash for spack)
+        """
+        self.id = identifier
 
     def match_libs(self):
         """

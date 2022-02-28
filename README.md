@@ -8,6 +8,8 @@
 
 ⭐️ [View Documentation](https://buildsi.github.io/spliced/) ⭐️ 
  
+This library is written and maintained by [@vsoch](https://github.com/vsoch)
+ 
 ## License
 
 Spack is distributed under the terms of both the MIT license and the

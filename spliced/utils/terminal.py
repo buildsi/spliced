@@ -61,7 +61,7 @@ def run_command(cmd, stream=False):
         cmd = shlex.split(cmd)
     stdout = PIPE if not stream else None
 
-    output = Popen(cmd, stderr=STDOUT, stdout=PIPE)
+    output = Popen(cmd, stderr=STDOUT, stdout=stdout)
     t = output.communicate()[0], output.returncode
     output = {"message": t[0], "return_code": t[1]}
 

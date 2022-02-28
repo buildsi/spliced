@@ -8,7 +8,6 @@ import spliced.experiment
 import spliced.utils as utils
 import random
 import requests
-import os
 import sys
 import json
 
@@ -93,7 +92,6 @@ def generate_spack_commands(args, experiment, command=None):
     # These are package versions - splice versions come from list in config
     versions = get_package_versions(experiment.package)
     splice_versions = get_splice_versions(experiment)
-    labels = get_compiler_labels(args.container)
     commands = []
 
     # Command can come from command line or config file
@@ -133,7 +131,6 @@ def generate_spack_matrix(args, experiment, command=None):
     experiment
     """
     versions = get_package_versions(experiment.package)
-    labels = get_compiler_labels(args.container)
     splice_versions = get_splice_versions(experiment)
 
     # We will build up a matrix of container and associated compilers

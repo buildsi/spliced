@@ -9,7 +9,6 @@ import spliced.utils as utils
 import itertools
 
 import os
-import re
 
 
 def add_to_path(path):
@@ -149,7 +148,7 @@ class LibabigailPrediction(Prediction):
 
         # If we have spliced binaries, this means the spack splice was successful.
         # Otherwise, we do not, but we have the original deps to test
-        binaries = splice.get_binaries()        
+        binaries = splice.get_binaries()
 
         # Assemble a set of predictions
         predictions = []
