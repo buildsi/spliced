@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-__version__ = "0.0.14"
+__version__ = "0.0.15"
 AUTHOR = "Vanessa Sochat"
 NAME = "spliced"
 PACKAGE_URL = "https://github.com/buildsi/spliced"

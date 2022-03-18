@@ -20,14 +20,22 @@ def add_to_path(path):
 class LibabigailPrediction(Prediction):
 
     abicompat = None
+    abidiff = None
 
-    def find_abicompat(self):
+    def find_tooling(self):
         """
-        Find abicompat and add to class
+        Find abicompat and abidiff and add to class
         """
-        abicompat = utils.which("abicompat")
-        if not abicompat:
-            logger.warning("abicompat not found on path, will look for spack instead.")
+        for tool in ["abicompat", "abidiff"]:
+            self.find_tool(tool)
+
+    def find_tool(self, name):
+        """
+        Find a specific named tool (abidiff or abicompat)
+        """
+        tool = utils.which(name)
+        if not tool:
+            logger.warning(f"{name} not found on path, will look for spack instead.")
 
             # Try getting from spack
             try:
@@ -45,32 +53,32 @@ class LibabigailPrediction(Prediction):
                     abi = installed_specs[0]
 
                 add_to_path(os.path.join(abi.prefix, "bin"))
-                abicompat = utils.which("abicompat")
+                tool = utils.which(name)
 
             except:
                 logger.error(
-                    "You must either have abicompat (libabigail) on the path, or spack."
+                    f"You must either have {name} (libabigail) on the path, or spack."
                 )
                 return
 
-        if not abicompat:
+        if not tool:
             logger.error(
-                "You must either have abicompat (libabigail) on the path, or spack."
+                f"You must either have {name} (libabigail) on the path, or spack."
             )
             return
 
         # This is the executable path
-        self.abicompat = abicompat
+        setattr(self, name, tool)
 
     def predict(self, splice):
         """
         Run libabigail to add to the predictions
         """
-        if not self.abicompat:
-            self.find_abicompat()
+        if not self.abicompat or not self.abidiff:
+            self.find_tooling()
 
-        # If no splice libs, cut out early
-        if not splice.libs or not self.abicompat:
+        # If no splice libs OR no tools, cut out early
+        if not splice.libs or (not self.abicompat and not self.abidiff):
             return
 
         # We have TWO cases here:
@@ -101,45 +109,68 @@ class LibabigailPrediction(Prediction):
         original_libs = list(itertools.chain(*[x["paths"] for x in original_libs]))
         replace_libs = list(itertools.chain(*[x["paths"] for x in replace_libs]))
 
-        # Assemble a set of predictions
+        # Assemble a set of predictions using abicompat
         predictions = []
         for binary in binaries:
             for original_lib in original_libs:
                 for replace_lib in replace_libs:
 
                     # Run abicompat to make a prediction
-                    command = "%s %s %s %s" % (
-                        self.abicompat,
-                        binary,
-                        original_lib,
-                        replace_lib,
-                    )
-                    res = utils.run_command(command)
-
-                    # Additional debugging
-                    print(command)
-                    print(res)
-                    print()
-                    res["binary"] = binary
+                    res = self.run_abicompat(self, binary, original_lib, replace_lib)
                     res["splice_type"] = "different_lib"
-
-                    # The spliced lib and original
-                    res["replace"] = replace_lib
-                    res["lib"] = original_lib
-
-                    # If there is a libabigail output, print to see
-                    if res["message"] != "":
-                        print(res["message"])
-                    res["prediction"] = res["message"] == "" and res["return_code"] == 0
                     predictions.append(res)
+
+        # Assemble a set of predictions using abidiff
+        for original_lib in original_libs:
+            for replace_lib in replace_libs:
+
+                res = self.run_abidiff(original_lib, replace_lib)
+                res["splice_type"] = "different_lib"
+                predictions.append(res)
 
         if predictions:
             splice.predictions["libabigail"] = predictions
 
+    def run_abidiff(self, original_lib, replace_lib):
+        """
+        Run abi diff with an original and comparison library
+        """
+        command = "%s %s %s" % (self.abidiff, original_lib, replace_lib)
+        res = utils.run_command(command)
+
+        # The spliced lib and original
+        res["replace"] = replace_lib
+        res["lib"] = original_lib
+
+        # If there is a libabigail output, print to see
+        if res["message"] != "":
+            print(res["message"])
+        res["prediction"] = res["message"] == "" and res["return_code"] == 0
+        return res
+
+    def run_abicompat(self, binary, original, lib):
+        """
+        Run abicompat against two libraries
+        """
+        # Run abicompat to make a prediction
+        res = utils.run_command("%s %s %s %s" % (self.abicompat, binary, original, lib))
+        res["binary"] = binary
+
+        # The spliced lib and original
+        res["lib"] = lib
+        res["original_lib"] = original
+
+        # If there is a libabigail output, print to see
+        if res["message"] != "":
+            print(res["message"])
+        res["prediction"] = res["message"] == "" and res["return_code"] == 0
+        return res
+
     def splice_equivalent_libs(self, splice, libs):
         """
         In the case of splicing "the same lib" into itself (a different version)
-        we can do matching based on names.
+        we can do matching based on names. We can use abicomat with binaries, and
+        abidiff for just between the libs.
         """
         # Flatten original libs into flat list
         original_libs = list(
@@ -176,23 +207,35 @@ class LibabigailPrediction(Prediction):
                     for original in originals:
 
                         # Run abicompat to make a prediction
-                        res = utils.run_command(
-                            "%s %s %s %s" % (self.abicompat, binary, original, lib)
-                        )
-                        res["binary"] = binary
+                        res = self.run_abicompat(self, binary, original, lib)
                         res["splice_type"] = "same_lib"
-
-                        # The spliced lib and original
-                        res["lib"] = lib
-                        res["original_lib"] = lib
-
-                        # If there is a libabigail output, print to see
-                        if res["message"] != "":
-                            print(res["message"])
-                        res["prediction"] = (
-                            res["message"] == "" and res["return_code"] == 0
-                        )
                         predictions.append(res)
+
+        # Next predictions using abidiff
+        for libset in libs:
+            for lib in libset["paths"]:
+
+                # Try to match libraries based on prefix (versioning is likely to change)
+                libprefix = os.path.basename(lib).split(".")[0]
+
+                # Find an original library path with the same prefix
+                originals = [
+                    x
+                    for x in original_libs
+                    if os.path.basename(x).startswith(libprefix)
+                ]
+                if not originals:
+                    logger.warning(
+                        "Warning, original comparison library not found for %s, required for abidiff."
+                        % lib
+                    )
+                    continue
+
+                # The best we can do is compare all contender matches
+                for original in originals:
+                    res = self.run_abidiff(original, lib)
+                    res["splice_type"] = "same_lib"
+                    predictions.append(res)
 
         if predictions:
             splice.predictions["libabigail"] = predictions
