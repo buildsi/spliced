@@ -137,6 +137,7 @@ class LibabigailPrediction(Prediction):
         """
         command = "%s %s %s" % (self.abidiff, original_lib, replace_lib)
         res = utils.run_command(command)
+        res["command"] = command
 
         # The spliced lib and original
         res["replace"] = replace_lib
@@ -153,7 +154,9 @@ class LibabigailPrediction(Prediction):
         Run abicompat against two libraries
         """
         # Run abicompat to make a prediction
-        res = utils.run_command("%s %s %s %s" % (self.abicompat, binary, original, lib))
+        command = "%s %s %s %s" % (self.abicompat, binary, original, lib)
+        res = utils.run_command(command)
+        res["command"] = command
         res["binary"] = binary
 
         # The spliced lib and original
