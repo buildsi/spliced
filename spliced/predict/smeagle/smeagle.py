@@ -339,90 +339,192 @@ class GeneratorBase:
         # Don't replicate callsites used twice
         self.seen_callsites = set()
 
+        # Set type lookup to current library
+        self.types = lib.get("types", {})
+
         # Generate a fact for each location
         for loc in lib.get("locations", []):
+            if "variables" in loc:
+                for var in loc["variables"]:
+                    self.generate_variable(lib, var, identifier)
 
-            if "function" in loc:
+            elif "function" in loc:
                 self.generate_function(lib, loc.get("function"), identifier)
             elif "callsite" in loc:
-                self.generate_callsite(lib, loc.get("callsite"), identifier)
-            elif "variable" in loc:
-                self.generate_function(lib, loc.get("variable"), identifier)
+                self.generate_function(
+                    lib, loc.get("callsite"), identifier, callsite=True
+                )
 
-    def generate_callsite(self, lib, callsite, identifier=None):
+    def unwrap_type(self, func):
         """
-        Generate facts for a callsite
+        Unwrap the type
         """
-        if not callsite or "name" not in callsite:
+        # Get underlying type from lookup
+        if "type" not in func:
+            return
+        typ = func["type"].lstrip("*")
+
+        # Add pointers to type
+        pointers = ""
+
+        # This is better on an actual type not having this length.
+        # I haven't seen one yet, we could better use a regular expression.
+        while len(typ) == 32:
+            next_type = self.types.get(typ)
+            # we found a pointer!
+            if "underlying_type" in next_type:
+                pointers += "*"
+                next_type = next_type["underlying_type"]
+            if "type" not in next_type:
+                break
+            typ = next_type["type"].lstrip("*")
+
+        if typ == "unknown":
+            return
+        return pointers + typ
+
+    def unwrap_immediate_type(self, func):
+        """
+        Unwrap the type just one level
+        """
+        # Get underlying type from lookup
+        if "type" not in func:
+            return func
+        typ = func["type"]
+
+        # Add pointers to type
+        pointers = ""
+
+        # This is better on an actual type not having this length.
+        # I haven't seen one yet, we could better use a regular expression.
+        while len(typ) == 32:
+            next_type = self.types.get(typ)
+
+            if not next_type:
+                break
+
+            # we found a pointer!
+            if "underlying_type" in next_type:
+                pointers += "*"
+                next_type = next_type["underlying_type"]
+                typ = next_type.get("type").lstrip("*")
+            else:
+                break
+
+        if next_type:
+            next_type["pointers"] = pointers
+        return next_type
+
+    def generate_variable(self, lib, var, identifier=None):
+        """
+        Generate facts for a variable
+        """
+        if not var:
+            return
+
+        # Don't represent what we aren't sure about - no unknown types
+        typ = self.unwrap_immediate_type(var)
+        if not typ:
+            return
+        typ = typ.get("class")
+        if not typ or typ == "Unknown" or var.get("name") == "unknown":
             return
 
         libname = os.path.basename(lib["library"])
 
-        # Callsites (for now) need to match (we don't have direction)
-        fact = fn.callsite(identifier, libname, callsite["name"])
-        if fact not in self.seen_callsites:
-            self.seen_callsites.add(fact)
-            self.gen.fact(fact)
+        # abi_typelocation(“libr.so”, “bar”, Import, Integer32, “global”)
+        self.gen.fact(
+            fn.abi_typelocation(
+                libname, var["name"], var["direction"], typ, var["location"]
+            )
+        )
 
-    def generate_function(self, lib, func, identifier=None):
+    def unwrap_location(self, param):
+        """
+        Unwrap the type
+        """
+        loc = param.get("location", "")
+
+        # Get underlying type from lookup
+        if "type" not in param:
+            return loc
+        typ = param["type"]
+
+        # This is better on an actual type not having this length.
+        # I haven't seen one yet, we could better use a regular expression.
+        while len(typ) == 32:
+            next_type = self.types.get(typ)
+
+            # If it's a struct, union, or class, get the offset of the last field
+            if next_type.get("class") in ["Struct", "Union", "Class"]:
+                fields = next_type.get("fields", []) or next_type.get("parameters", [])
+                if fields:
+                    next_type = fields[-1]
+                    offset = next_type.get("offset")
+                    if offset:
+                        loc = "(%s+%s)" % (loc, offset)
+
+            # we found a pointer!
+            elif "underlying_type" in next_type:
+                loc = "(*%s)" % loc
+                next_type = next_type["underlying_type"]
+            elif "location" in next_type:
+                print("LOCATION IN NEXT TYPE")
+                import IPython
+
+                IPython.embed()
+                sys.exit()
+                location = "(%s)"
+            if "type" not in next_type:
+                break
+            typ = next_type["type"]
+
+        return loc
+
+    def generate_function(self, lib, func, identifier=None, callsite=False):
         """
         Generate facts for a function
         """
         if not func:
             return
 
+        # TODO enable cache
+        # self.seen_callsites.add(fact)
+
         libname = os.path.basename(lib["library"])
         seen = set()
 
         for param in func.get("parameters", []):
+            if param.get("class") == "Function":
+                # TODO note that we have another nesting of params here...
+                param_type = "function"
+            else:
+                # Only get top level type (but recurse into pointers)
+                param_type = self.unwrap_immediate_type(param)
+                if not param_type:
+                    continue
+                param_type = param_type.get("class")
 
-            # These values assume no underlying type (defaults)
-            param_name = param["name"]
-            param_type = param["class"]  # param['type'] is compiler specific
+            # We are using the generic class name instead
+            if not param_type or param_type == "Unknown":
+                continue
 
-            # If the param has fields, continue printing until we are done
-            fields = param.get("fields", [])
-
-            # If we have an underlying type, use name, type, from there
-            if "underlying_type" in param:
-                param_name = param["underlying_type"].get("name") or param_name
-
-                # Use these fields (unless they aren't defined)
-                param_type = param["underlying_type"].get("class") or param_type
-
-                # If the param has fields, continue printing until we are done
-                fields = param["underlying_type"].get("fields", []) or fields
+            # Get nested location?
+            # This skips functions that are used as params...
+            location = self.unwrap_location(param)
+            if not location:
+                continue
 
             # Location and direction are always with the original parameter
             self.gen.fact(
                 fn.abi_typelocation(
                     libname,
                     func["name"],
-                    param_name,
                     param_type,
-                    param["location"],
+                    location,
                     param["direction"],
-                    param.get("indirections", "0"),
                 )
             )
-
-            # While we have fields, keep adding them as facts until no more
-            while fields:
-                field = fields.pop(0)
-                self.gen.fact(
-                    # The library, function name, direction and location are the same
-                    fn.abi_typelocation(
-                        libname,
-                        func["name"],
-                        field.get("name", ""),
-                        field.get("class", ""),
-                        param["location"],
-                        param["direction"],
-                        field.get("indirections", "0"),
-                    )
-                )
-                # Fields can have nested fields
-                fields += field.get("fields", [])
 
             # If no identifier, skip the last step
             if not identifier:
@@ -433,10 +535,9 @@ class GeneratorBase:
             # Symbol, Type, Register, Direction, Pointer Indirections
             args = [
                 func["name"],
-                param["class"],
-                param["location"],
+                param_type,
+                location,
                 param["direction"],
-                param.get("indirections", "0"),
             ]
             fact = AspFunction("is_%s" % identifier, args=args)
             if fact not in seen:
