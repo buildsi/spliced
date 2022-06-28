@@ -10,9 +10,13 @@ import sys
 from spliced.logger import logger
 import spliced.utils as utils
 
+# Smeagle TODO:
+# account for flags (volatile, restrict, const, etc.) for pointers "CV qualified"
+# CV qualification is not in the model!
 
 # We want the root
 here = os.path.abspath(os.path.dirname(__file__))
+class_types = ["Struct", "Union", "Array", "Enum", "Class"]
 
 try:
     import clingo
@@ -364,16 +368,12 @@ class GeneratorBase:
             return
         typ = func["type"].lstrip("*")
 
-        # Add pointers to type
-        pointers = ""
-
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
         while len(typ) == 32:
             next_type = self.types.get(typ)
             # we found a pointer!
             if "underlying_type" in next_type:
-                pointers += "*"
                 next_type = next_type["underlying_type"]
             if "type" not in next_type:
                 break
@@ -381,7 +381,7 @@ class GeneratorBase:
 
         if typ == "unknown":
             return
-        return pointers + typ
+        return typ
 
     def unwrap_immediate_type(self, func):
         """
@@ -392,11 +392,9 @@ class GeneratorBase:
             return func
         typ = func["type"]
 
-        # Add pointers to type
-        pointers = ""
-
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
+        next_type = None
         while len(typ) == 32:
             next_type = self.types.get(typ)
 
@@ -405,14 +403,10 @@ class GeneratorBase:
 
             # we found a pointer!
             if "underlying_type" in next_type:
-                pointers += "*"
                 next_type = next_type["underlying_type"]
                 typ = next_type.get("type").lstrip("*")
             else:
                 break
-
-        if next_type:
-            next_type["pointers"] = pointers
         return next_type
 
     def generate_variable(self, lib, var, identifier=None):
@@ -424,13 +418,26 @@ class GeneratorBase:
 
         # Don't represent what we aren't sure about - no unknown types
         typ = self.unwrap_immediate_type(var)
+        libname = os.path.basename(lib["library"])
+
         if not typ:
             return
+
+        self.parse_type(typ, libname, var["name"], variable=True)
+
+        # Don't represent top level classes
+        if typ.get("class") in class_types:
+            return
+
+        size = typ.get("size")
         typ = typ.get("class")
         if not typ or typ == "Unknown" or var.get("name") == "unknown":
             return
 
-        libname = os.path.basename(lib["library"])
+        # Sizes, directions, and offsets
+        if size:
+            size = size * 8
+            typ = f"{typ}{size}"
 
         # abi_typelocation(“libr.so”, “bar”, Import, Integer32, “global”)
         self.gen.fact(
@@ -443,43 +450,111 @@ class GeneratorBase:
         """
         Unwrap the type
         """
-        loc = param.get("location", "")
+        loc = location = param.get("location", "")
 
         # Get underlying type from lookup
         if "type" not in param:
             return loc
         typ = param["type"]
+        offset = param.get("offset")
+        added = False
 
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
         while len(typ) == 32:
             next_type = self.types.get(typ)
 
-            # If it's a struct, union, or class, get the offset of the last field
-            if next_type.get("class") in ["Struct", "Union", "Class"]:
-                fields = next_type.get("fields", []) or next_type.get("parameters", [])
-                if fields:
-                    next_type = fields[-1]
-                    offset = next_type.get("offset")
-                    if offset:
-                        loc = "(%s+%s)" % (loc, offset)
-
             # we found a pointer!
-            elif "underlying_type" in next_type:
-                loc = "(*%s)" % loc
+            if "underlying_type" in next_type:
+                if offset:
+                    loc = "(%s+%s)" % (loc, offset)
+                    added = True
+                else:
+                    loc = "(%s)" % loc
                 next_type = next_type["underlying_type"]
-            elif "location" in next_type:
-                print("LOCATION IN NEXT TYPE")
-                import IPython
 
-                IPython.embed()
-                sys.exit()
-                location = "(%s)"
             if "type" not in next_type:
                 break
             typ = next_type["type"]
 
+        if not added and offset:
+            loc = "(%s+%s)" % (loc, offset)
+
         return loc
+
+    def parse_type(self, param, libname, top_name, variable=False, offset_added=False):
+        """
+        Parse an underlying type fact.
+        """
+        direction = None
+        offset = None
+        if param.get("class") in ["Struct", "Class"]:
+            param_type = param.get("name")
+            for field in param.get("fields", []):
+                self.parse_type(field, libname, top_name, variable=variable)
+            return
+
+        elif param.get("class") == "Function":
+            # TODO note that we have another nesting of params here...
+            param_type = "function"
+        else:
+            # Only get top level type (but recurse into pointers)
+            offset = param.get("offset")
+
+            if param.get("class") == "Void":
+                param_type = param
+            else:
+                param_type = self.unwrap_immediate_type(param)
+
+            if not param_type:
+                return
+
+            if param_type.get("class") in ["Struct", "Class"]:
+                location = self.unwrap_location(param)
+                for field in param_type.get("fields", []):
+                    field["location"] = location
+                    self.parse_type(field, libname, top_name, variable=variable)
+                return
+
+            # Sizes, directions, and offsets
+            direction = param_type.get("direction")
+            size = param_type.get("size")
+            param_type = param_type.get("class")
+            if size and param_type not in class_types + ["var"]:
+                size = size * 8
+                param_type = f"{param_type}{size}"
+
+        # We are using the generic class name instead
+        if not param_type or param_type == "Unknown":
+            return
+
+        # Get nested location?
+        # This skips functions that are used as params...
+        location = self.unwrap_location(param)
+        if variable:
+            location = "var"
+
+        if not location:
+            return
+
+        direction = param.get("direction") or direction
+
+        # volatile: must be imported
+        # const: says cannot read from me (must not be exported)
+        # restrictive: I promise none of the other parameters aliases me
+        if param.get("volatile") == True or param.get("constant") == True:
+            direction = "import"
+
+        # Location and direction are always with the original parameter
+        self.gen.fact(
+            fn.abi_typelocation(
+                libname,
+                top_name,
+                direction.capitalize(),
+                param_type,
+                location,
+            )
+        )
 
     def generate_function(self, lib, func, identifier=None, callsite=False):
         """
@@ -495,36 +570,7 @@ class GeneratorBase:
         seen = set()
 
         for param in func.get("parameters", []):
-            if param.get("class") == "Function":
-                # TODO note that we have another nesting of params here...
-                param_type = "function"
-            else:
-                # Only get top level type (but recurse into pointers)
-                param_type = self.unwrap_immediate_type(param)
-                if not param_type:
-                    continue
-                param_type = param_type.get("class")
-
-            # We are using the generic class name instead
-            if not param_type or param_type == "Unknown":
-                continue
-
-            # Get nested location?
-            # This skips functions that are used as params...
-            location = self.unwrap_location(param)
-            if not location:
-                continue
-
-            # Location and direction are always with the original parameter
-            self.gen.fact(
-                fn.abi_typelocation(
-                    libname,
-                    func["name"],
-                    param_type,
-                    location,
-                    param["direction"],
-                )
-            )
+            self.parse_type(param, libname, func["name"])
 
             # If no identifier, skip the last step
             if not identifier:
@@ -539,10 +585,17 @@ class GeneratorBase:
                 location,
                 param["direction"],
             ]
+
             fact = AspFunction("is_%s" % identifier, args=args)
             if fact not in seen:
                 self.gen.fact(fact)
                 seen.add(fact)
+
+        # Parse the return type
+        return_type = func.get("return")
+        if not return_type:
+            return
+        self.parse_type(return_type, libname, func["name"])
 
 
 class StabilitySolverSetup(GeneratorBase):
