@@ -18,7 +18,8 @@ jobs:
         pip install git+https://github.com/eliben/pyelftools
         pip install git+https://github.com/vsoch/cle
         pip install pytest deepdiff
-         
+        pip install -e .
+
     - name: Run Examples
       run: |
         docker run -t -v $PWD:/code gcc:12.1 bash -c "cd /code && make"
