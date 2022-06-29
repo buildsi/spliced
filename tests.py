@@ -18,8 +18,9 @@ import io
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-if len(sys.argv) > 2:
-    examples_dir = os.path.abspath(sys.argv[2])
+args = [x for x in args if not x.startswith('-')]
+if len(args) >= 2:
+    examples_dir = os.path.abspath(args[-1])
 else:
     examples_dir = os.path.join(here, "examples", "smeagle")
 sys.path.insert(0, here)
