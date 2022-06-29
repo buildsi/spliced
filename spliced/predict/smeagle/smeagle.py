@@ -311,13 +311,13 @@ class FactGenerator(SolverBase):
     Class to orchestrate fact generation (uses FactGeneratorSetup)
     """
 
-    def __init__(self, lib):
+    def __init__(self, lib, out=None, lib_basename=False):
         """
         Create a driver to run a compatibility model test for two libraries.
         """
         # The driver will generate facts rules to generate an ASP program.
-        self.driver = PyclingoDriver(out=sys.stdout)
-        self.setup = FactGeneratorSetup(lib)
+        self.driver = PyclingoDriver(out=out or sys.stdout)
+        self.setup = FactGeneratorSetup(lib, lib_basename=lib_basename)
 
     def solve(self):
         """
@@ -331,6 +331,7 @@ class GeneratorBase:
     The GeneratorBase is the base for any kind of Setup (fact generator or solve)
     Base functions to set up an ABI Stability and Compatability Solver.
     """
+    lib_basename = False
 
     def add_library(self, lib, identifier=None):
         """
@@ -338,6 +339,8 @@ class GeneratorBase:
         """
         lib_name = lib.get("library")
         if lib_name:
+            if self.lib_basename:
+                lib_name = os.path.basename(lib_name)
             self.gen.h2("Library: %s" % lib_name)
 
         # Don't replicate callsites used twice
@@ -568,10 +571,11 @@ class GeneratorBase:
 
         libname = os.path.basename(lib["library"])
         seen = set()
+        param_count = 0
 
         for param in func.get("parameters", []):
             self.parse_type(param, libname, func["name"])
-
+            param_count += 1
             # If no identifier, skip the last step
             if not identifier:
                 continue
@@ -593,7 +597,7 @@ class GeneratorBase:
 
         # Parse the return type
         return_type = func.get("return")
-        if not return_type:
+        if not return_type or (return_type.get("class") == "Void" and param_count != 0):
             return
         self.parse_type(return_type, libname, func["name"])
 
@@ -624,8 +628,11 @@ class FactGeneratorSetup(GeneratorBase):
     Class to accept one library and generate facts.
     """
 
-    def __init__(self, lib):
+    def __init__(self, lib, lib_basename=False):
         self.lib = lib
+        
+        # Use a basename instead of full path (for testing)
+        self.lib_basename = lib_basename
 
     def setup(self, driver):
         """
@@ -698,12 +705,12 @@ class SmeagleRunner:
             sys.exit("Cannot find database entry for %s." % lib)
         return data, lib
 
-    def generate_facts(self, lib=None, data=None):
+    def generate_facts(self, lib=None, data=None, out=None, lib_basename=False):
         """
         Generate facts for one entry.
         """
         data, _ = self.load_data(lib, data)
-        setup = FactGenerator(data)
+        setup = FactGenerator(data, out=out, lib_basename=lib_basename)
         setup.solve()
 
     def get_smeagle_data(self, lib=None, data=None):

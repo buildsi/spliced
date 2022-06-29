@@ -1,0 +1,24 @@
+name: Atoms (ASP) Generation Tests
+on: 
+  pull_request: []
+
+jobs:
+  test-basic:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3        
+      with:
+        submodules: recursive
+    - name: Install Library
+      run: |
+        # archinfo, pyvex, pyelftools, then cle
+        pip install git+https://github.com/angr/archinfo
+        pip install git+https://github.com/angr/pyvex
+        pip install git+https://github.com/eliben/pyelftools
+        pip install git+https://github.com/vsoch/cle
+        pip install pytest deepdiff
+         
+    - name: Run Examples
+      run: |
+        docker run -t -v $PWD:/code gcc:12.1 bash -c "cd /code && make"
+        pytest -xs tests.py
