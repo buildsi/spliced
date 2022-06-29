@@ -67,9 +67,7 @@ def test_examples(tmp_path, name, facts):
     cli = smeagle.SmeagleRunner()
     data = utils.read_json(os.path.join(examples_dir, name, facts))
 
-    # We can accept a path (will run smeagle) or the raw data, so
-    # it is important to provide a kwarg here!
-    # TODO write to output file
+    # Write facts to string to compare to
     out = io.StringIO()
     cli.generate_facts(data=data, out=out, lib_basename=True)
     atoms = out.getvalue()
