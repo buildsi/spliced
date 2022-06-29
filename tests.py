@@ -18,7 +18,7 @@ import io
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-args = [x for x in args if not x.startswith('-')]
+args = [x for x in sys.argv if not x.startswith('-')]
 if len(args) >= 2:
     examples_dir = os.path.abspath(args[-1])
 else:
