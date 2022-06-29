@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-from deepdiff import DeepDiff
+#from deepdiff import DeepDiff
 
 import spliced.utils as utils
 import spliced.predict.smeagle as smeagle
@@ -19,7 +19,7 @@ import io
 here = os.path.abspath(os.path.dirname(__file__))
 
 args = [x for x in sys.argv if not x.startswith('-')]
-if len(args) >= 2:
+if len(args) > 2:
     examples_dir = os.path.abspath(args[-1])
 else:
     examples_dir = os.path.join(here, "examples", "smeagle")
