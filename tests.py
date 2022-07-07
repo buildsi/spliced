@@ -28,8 +28,12 @@ sys.path.insert(0, here)
 # Load all examples
 tests = []
 
+skips = ['Makefile', "README.md", "build.sh"]
+
 # Add remainder
 for name in os.listdir(examples_dir):
+    if name in skips:
+        continue
     if (
         not name.startswith("_")
         and not name.startswith(".")
@@ -65,12 +69,16 @@ def test_examples(tmp_path, name, facts):
 
     # Smeagle runner can run smeagle or print facts
     cli = smeagle.SmeagleRunner()
-    data = utils.read_json(os.path.join(examples_dir, name, facts))
+    facts_file = os.path.join(examples_dir, name, facts)
+    if not os.path.exists(facts_file):
+        return
+    data = utils.read_json(facts_file)
 
     # We can accept a path (will run smeagle) or the raw data, so
     # it is important to provide a kwarg here!
     # TODO write to output file
     out = io.StringIO()
+    print(facts_file)
     cli.generate_facts(data=data, out=out, lib_basename=True)
     atoms = out.getvalue()
     out.close()

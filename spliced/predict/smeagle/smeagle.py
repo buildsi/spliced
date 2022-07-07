@@ -331,6 +331,7 @@ class GeneratorBase:
     The GeneratorBase is the base for any kind of Setup (fact generator or solve)
     Base functions to set up an ABI Stability and Compatability Solver.
     """
+
     lib_basename = False
 
     def add_library(self, lib, identifier=None):
@@ -407,7 +408,9 @@ class GeneratorBase:
             # we found a pointer!
             if "underlying_type" in next_type:
                 next_type = next_type["underlying_type"]
-                typ = next_type.get("type").lstrip("*")
+                if "type" in next_type:
+                    typ = next_type.get("type").lstrip("*")
+                break
             else:
                 break
         return next_type
@@ -540,7 +543,7 @@ class GeneratorBase:
         if not location:
             return
 
-        direction = param.get("direction") or direction
+        direction = param.get("direction") or direction or "import"
 
         # volatile: must be imported
         # const: says cannot read from me (must not be exported)
@@ -630,7 +633,7 @@ class FactGeneratorSetup(GeneratorBase):
 
     def __init__(self, lib, lib_basename=False):
         self.lib = lib
-        
+
         # Use a basename instead of full path (for testing)
         self.lib_basename = lib_basename
 
