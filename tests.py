@@ -74,9 +74,7 @@ def test_examples(tmp_path, name, facts):
         return
     data = utils.read_json(facts_file)
 
-    # We can accept a path (will run smeagle) or the raw data, so
-    # it is important to provide a kwarg here!
-    # TODO write to output file
+    # Write facts to string to compare to
     out = io.StringIO()
     print(facts_file)
     cli.generate_facts(data=data, out=out, lib_basename=True)
