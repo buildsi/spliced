@@ -368,28 +368,36 @@ class GeneratorBase:
         Unwrap the type
         """
         # Get underlying type from lookup
-        if "type" not in func:
-            return
-        typ = func["type"]
+        if "type" not in func and "underlying_type" not in func:
+            return None, {}
+
+        while "underlying_type" in func:
+            func = func["underlying_type"]
 
         # If the typ is already there, return it
-        if isinstance(typ, dict) or len(typ) != 32:
-            return func
+        if "type" not in func:
+            return func, {}
 
-        typ = typ.lstrip('*')
+        typ = func["type"]
+        if isinstance(typ, dict) or len(typ) != 32:
+            return func, {}
+
+        typ = typ.lstrip("*")
 
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
+        classes = set()
         while len(typ) == 32:
             next_type = self.types.get(typ)
+            classes.add(next_type.get("class"))
             # we found a pointer!
-            if "underlying_type" in next_type:
+            while "underlying_type" in next_type:
                 next_type = next_type["underlying_type"]
             if "type" not in next_type:
                 break
             typ = next_type["type"].lstrip("*")
 
-        return next_type
+        return next_type, classes
 
     def unwrap_immediate_type(self, func):
         """
@@ -400,23 +408,10 @@ class GeneratorBase:
             return func
         typ = func["type"]
 
-        # This is better on an actual type not having this length.
-        # I haven't seen one yet, we could better use a regular expression.
-        next_type = None
-        while len(typ) == 32:
-            next_type = self.types.get(typ)
-
-            if not next_type:
-                break
-
-            # we found a pointer!
-            if "underlying_type" in next_type:
-                next_type = next_type["underlying_type"]
-            if "type" in next_type:
-                typ = next_type.get("type").lstrip("*")
-            else:
-                break
-        return next_type
+        if len(typ) == 32:
+            return self.types.get(typ)
+        if "underlying_type" in typ:
+            return self.types.get(typ["underlying_type"].get("type")) or typ
 
     def generate_variable(self, lib, var, identifier=None):
         """
@@ -432,27 +427,9 @@ class GeneratorBase:
         if not typ:
             return
 
-        self.parse_type(typ, libname, var["name"], variable=True)
-
-        # Don't represent top level classes
-        if typ.get("class") in class_types:
-            return
-
-        size = typ.get("size")
-        typ = typ.get("class")
-        if not typ or typ == "Unknown" or var.get("name") == "unknown":
-            return
-
-        # Sizes, directions, and offsets
-        if size:
-            size = size * 8
-            typ = f"{typ}{size}"
-
-        # abi_typelocation(“libr.so”, “bar”, Import, Integer32, “global”)
-        self.gen.fact(
-            fn.abi_typelocation(
-                libname, var["name"], var["direction"], typ, var["location"]
-            )
+        # Array we include the type in the top level
+        self.parse_type(
+            typ, libname, var["name"], variable=True, direction=var.get("direction")
         )
 
     def unwrap_location(self, param):
@@ -474,13 +451,17 @@ class GeneratorBase:
             next_type = self.types.get(typ)
 
             # we found a pointer!
-            if "underlying_type" in next_type:
+            if next_type.get("class") == "Pointer":
                 if offset:
                     loc = "(%s+%s)" % (loc, offset)
                     added = True
                 else:
                     loc = "(%s)" % loc
                 next_type = next_type["underlying_type"]
+
+            elif next_type.get("class") == "TypeDef":
+                while "underlying_type" in next_type:
+                    next_type = next_type["underlying_type"]
 
             if "type" not in next_type:
                 break
@@ -491,12 +472,24 @@ class GeneratorBase:
 
         return loc
 
-    def parse_type(self, param, libname, top_name, variable=False, offset_added=False):
+    def parse_type(
+        self,
+        param,
+        libname,
+        top_name,
+        variable=False,
+        offset_added=False,
+        direction=None,
+    ):
         """
         Parse an underlying type fact.
         """
-        direction = None
         offset = None
+        original = param
+
+        # Structs have types written out
+        if "type" in param and isinstance(param["type"], dict):
+            param = param["type"]
 
         if param.get("class") in ["Struct", "Class"]:
             param_type = param.get("name")
@@ -508,16 +501,19 @@ class GeneratorBase:
             # TODO note that we have another nesting of params here...
             param_type = "function"
         else:
+
             # Only get top level type (but recurse into pointers)
             offset = param.get("offset")
 
             if param.get("class") == "Void":
                 param_type = param
             else:
-                param_type = self.unwrap_type(param)
+                param_type, classes = self.unwrap_type(param)
 
             if not param_type:
                 return
+
+            # TODO need to handle array being parsed here...
 
             if param_type.get("class") in ["Struct", "Class"]:
                 location = self.unwrap_location(param)
@@ -527,18 +523,17 @@ class GeneratorBase:
                 return
 
             # Sizes, directions, and offsets
-            direction = param_type.get("direction")
             size = param_type.get("size")
+            direction = direction or param_type.get("direction")
             param_type = param_type.get("class")
+
             if size and param_type not in class_types + ["var"]:
                 size = size * 8
-                param_type = f"{param_type}{size}"
 
-            # Array with a size gets the param_type as the underying type
-            if param_type == "Array" and size:
-                # This should probably be Integer, but we don't hava a record
-                # If it has to be Integer the class should be added in cle
-                param_type = f"{param_type}[{size}]"
+                # If it's an array and has a size, add
+                if original.get("class") == "Array" and original.get("size"):
+                    size = f"{size}[" + str(original.get("size")) + "]"
+                param_type = f"{param_type}{size}"
 
         # We are using the generic class name instead
         if not param_type or param_type == "Unknown":
