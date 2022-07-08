@@ -370,11 +370,13 @@ class GeneratorBase:
         # Get underlying type from lookup
         if "type" not in func:
             return
-        typ = func["type"].lstrip("*")
+        typ = func["type"]
 
         # If the typ is already there, return it
-        if len(typ) != 32:
+        if isinstance(typ, dict) or len(typ) != 32:
             return func
+
+        typ = typ.lstrip('*')
 
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
