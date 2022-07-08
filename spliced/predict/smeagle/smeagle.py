@@ -372,6 +372,10 @@ class GeneratorBase:
             return
         typ = func["type"].lstrip("*")
 
+        # If the typ is already there, return it
+        if len(typ) != 32:
+            return func
+
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
         while len(typ) == 32:
@@ -383,9 +387,7 @@ class GeneratorBase:
                 break
             typ = next_type["type"].lstrip("*")
 
-        if typ == "unknown":
-            return
-        return typ
+        return next_type
 
     def unwrap_immediate_type(self, func):
         """
@@ -408,9 +410,8 @@ class GeneratorBase:
             # we found a pointer!
             if "underlying_type" in next_type:
                 next_type = next_type["underlying_type"]
-                if "type" in next_type:
-                    typ = next_type.get("type").lstrip("*")
-                break
+            if "type" in next_type:
+                typ = next_type.get("type").lstrip("*")
             else:
                 break
         return next_type
@@ -494,6 +495,7 @@ class GeneratorBase:
         """
         direction = None
         offset = None
+
         if param.get("class") in ["Struct", "Class"]:
             param_type = param.get("name")
             for field in param.get("fields", []):
@@ -510,7 +512,7 @@ class GeneratorBase:
             if param.get("class") == "Void":
                 param_type = param
             else:
-                param_type = self.unwrap_immediate_type(param)
+                param_type = self.unwrap_type(param)
 
             if not param_type:
                 return
@@ -529,6 +531,12 @@ class GeneratorBase:
             if size and param_type not in class_types + ["var"]:
                 size = size * 8
                 param_type = f"{param_type}{size}"
+
+            # Array with a size gets the param_type as the underying type
+            if param_type == "Array" and size:
+                # This should probably be Integer, but we don't hava a record
+                # If it has to be Integer the class should be added in cle
+                param_type = f"{param_type}[{size}]"
 
         # We are using the generic class name instead
         if not param_type or param_type == "Unknown":
@@ -569,6 +577,7 @@ class GeneratorBase:
         if not func:
             return
 
+        # abi_typelocation("lib.so","_Z30function_with_fixed_size_arrayPi","Import","Integer32","(%rdi)").
         # TODO enable cache
         # self.seen_callsites.add(fact)
 
@@ -579,6 +588,7 @@ class GeneratorBase:
         for param in func.get("parameters", []):
             self.parse_type(param, libname, func["name"])
             param_count += 1
+
             # If no identifier, skip the last step
             if not identifier:
                 continue
