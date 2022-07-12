@@ -84,9 +84,12 @@ def test_examples(tmp_path, name, facts):
 
     # Do we have a facts file to validate?
     asp_file = os.path.join(examples_dir, name, "atoms.asp")
+    truth = os.path.join(examples_dir, name, "atoms.truth.asp")
+    if not os.path.exists(truth):
+        truth = asp_file
 
     # Check facts (nodes and relations)
-    if os.path.exists(asp_file):
-        check_facts(atoms, asp_file)
+    if os.path.exists(truth):
+        check_facts(atoms, truth)
     else:
         write_file(atoms, asp_file)
