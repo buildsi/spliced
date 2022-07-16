@@ -408,6 +408,9 @@ class GeneratorBase:
             return func
         typ = func["type"]
 
+        # We already have the underlying type unwrapped (structs)
+        if isinstance(typ, dict):
+            return typ
         if len(typ) == 32:
             return self.types.get(typ)
         if "underlying_type" in typ:
@@ -457,6 +460,7 @@ class GeneratorBase:
                     added = True
                 else:
                     loc = "(%s)" % loc
+                    added = True
                 next_type = next_type["underlying_type"]
 
             elif next_type.get("class") == "TypeDef":
@@ -467,8 +471,8 @@ class GeneratorBase:
                 break
             typ = next_type["type"]
 
-        if not added and offset:
-            loc = "(%s+%s)" % (loc, offset)
+        if not added and offset and "framebase" not in loc:
+            loc = "%s+%s" % (loc, offset)
 
         return loc
 
@@ -492,7 +496,6 @@ class GeneratorBase:
             param = param["type"]
 
         if param.get("class") in ["Struct", "Class"]:
-            param_type = param.get("name")
             for field in param.get("fields", []):
                 self.parse_type(field, libname, top_name, variable=variable)
             return
@@ -542,7 +545,10 @@ class GeneratorBase:
         # Get nested location?
         # This skips functions that are used as params...
         location = self.unwrap_location(param)
-        if variable:
+
+        if variable and original.get("class") == "Pointer":
+            location = "(var)"
+        elif variable:
             location = "var"
 
         if not location:
@@ -574,9 +580,9 @@ class GeneratorBase:
         if not func:
             return
 
-        # abi_typelocation("lib.so","_Z30function_with_fixed_size_arrayPi","Import","Integer32","(%rdi)").
-        # TODO enable cache
-        # self.seen_callsites.add(fact)
+        # We cannot generate an atom for anything without a name
+        if "name" not in func or func["name"] == "unknown":
+            return
 
         libname = os.path.basename(lib["library"])
         seen = set()

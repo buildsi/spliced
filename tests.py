@@ -91,5 +91,4 @@ def test_examples(tmp_path, name, facts):
     # Check facts (nodes and relations)
     if os.path.exists(truth):
         check_facts(atoms, truth)
-    else:
-        write_file(atoms, asp_file)
+    write_file(atoms, asp_file)
