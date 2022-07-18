@@ -392,9 +392,13 @@ class GeneratorBase:
         while len(typ) == 32:
             next_type = self.types.get(typ)
             classes.add(next_type.get("class"))
-            # we found a pointer!
+
+            # we found a pointer or reference
             while "underlying_type" in next_type:
                 next_type = next_type["underlying_type"]
+                if "class" in next_type and next_type["class"]:
+                    classes.add(next_type.get("class"))
+
             if "type" not in next_type:
                 break
             typ = next_type["type"].lstrip("*")
@@ -448,7 +452,6 @@ class GeneratorBase:
             return loc
         typ = param["type"]
         offset = param.get("offset")
-        added = False
 
         # This is better on an actual type not having this length.
         # I haven't seen one yet, we could better use a regular expression.
@@ -456,17 +459,17 @@ class GeneratorBase:
             next_type = self.types.get(typ)
 
             # we found a pointer!
-            if next_type.get("class") == "Pointer":
+            if next_type.get("class") in ["Pointer", "Reference"]:
                 if offset:
                     loc = "(%s+%s)" % (loc, offset)
-                    added = True
                 else:
                     loc = "(%s)" % loc
-                    added = True
                 next_type = next_type["underlying_type"]
 
             elif next_type.get("class") == "TypeDef":
                 while "underlying_type" in next_type:
+                    if next_type.get("class") in ["Pointer", "Reference"]:
+                        loc = "(%s)" % loc
                     next_type = next_type["underlying_type"]
 
             if "type" not in next_type:
@@ -489,7 +492,6 @@ class GeneratorBase:
         """
         offset = None
         original = param
-
 
         # Structs have types written out
         if "type" in param and isinstance(param["type"], dict):
@@ -515,7 +517,7 @@ class GeneratorBase:
 
             if not param_type:
                 return
-            
+
             # TODO need to handle array being parsed here...
             if param_type.get("class") in ["Struct", "Class"]:
                 location = self.unwrap_location(param)
@@ -533,13 +535,13 @@ class GeneratorBase:
                     elif offset:
                         field["location"] += f"+{offset}"
                     if offset:
-                        del field['offset']                    
+                        del field["offset"]
                     self.parse_type(field, libname, top_name, variable=variable)
                 return
 
             # TODO need a location for pointer
             # abi_typelocation("lib.so","_Z11struct_funciP3Foo","Import","Opaque","(%rsi)+16").
-            elif param_type.get('type') == "Recursive":
+            elif param_type.get("type") == "Recursive":
                 direction = direction or "import"
                 self.gen.fact(
                     fn.abi_typelocation(
@@ -547,8 +549,8 @@ class GeneratorBase:
                         top_name,
                         direction.capitalize(),
                         "Opaque",
-                        "(" + param.get('location') + ")",
-                   )
+                        "(" + param.get("location") + ")",
+                    )
                 )
                 return
 
@@ -573,7 +575,7 @@ class GeneratorBase:
         # This skips functions that are used as params...
         location = self.unwrap_location(param)
 
-        if variable and original.get("class") == "Pointer":
+        if variable and original.get("class") in ["Pointer", "Reference"]:
             location = "(var)"
         elif variable:
             location = "var"
@@ -625,7 +627,7 @@ class GeneratorBase:
 
             # This is only needed for the stability model to identify membership
             # of a particular function symbol, etc. with a library set (e.g., a or b)
-            # Symbol, Type, Register, Direction, Pointer Indirections
+            # Symbol, Type, Register, Direction
             args = [
                 func["name"],
                 param_type,
