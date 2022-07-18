@@ -490,6 +490,7 @@ class GeneratorBase:
         offset = None
         original = param
 
+
         # Structs have types written out
         if "type" in param and isinstance(param["type"], dict):
             param = param["type"]
@@ -514,7 +515,7 @@ class GeneratorBase:
 
             if not param_type:
                 return
-
+            
             # TODO need to handle array being parsed here...
             if param_type.get("class") in ["Struct", "Class"]:
                 location = self.unwrap_location(param)
@@ -531,7 +532,24 @@ class GeneratorBase:
 
                     elif offset:
                         field["location"] += f"+{offset}"
+                    if offset:
+                        del field['offset']                    
                     self.parse_type(field, libname, top_name, variable=variable)
+                return
+
+            # TODO need a location for pointer
+            # abi_typelocation("lib.so","_Z11struct_funciP3Foo","Import","Opaque","(%rsi)+16").
+            elif param_type.get('type') == "Recursive":
+                direction = direction or "import"
+                self.gen.fact(
+                    fn.abi_typelocation(
+                        libname,
+                        top_name,
+                        direction.capitalize(),
+                        "Opaque",
+                        "(" + param.get('location') + ")",
+                   )
+                )
                 return
 
             # Sizes, directions, and offsets
