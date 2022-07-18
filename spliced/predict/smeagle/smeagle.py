@@ -478,6 +478,17 @@ class GeneratorBase:
 
         return loc
 
+    def parse_empty_struct(self, libname, top_name, param, variable=False):
+        """
+        Make up a fact for an empty struct
+        """
+        loc = param.get("location")
+        if loc:
+            loc = self.unwrap_location(param)
+        self.gen.fact(
+            fn.abi_typelocation(libname, top_name, "Import", "Empty", loc or "none")
+        )
+
     def parse_type(
         self,
         param,
@@ -498,8 +509,11 @@ class GeneratorBase:
             param = param["type"]
 
         if param.get("class") in ["Struct", "Class"]:
-            for field in param.get("fields", []):
+            fields = param.get("fields", [])
+            for field in fields:
                 self.parse_type(field, libname, top_name, variable=variable)
+            if not fields:
+                self.parse_empty_struct(libname, top_name, original, variable=variable)
             return
 
         elif param.get("class") == "Function":
@@ -521,7 +535,8 @@ class GeneratorBase:
             # TODO need to handle array being parsed here...
             if param_type.get("class") in ["Struct", "Class"]:
                 location = self.unwrap_location(param)
-                for field in param_type.get("fields", []):
+                fields = param_type.get("fields", [])
+                for field in fields:
 
                     offset = field.get("offset")
                     # If the struct needes to be unwrapped again
@@ -537,6 +552,12 @@ class GeneratorBase:
                     if offset:
                         del field["offset"]
                     self.parse_type(field, libname, top_name, variable=variable)
+
+                # Empty structure, etc.
+                if not fields:
+                    self.parse_empty_struct(
+                        libname, top_name, original, variable=variable
+                    )
                 return
 
             # TODO need a location for pointer
