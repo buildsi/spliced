@@ -5,7 +5,9 @@
 
 import os
 import json
+import re
 import sys
+import copy
 
 from spliced.logger import logger
 import spliced.utils as utils
@@ -397,7 +399,7 @@ class GeneratorBase:
                 break
             typ = next_type["type"].lstrip("*")
 
-        return next_type, classes
+        return copy.deepcopy(next_type), classes
 
     def unwrap_immediate_type(self, func):
         """
@@ -471,9 +473,6 @@ class GeneratorBase:
                 break
             typ = next_type["type"]
 
-        if not added and offset and "framebase" not in loc:
-            loc = "%s+%s" % (loc, offset)
-
         return loc
 
     def parse_type(
@@ -517,11 +516,21 @@ class GeneratorBase:
                 return
 
             # TODO need to handle array being parsed here...
-
             if param_type.get("class") in ["Struct", "Class"]:
                 location = self.unwrap_location(param)
                 for field in param_type.get("fields", []):
+
+                    offset = field.get("offset")
+                    # If the struct needes to be unwrapped again
                     field["location"] = location
+
+                    if re.search("[+][0-9]+$", field["location"]) and offset:
+                        loc, value = field["location"].rsplit("+", 1)
+                        value = int(value) + offset
+                        field["location"] = f"{loc}+{value}"
+
+                    elif offset:
+                        field["location"] += f"+{offset}"
                     self.parse_type(field, libname, top_name, variable=variable)
                 return
 
