@@ -369,6 +369,10 @@ class GeneratorBase:
         """
         Unwrap the type
         """
+        # If we are given an array, return early
+        if func.get("class") == "Array":
+            return func, {}
+
         # Get underlying type from lookup
         if "type" not in func and "underlying_type" not in func:
             return None, {}
@@ -378,6 +382,10 @@ class GeneratorBase:
 
         # If the typ is already there, return it
         if "type" not in func:
+            return func, {}
+
+        # Another check for array
+        if func.get("class") == "Array":
             return func, {}
 
         typ = func["type"]
@@ -391,11 +399,19 @@ class GeneratorBase:
         classes = set()
         while len(typ) == 32:
             next_type = self.types.get(typ)
+
+            # Need to break in parsing array
+            if next_type.get("class") == "Array":
+                return copy.deepcopy(next_type), classes
+
             classes.add(next_type.get("class"))
 
             # we found a pointer or reference
             while "underlying_type" in next_type:
                 next_type = next_type["underlying_type"]
+                if next_type.get("class") == "Array":
+                    return copy.deepcopy(next_type), classes
+
                 if "class" in next_type and next_type["class"]:
                     classes.add(next_type.get("class"))
 
@@ -499,7 +515,7 @@ class GeneratorBase:
         direction=None,
     ):
         """
-        Parse an underlying type fact.
+        Top level function to parse an underlying type fact.
         """
         offset = None
         original = param
@@ -517,7 +533,6 @@ class GeneratorBase:
             return
 
         elif param.get("class") == "Function":
-            # TODO note that we have another nesting of params here...
             param_type = "function"
         else:
 
@@ -532,48 +547,31 @@ class GeneratorBase:
             if not param_type:
                 return
 
-            # TODO need to handle array being parsed here...
+            if param_type.get("class") == "Array":
+                return self.parse_array(
+                    param,
+                    param_type,
+                    libname,
+                    top_name,
+                    variable=variable,
+                    direction=direction,
+                )
+
             if param_type.get("class") in ["Struct", "Class"]:
-                location = self.unwrap_location(param)
-                fields = param_type.get("fields", [])
-                for field in fields:
-
-                    offset = field.get("offset")
-                    # If the struct needes to be unwrapped again
-                    field["location"] = location
-
-                    if re.search("[+][0-9]+$", field["location"]) and offset:
-                        loc, value = field["location"].rsplit("+", 1)
-                        value = int(value) + offset
-                        field["location"] = f"{loc}+{value}"
-
-                    elif offset:
-                        field["location"] += f"+{offset}"
-                    if offset:
-                        del field["offset"]
-                    self.parse_type(field, libname, top_name, variable=variable)
-
-                # Empty structure, etc.
-                if not fields:
-                    self.parse_empty_struct(
-                        libname, top_name, original, variable=variable
-                    )
-                return
+                return self.parse_aggregate(
+                    param,
+                    param_type,
+                    original,
+                    libname,
+                    top_name,
+                    variable=variable,
+                    direction=direction,
+                )
 
             # TODO need a location for pointer
             # abi_typelocation("lib.so","_Z11struct_funciP3Foo","Import","Opaque","(%rsi)+16").
             elif param_type.get("type") == "Recursive":
-                direction = direction or "import"
-                self.gen.fact(
-                    fn.abi_typelocation(
-                        libname,
-                        top_name,
-                        direction.capitalize(),
-                        "Opaque",
-                        "(" + param.get("location") + ")",
-                    )
-                )
-                return
+                return self.parse_opaque(param, libname, top_name, direction)
 
             # Sizes, directions, and offsets
             size = param_type.get("size")
@@ -622,6 +620,88 @@ class GeneratorBase:
                 location,
             )
         )
+
+    def parse_opaque(self, param, libname, top_name, direction):
+        """
+        Parse an opaque (recursive) type
+        """
+        direction = direction or "import"
+        self.gen.fact(
+            fn.abi_typelocation(
+                libname,
+                top_name,
+                direction.capitalize(),
+                "Opaque",
+                "(" + param.get("location") + ")",
+            )
+        )
+
+    def parse_array(
+        self, param, param_type, libname, top_name, variable=False, direction=None
+    ):
+        """
+        Parse a struct or a class (and maybe union)
+
+        abi_typelocation("example","_Z3fooiPP7Structy","Import","Array[5]","((%rsi))").
+        """
+        direction = direction or "import"
+        loc = param.get("location")
+        if variable:
+            loc = "var"
+
+        cls = param_type.get("class", "Array")
+        size = param_type.get("size")
+        if size:
+            cls = f"{cls}[{size}]"
+        self.gen.fact(
+            fn.abi_typelocation(libname, top_name, direction.capitalize(), cls, loc)
+        )
+
+        # Pass on the parent array location to underlying type
+        if "underlying_type" in param_type:
+            ut = param_type["underlying_type"]
+            if loc:
+                ut["location"] = "(" + loc + ")"
+            return self.parse_type(
+                ut, libname, top_name, variable=variable, direction=direction
+            )
+
+    def parse_aggregate(
+        self,
+        param,
+        param_type,
+        original,
+        libname,
+        top_name,
+        variable=False,
+        direction=None,
+    ):
+        """
+        Parse a struct or a class (and maybe union)
+        """
+        location = self.unwrap_location(param)
+        fields = param_type.get("fields", [])
+        for field in fields:
+            offset = field.get("offset")
+            # If the struct needes to be unwrapped again
+            field["location"] = location
+
+            if re.search("[+][0-9]+$", field["location"]) and offset:
+                loc, value = field["location"].rsplit("+", 1)
+                value = int(value) + offset
+                field["location"] = f"{loc}+{value}"
+
+            elif offset:
+                field["location"] += f"+{offset}"
+            if offset:
+                del field["offset"]
+            self.parse_type(
+                field, libname, top_name, variable=variable, direction=direction
+            )
+
+        # Empty structure, etc.
+        if not fields:
+            self.parse_empty_struct(libname, top_name, original, variable=variable)
 
     def generate_function(self, lib, func, identifier=None, callsite=False):
         """
