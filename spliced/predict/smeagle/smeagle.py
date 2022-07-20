@@ -505,6 +505,19 @@ class GeneratorBase:
             fn.abi_typelocation(libname, top_name, "Import", "Empty", loc or "none")
         )
 
+    def parse_aggregate_by_value(self, param, libname, top_name, direction):
+        """
+        Parse an aggregate by value.
+
+        When it's by value the parser cle has already provided registers
+        and we don't need to worry about offsets
+        """
+        fields = param.get("fields", [])
+        for field in fields:
+            self.parse_type(field, libname, top_name)
+        if not fields:
+            self.parse_empty_struct(libname, top_name, param)
+
     def parse_type(
         self,
         param,
@@ -525,12 +538,23 @@ class GeneratorBase:
             param = param["type"]
 
         if param.get("class") in ["Struct", "Class"]:
-            fields = param.get("fields", [])
-            for field in fields:
-                self.parse_type(field, libname, top_name, variable=variable)
-            if not fields:
-                self.parse_empty_struct(libname, top_name, original, variable=variable)
-            return
+            if variable:
+
+                # This adds offsets
+                return self.parse_aggregate(
+                    param,
+                    param,
+                    original,
+                    libname,
+                    top_name,
+                    variable=variable,
+                    direction=direction,
+                )
+
+            # Otherwise it's passed by value - no offsets (known registers)
+            return self.parse_aggregate_by_value(
+                param, libname, top_name, direction=direction
+            )
 
         elif param.get("class") == "Function":
             param_type = "function"
@@ -596,9 +620,8 @@ class GeneratorBase:
 
         if variable and original.get("class") in ["Pointer", "Reference"]:
             location = "(var)"
-        elif variable:
+        elif variable and not location:
             location = "var"
-
         if not location:
             return
 
@@ -660,8 +683,10 @@ class GeneratorBase:
         # Pass on the parent array location to underlying type
         if "underlying_type" in param_type:
             ut = param_type["underlying_type"]
-            if loc:
+            if loc and ut.get("class") in ["Pointer", "Reference"]:
                 ut["location"] = "(" + loc + ")"
+            elif loc:
+                ut["location"] = loc
             return self.parse_type(
                 ut, libname, top_name, variable=variable, direction=direction
             )
@@ -680,9 +705,12 @@ class GeneratorBase:
         Parse a struct or a class (and maybe union)
         """
         location = self.unwrap_location(param)
+        if variable:
+            location = "var"
         fields = param_type.get("fields", [])
         for field in fields:
             offset = field.get("offset")
+
             # If the struct needes to be unwrapped again
             field["location"] = location
 
