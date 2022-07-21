@@ -897,7 +897,7 @@ class SmeagleRunner:
         # Get a smeagle corpus (facts.json)
         try:
             ld = cle.Loader(lib, load_debug_info=True, auto_load_libs=False)
-            return {"return_code": 0, "data": ld.corpus}
+            return {"return_code": 0, "data": ld.corpus.to_json()}
         except Exception as exc:
             msg = "Cannot load corpus: %s" % exc
             logger.error(msg)
