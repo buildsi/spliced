@@ -897,11 +897,11 @@ class SmeagleRunner:
         # Get a smeagle corpus (facts.json)
         try:
             ld = cle.Loader(lib, load_debug_info=True, auto_load_libs=False)
-            return {"return_code": 0, "data": ld.corpus.to_json()}
+            return {"return_code": 0, "data": ld.corpus.to_dict(), "message": "success"}
         except Exception as exc:
             msg = "Cannot load corpus: %s" % exc
             logger.error(msg)
-            return {"return_code": -1, "message": msg}
+            return {"return_code": -1, "message": msg, "data": {}}
 
     def stability_test(self, lib1, lib2, detail=False, data1=None, data2=None):
         """
