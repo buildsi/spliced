@@ -8,13 +8,11 @@ import json
 import re
 import sys
 import copy
+import cle
 
 from spliced.logger import logger
 import spliced.utils as utils
 
-# Smeagle TODO:
-# account for flags (volatile, restrict, const, etc.) for pointers "CV qualified"
-# CV qualification is not in the model!
 
 # We want the root
 here = os.path.abspath(os.path.dirname(__file__))
@@ -894,12 +892,13 @@ class SmeagleRunner:
         if not os.path.exists(lib):
             logger.exit("Library %s does not exist!" % lib)
 
-        # Entrypoint is to Smeagle executable
-        cmd = ["singularity", "run", self.container, "-l", lib]
-        res = utils.run_command(cmd)
-        if res["return_code"] != 0:
-            logger.warning("Non-zero exit code for Smeagle %s" % res["message"])
-        return res
+        # Get a smeagle corpus (facts.json)
+        try:
+            ld = cle.Loader(lib, load_debug_info=True, auto_load_libs=False)
+            return ld.corpus
+        except Exception as exc:
+            logger.info("Cannot load corpus: %s" % exc)
+            pass
 
     def stability_test(self, lib1, lib2, detail=False, data1=None, data2=None):
         """
