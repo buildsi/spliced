@@ -882,6 +882,8 @@ class SmeagleRunner:
         Generate facts for one entry.
         """
         data, _ = self.load_data(lib, data)
+        if "data" in data:
+            data = data["data"]
         setup = FactGenerator(data, out=out, lib_basename=lib_basename)
         setup.solve()
 
@@ -895,10 +897,11 @@ class SmeagleRunner:
         # Get a smeagle corpus (facts.json)
         try:
             ld = cle.Loader(lib, load_debug_info=True, auto_load_libs=False)
-            return ld.corpus
+            return {"return_code": 0, "data": ld.corpus}
         except Exception as exc:
-            logger.info("Cannot load corpus: %s" % exc)
-            pass
+            msg = "Cannot load corpus: %s" % exc
+            logger.error(msg)
+            return {"return_code": -1, "message": msg}
 
     def stability_test(self, lib1, lib2, detail=False, data1=None, data2=None):
         """
@@ -956,15 +959,9 @@ class SmeagleRunner:
             return res
 
         # Success case gets here
-        try:
-            original_data = json.loads(lib1_res["message"])
-            splice_data = json.loads(lib2_res["message"])
-        except:
-            res["message"] = "One of the Smeagle results was not json load-able."
-            return res
-
         # Setup and run the stability solver
-        setup = StabilitySolver(original_data, splice_data)
+        # lib1 is original, lib2 is splice
+        setup = StabilitySolver(lib1_res["data"], lib2_res["data"])
         result = setup.solve(logic_programs=self.stability_lp)
 
         # Assuming anything missing is failure
