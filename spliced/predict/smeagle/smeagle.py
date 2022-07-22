@@ -337,6 +337,10 @@ class GeneratorBase:
     def add_library(self, lib, identifier=None):
         """
         Given a loaded Smeagle Model, generate facts for it.
+
+        If an identifier is given we are doing a comparison / diff between two
+        libraries, and this is akin to a namespace, usually A and B.
+        Otherwise we just output facts without one.
         """
         lib_name = lib.get("library")
         if lib_name:
@@ -452,7 +456,12 @@ class GeneratorBase:
 
         # Array we include the type in the top level
         self.parse_type(
-            typ, libname, var["name"], variable=True, direction=var.get("direction")
+            typ,
+            libname,
+            var["name"],
+            variable=True,
+            direction=var.get("direction"),
+            identifier=identifier,
         )
 
     def unwrap_location(self, param):
@@ -492,18 +501,22 @@ class GeneratorBase:
 
         return loc
 
-    def parse_empty_struct(self, libname, top_name, param, variable=False):
+    def parse_empty_struct(
+        self, libname, top_name, param, variable=False, identifier=None
+    ):
         """
         Make up a fact for an empty struct
         """
         loc = param.get("location")
         if loc:
             loc = self.unwrap_location(param)
-        self.gen.fact(
-            fn.abi_typelocation(libname, top_name, "Import", "Empty", loc or "none")
+        self.add_location(
+            libname, top_name, "Import", "Empty", loc or "none", identifer
         )
 
-    def parse_aggregate_by_value(self, param, libname, top_name, direction):
+    def parse_aggregate_by_value(
+        self, param, libname, top_name, direction, identifier=None
+    ):
         """
         Parse an aggregate by value.
 
@@ -512,9 +525,9 @@ class GeneratorBase:
         """
         fields = param.get("fields", [])
         for field in fields:
-            self.parse_type(field, libname, top_name)
+            self.parse_type(field, libname, top_name, identifier=identifier)
         if not fields:
-            self.parse_empty_struct(libname, top_name, param)
+            self.parse_empty_struct(libname, top_name, param, identifier=identifier)
 
     def parse_type(
         self,
@@ -524,6 +537,7 @@ class GeneratorBase:
         variable=False,
         offset_added=False,
         direction=None,
+        identifier=None,
     ):
         """
         Top level function to parse an underlying type fact.
@@ -547,11 +561,12 @@ class GeneratorBase:
                     top_name,
                     variable=variable,
                     direction=direction,
+                    identifier=identifier,
                 )
 
             # Otherwise it's passed by value - no offsets (known registers)
             return self.parse_aggregate_by_value(
-                param, libname, top_name, direction=direction
+                param, libname, top_name, direction=direction, identifier=identifier
             )
 
         elif param.get("class") == "Function":
@@ -577,6 +592,7 @@ class GeneratorBase:
                     top_name,
                     variable=variable,
                     direction=direction,
+                    identifier=identifier,
                 )
 
             if param_type.get("class") in ["Struct", "Class"]:
@@ -588,12 +604,15 @@ class GeneratorBase:
                     top_name,
                     variable=variable,
                     direction=direction,
+                    identifier=identifier,
                 )
 
             # TODO need a location for pointer
             # abi_typelocation("lib.so","_Z11struct_funciP3Foo","Import","Opaque","(%rsi)+16").
             elif param_type.get("type") == "Recursive":
-                return self.parse_opaque(param, libname, top_name, direction)
+                return self.parse_opaque(
+                    param, libname, top_name, direction, identifier=identifier
+                )
 
             # Sizes, directions, and offsets
             size = param_type.get("size")
@@ -632,33 +651,60 @@ class GeneratorBase:
             direction = "import"
 
         # Location and direction are always with the original parameter
+        self.add_location(libname, top_name, direction, param_type, location, identifer)
+
+    def add_location(
+        self, libname, func, direction, param_type, location, identifier=None
+    ):
+        """
+        Convenience function to print a location, ensuring to add identifier if defined
+        """
+        if identifier:
+            self.gen.fact(
+                fn.abi_typelocation(
+                    identifier,
+                    libname,
+                    func,
+                    direction.capitalize(),
+                    param_type,
+                    location,
+                )
+            )
+            return
+
         self.gen.fact(
             fn.abi_typelocation(
                 libname,
-                top_name,
+                func,
                 direction.capitalize(),
                 param_type,
                 location,
             )
         )
 
-    def parse_opaque(self, param, libname, top_name, direction):
+    def parse_opaque(self, param, libname, top_name, direction, identifier=None):
         """
         Parse an opaque (recursive) type
         """
         direction = direction or "import"
-        self.gen.fact(
-            fn.abi_typelocation(
-                libname,
-                top_name,
-                direction.capitalize(),
-                "Opaque",
-                "(" + param.get("location") + ")",
-            )
+        self.add_location(
+            libname,
+            top_name,
+            direction,
+            "Opaque",
+            "(" + param.get("location") + ")",
+            identifer,
         )
 
     def parse_array(
-        self, param, param_type, libname, top_name, variable=False, direction=None
+        self,
+        param,
+        param_type,
+        libname,
+        top_name,
+        variable=False,
+        direction=None,
+        identifier=None,
     ):
         """
         Parse a struct or a class (and maybe union)
@@ -674,9 +720,8 @@ class GeneratorBase:
         size = param_type.get("size")
         if size:
             cls = f"{cls}[{size}]"
-        self.gen.fact(
-            fn.abi_typelocation(libname, top_name, direction.capitalize(), cls, loc)
-        )
+
+        self.add_location(libname, top_name, direction, cls, loc, identifer)
 
         # Pass on the parent array location to underlying type
         if "underlying_type" in param_type:
@@ -686,7 +731,12 @@ class GeneratorBase:
             elif loc:
                 ut["location"] = loc
             return self.parse_type(
-                ut, libname, top_name, variable=variable, direction=direction
+                ut,
+                libname,
+                top_name,
+                variable=variable,
+                direction=direction,
+                identifier=identifier,
             )
 
     def parse_aggregate(
@@ -698,6 +748,7 @@ class GeneratorBase:
         top_name,
         variable=False,
         direction=None,
+        identifier=None,
     ):
         """
         Parse a struct or a class (and maybe union)
@@ -722,7 +773,12 @@ class GeneratorBase:
             if offset:
                 del field["offset"]
             self.parse_type(
-                field, libname, top_name, variable=variable, direction=direction
+                field,
+                libname,
+                top_name,
+                variable=variable,
+                direction=direction,
+                identifier=identifier,
             )
 
         # Empty structure, etc.
@@ -745,33 +801,14 @@ class GeneratorBase:
         param_count = 0
 
         for param in func.get("parameters", []):
-            self.parse_type(param, libname, func["name"])
+            self.parse_type(param, libname, func["name"], identifier=identifier)
             param_count += 1
-
-            # If no identifier, skip the last step
-            if not identifier:
-                continue
-
-            # This is only needed for the stability model to identify membership
-            # of a particular function symbol, etc. with a library set (e.g., a or b)
-            # Symbol, Type, Register, Direction
-            args = [
-                func["name"],
-                param_type,
-                location,
-                param["direction"],
-            ]
-
-            fact = AspFunction("is_%s" % identifier, args=args)
-            if fact not in seen:
-                self.gen.fact(fact)
-                seen.add(fact)
 
         # Parse the return type
         return_type = func.get("return")
         if not return_type or (return_type.get("class") == "Void" and param_count != 0):
             return
-        self.parse_type(return_type, libname, func["name"])
+        self.parse_type(return_type, libname, func["name"], identifier=identifier)
 
 
 class StabilitySolverSetup(GeneratorBase):
