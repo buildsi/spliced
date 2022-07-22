@@ -511,7 +511,7 @@ class GeneratorBase:
         if loc:
             loc = self.unwrap_location(param)
         self.add_location(
-            libname, top_name, "Import", "Empty", loc or "none", identifer
+            libname, top_name, "Import", "Empty", loc or "none", identifier
         )
 
     def parse_aggregate_by_value(
@@ -651,7 +651,7 @@ class GeneratorBase:
             direction = "import"
 
         # Location and direction are always with the original parameter
-        self.add_location(libname, top_name, direction, param_type, location, identifer)
+        self.add_location(libname, top_name, direction, param_type, location, identifier)
 
     def add_location(
         self, libname, func, direction, param_type, location, identifier=None
@@ -693,7 +693,7 @@ class GeneratorBase:
             direction,
             "Opaque",
             "(" + param.get("location") + ")",
-            identifer,
+            identifier,
         )
 
     def parse_array(
