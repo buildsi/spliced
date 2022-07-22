@@ -721,7 +721,7 @@ class GeneratorBase:
         if size:
             cls = f"{cls}[{size}]"
 
-        self.add_location(libname, top_name, direction, cls, loc, identifer)
+        self.add_location(libname, top_name, direction, cls, loc, identifier)
 
         # Pass on the parent array location to underlying type
         if "underlying_type" in param_type:
