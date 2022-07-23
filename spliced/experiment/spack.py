@@ -74,7 +74,6 @@ class SpackExperiment(Experiment):
             self.mock_splice(self.splice, self.replace, spec_main)
 
         elif self.splice != self.replace:
-            self.splice.different_libs = True
             for version in spec_spliced.package.versions:
                 if not version:
                     continue
@@ -101,7 +100,8 @@ class SpackExperiment(Experiment):
         A mock splice is not possible with spack (it usually means replacing one
         dependency with another that isn't an actual dependency) but we can still
         install the needed specs and then add their libs / binaries for other
-        predictors.
+        predictors. A "mock" of different libs means different_libs is set to True
+        on the splice.
         """
         print("Preparing mock splice for %s -> %s" % (replace_name, splice_name))
 
@@ -111,7 +111,10 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-splice-concretization-failed", success=False, splice=splice_name
+                "mock-splice-concretization-failed",
+                success=False,
+                splice=splice_name,
+                different_libs=True,
             )
             return
 
@@ -121,7 +124,10 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-splice-install-failed", success=False, splice=splice_name
+                "mock-splice-install-failed",
+                success=False,
+                splice=splice_name,
+                different_libs=True,
             )
             return
 
@@ -131,7 +137,10 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-replace-concretization-failed", success=False, splice=replace_name
+                "mock-replace-concretization-failed",
+                success=False,
+                splice=replace_name,
+                different_libs=True,
             )
             return
 
@@ -141,13 +150,16 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-replace-install-failed", success=False, splice=replace_name
+                "mock-replace-install-failed",
+                success=False,
+                splice=replace_name,
+                different_libs=True,
             )
             return
 
         # If we get here, we can add binaries for the main thing, and all libs from te splice and replace
         splice = self.add_splice(
-            "mock-splice-success", success=True, splice=splice_name
+            "mock-splice-success", success=True, splice=splice_name, different_libs=True
         )
         self._populate_splice(splice, spec_main, replace)
 

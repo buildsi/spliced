@@ -30,6 +30,7 @@ class Splice:
         replace=None,
         result=None,
         success=False,
+        different_libs=False,
     ):
 
         # Keep track of original and spliced paths
@@ -51,7 +52,7 @@ class Splice:
         self.id = None
 
         # Are we splicing different libs?
-        self.different_libs = False
+        self.different_libs = different_libs
 
     def add_identifier(self, identifier):
         """
@@ -173,7 +174,9 @@ class Experiment:
     def validate(self):
         jsonschema.validate(instance=self.config, schema=spliced.schemas.spliced_schema)
 
-    def add_splice(self, result, success=False, splice=None, command=None):
+    def add_splice(
+        self, result, success=False, splice=None, command=None, different_libs=False
+    ):
         """
         Add a splice to the experiment
 
@@ -191,6 +194,7 @@ class Experiment:
             success=success,
             experiment=self.name,
             replace=self.replace,
+            different_libs=different_libs,
         )
         self.splices.append(new_splice)
 
