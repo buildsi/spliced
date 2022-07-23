@@ -7,7 +7,9 @@ from spliced.predict.base import Prediction
 from .smeagle import SmeagleRunner
 from spliced.logger import logger
 import spliced.utils as utils
+import tempfile
 
+import re
 import os
 import shutil
 
@@ -35,8 +37,10 @@ class SmeaglePrediction(Prediction):
 
         # If we have defined a cache, use it
         self.cache_dir = os.environ.get(
-            "SPLICED_SMEAGLE_CACHE_DIR", "/tmp/smeagle-cache"
+            "SPLICED_SMEAGLE_CACHE_DIR",
+            os.path.join(tempfile.gettempdir(), "smeagle-cache"),
         )
+        logger.info("Smeagle cache directory is %s" % self.cache_dir)
 
         # default do not cleanup cache
         cleanup = False
@@ -101,6 +105,11 @@ class SmeaglePrediction(Prediction):
         for symbol, meta in splice.metadata[lib]["found"].items():
             dep = meta["lib"]["realpath"]
 
+            # If the dep is a system lib, for the time being we cannot include
+            # The reason is because no Dwarf == no symbols == no go.
+            if re.search("^(/usr|/lib)", dep):
+                continue
+
             # Look for dependency in facts cache
             cache_key = self.generate_cle_data(dep)
 
@@ -123,10 +132,15 @@ class SmeaglePrediction(Prediction):
         B_set = list(deps.keys())
         deps[facts_path] = symbols
 
+        # Write to output so we can have examples
+        output_asp = facts_path.replace(".json", ".asp")
+        out = open(output_asp, "w")
+
         # Stability test compares A (the main library) against all deps, B
         splice.predictions["smeagle"].append(
-            self.smeagle.stability_set_test(facts_path, B_set, deps)
+            self.smeagle.compatible_test(facts_path, B_set, deps, out=out)
         )
+        out.close()
 
     def generate_cle_data(self, lib):
         """

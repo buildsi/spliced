@@ -45,12 +45,12 @@ class StabilitySolver(SolverBase):
     Class to orchestrate a Stability Solver.
     """
 
-    def __init__(self, lib1, lib2):
+    def __init__(self, lib1, lib2, out=None):
         """
         Create a driver to run a compatibility model test for two libraries.
         """
         # The driver will generate facts rules to generate an ASP program.
-        self.driver = PyclingoDriver()
+        self.driver = PyclingoDriver(out=out)
         self.setup = StabilitySolverSetup(lib1, lib2)
 
     def solve(self, logic_programs, detail=True):
@@ -76,12 +76,12 @@ class StabilitySetSolver(StabilitySolver):
     Class to orchestrate a Stability Set Solver.
     """
 
-    def __init__(self, libA, libsB, lookup):
+    def __init__(self, libA, libsB, lookup, out=None):
         """
         Create a driver to run a compatibility model test for two libraries.
         """
         # The driver will generate facts rules to generate an ASP program.
-        self.driver = PyclingoDriver()
+        self.driver = PyclingoDriver(out=out)
         self.setup = StabilitySetSolverSetup(libA, libsB, lookup)
 
 
@@ -136,7 +136,9 @@ class GeneratorBase:
         for loc in lib.get("locations", []):
             if "variables" in loc:
                 for var in loc["variables"]:
-                    self.generate_variable(lib, var, symbols=symbols)
+                    self.generate_variable(
+                        lib, var, symbols=symbols, identifier=identifier
+                    )
 
             elif "function" in loc:
                 self.generate_function(

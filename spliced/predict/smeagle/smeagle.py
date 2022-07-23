@@ -19,6 +19,7 @@ class SmeagleRunner:
         """
         Load in Smeagle output files, write to database, and run solver.
         """
+        self.compatible_lp = os.path.join(here, "lp", "compatible.lp")
         self.stability_lp = os.path.join(here, "lp", "stability.lp")
         self.records = []
 
@@ -70,29 +71,29 @@ class SmeagleRunner:
             logger.error(msg)
             return {"return_code": -1, "message": msg, "data": {}}
 
-    def stability_set_test(self, lib, lib_set, lookup, detail=False):
+    def compatible_test(self, lib, lib_set, lookup, detail=False, out=None):
         """
         A set test scopes a library A (lib) to be compared against its space of
         dependencies (lib_set). To properly scope the output list of facts,
         we take a lookup that has key (the library facts json to load) and value
         as the set of symbols to include in the model
         """
-        if not os.path.exists(self.stability_lp):
-            logger.exit("Logic program %s does not exist!" % self.stability_lp)
+        if not os.path.exists(self.compatible_lp):
+            logger.exit("Logic program %s does not exist!" % self.compatible_lp)
 
         # This function assumes that the data files exist (provided in lookup)
         # We have to incrementally add the lib as A, and then all data as B,
         # each scoped to the set of symbols we know are used or provided
 
-        setup = StabilitySetSolver(lib, lib_set, lookup)
-        result = setup.solve(logic_programs=self.stability_lp)
+        setup = StabilitySetSolver(lib, lib_set, lookup, out=out)
+        result = setup.solve(logic_programs=self.compatible_lp)
 
         # Assuming anything missing is failure
         res = {"A": lib, "B": lib_set, "prediction": False}
 
         # Keep a subset of data (missing stuff) for the result
         missing = {}
-        for key in ["missing_imports", "missing_exports", "changed_callsites"]:
+        for key in ["not_compatible"]:
             if key in result:
                 res["prediction"] = False
                 missing[key] = result[key]
@@ -102,7 +103,9 @@ class SmeagleRunner:
             res["message"] = missing
         return res
 
-    def stability_test(self, lib1, lib2, detail=False, data1=None, data2=None):
+    def stability_test(
+        self, lib1, lib2, detail=False, data1=None, data2=None, out=None
+    ):
         """
         Run the stability test for two entries.
         """
@@ -160,7 +163,7 @@ class SmeagleRunner:
         # Success case gets here
         # Setup and run the stability solver
         # lib1 is original, lib2 is splice
-        setup = StabilitySolver(lib1_res["data"], lib2_res["data"])
+        setup = StabilitySolver(lib1_res["data"], lib2_res["data"], out=out)
         result = setup.solve(logic_programs=self.stability_lp)
 
         # Assuming anything missing is failure

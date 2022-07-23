@@ -70,8 +70,8 @@ class Splice:
         Return the result as a dictionary
         """
         return {
-            "original": self.original,
-            "spliced": self.spliced,
+            "original": list(self.original),
+            "spliced": list(self.spliced),
             "predictions": self.predictions,
             "stats": self.stats,
             "experiment": self.experiment,

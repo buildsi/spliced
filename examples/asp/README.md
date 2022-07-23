@@ -57,6 +57,7 @@ abi_typelocation("libtest.so","_Z7bigcallllllln","f","Integer","framebase+8","im
 
 ## Simulating a Solve
 
+### Stability Test
 If you want to simulate a stability test, first run the script, providing two libs as "A" (original)
 and "B" (comparison). Here are examples (both ways) with our math library:
 
@@ -114,3 +115,17 @@ Calls        : 1
 Time         : 0.003s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
 CPU Time     : 0.003s
 ```
+
+### Compatible Test
+
+This is the test that smeagle is doing for our experiment, since we are loading
+all symbols within a space for a library A and dependencies (B) (to the scoped set we
+can find).
+
+
+```bash
+$ docker run -v $PWD:/data --rm -it ghcr.io/autamus/clingo bash
+$ cd /data
+$ clingo --out-ifs=\\n ccache-swig.asp compatible.lp 
+```
+
