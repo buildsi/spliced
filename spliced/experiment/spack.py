@@ -15,8 +15,11 @@ from elfcall.main import BinaryInterface
 
 try:
     import spack.binary_distribution as bindist
+    import spack.user_environment as uenv
+    import spack.util.environment
     import spack.rewiring
     import spack.bootstrap
+    import spack.store
     from spack.spec import Spec
 except Exception as e:
     sys.exit("This needs to be run from spack python, also: %s" % e)
@@ -224,6 +227,23 @@ class SpackExperiment(Experiment):
             paths.add(contender)
         return paths
 
+    def get_spack_ld_library_paths(self, original):
+        """
+        Get all of spack's changes to the LD_LIBRARY_PATH for elfcall
+        """
+        loads = set()
+        # Get all deps to add to path
+        env_mod = spack.util.environment.EnvironmentModifications()
+        for depspec in original.traverse(root=True, order="post"):
+            env_mod.extend(uenv.environment_modifications_for_spec(depspec))
+            env_mod.prepend_path(uenv.spack_loaded_hashes_var, depspec.dag_hash())
+
+        # Look for appends to LD_LIBRARY_PATH
+        for env in env_mod.env_modifications:
+            if env.name == "LD_LIBRARY_PATH":
+                loads.add(env.value)
+        return loads
+
     def _populate_splice(self, splice, spliced_spec, original):
         """
         Prepare each splice to also include binaries and libs involved.
@@ -259,26 +279,55 @@ class SpackExperiment(Experiment):
 
         # Populate metadata with elfcall output for each library or binary
         libs = set().union(splice.original).union(splice.spliced)
-        for lib in libs:
-            bi = BinaryInterface(lib)
 
-            # We don't want to include non-ELF files (and possible limitation - we cannot parse Non ELF)
-            try:
-                splice.metadata[lib] = bi.gen_output(
-                    lib, secure=False, no_default_libs=False
-                )
-            except:
-                logger.warning(
-                    "Cannot parse binary or library %s, not including in analysis."
-                    % lib
-                )
-                if lib in splice.original:
-                    splice.original.remove(lib)
-                if lib in splice.spliced:
-                    splice.spliced.remove(lib)
+        # IMPORTANT we must emulate "spack load" in order for libs to be found...
+        loads = {}
+        with spack.store.db.read_transaction():
+            loads["original"] = self.get_spack_ld_library_paths(original)
+            loads["spliced"] = self.get_spack_ld_library_paths(spliced_spec)
+
+        # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
+        for lib in splice.original:
+            res = self.run_elfcall(lib, ld_library_paths=loads["original"])
+            if not res:
+                # If we fail to parse it, cannot be in analysis
+                splice.original.remove(lib)
+                continue
+            splice.metadata[lib] = res
+
+        for lib in splice.spliced:
+
+            # Some shared dependency, don't need to parse twice!
+            if lib in splice.metadata:
+                continue
+            res = self.run_elfcall(lib, ld_library_paths=loads["spliced"])
+            if not res:
+                splice.spliced.remove(lib)
+                continue
+            splice.metadata[lib] = res
 
         # Add the dag hash as the identifier
         splice.add_identifier("/" + spliced_spec.dag_hash()[0:6])
+
+    def run_elfcall(self, lib, ld_library_paths=None):
+        """
+        A wrapper to run elfcall and ensure we add LD_LIBRARY_PATH additions
+        (usually from spack)
+        """
+        bi = BinaryInterface(lib)
+
+        # We don't want to include non-ELF files (and possible limitation - we cannot parse Non ELF)
+        try:
+            return bi.gen_output(
+                lib,
+                secure=False,
+                no_default_libs=False,
+                ld_library_paths=ld_library_paths,
+            )
+        except:
+            logger.warning(
+                "Cannot parse binary or library %s, not including in analysis." % lib
+            )
 
 
 def get_linked_deps(spec):
