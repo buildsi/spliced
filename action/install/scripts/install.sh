@@ -15,6 +15,17 @@ fi
 
 python -m pip install --upgrade pip setuptools wheel
 
+# These are required deps for cle
+git clone https://github.com/vsoch/cle /tmp/cle
+cd /tmp/cle
+
+# archinfo, pyvex, pyelftools, then cle
+python -m pip install git+https://github.com/angr/archinfo
+python -m pip install git+https://github.com/angr/pyvex
+python -m pip install git+https://github.com/eliben/pyelftools
+python -m pip install .
+cd ../
+
 # Case 1: no branch or release, install from pip
 if [ -z "${INPUT_BRANCH}" ] && [ -z "${INPUT_RELEASE}" ]; then
     printf "Installing latest from pypi\n"

@@ -5,7 +5,6 @@
 
 import os
 import sys
-import cle
 
 from .solver import FactGenerator, StabilitySetSolver, StabilitySolver
 
@@ -61,6 +60,11 @@ class SmeagleRunner:
         """
         if not os.path.exists(lib):
             logger.exit("Library %s does not exist!" % lib)
+
+        try:
+            import cle
+        except ImportError:
+            logger.exit("cle is required to run the smeagle predictor.")
 
         # Get a smeagle corpus (facts.json)
         try:
