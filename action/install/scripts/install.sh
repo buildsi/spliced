@@ -16,8 +16,8 @@ fi
 python -m pip install --upgrade pip setuptools wheel
 
 # These are required deps for cle
-git clone https://github.com/vsoch/cle cle
-cd cle
+git clone https://github.com/vsoch/cle /tmp/clee
+cd clee
 
 # archinfo, pyvex, pyelftools, then cle
 python -m pip install git+https://github.com/angr/archinfo
