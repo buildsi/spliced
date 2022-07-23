@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spliced.predict.base &mdash; Spliced 0.0.15 documentation</title>
+  <title>spliced.predict.base &mdash; Spliced 0.0.16 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx-argparse.css" type="text/css" />
@@ -15,6 +15,7 @@
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -29,7 +30,7 @@
             <a href="../../../index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -82,9 +83,7 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
-<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
 
-<span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 
@@ -97,39 +96,53 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="c1"># Elfcall metadata functions</span>
+    <span class="c1"># We assume now that most experiment runners (and predictors) could use this</span>
+    <span class="c1"># If we derive another means, this can be generalized</span>
+<div class="viewcode-block" id="Prediction.find_elfcall_deps_for"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.predict.base.Prediction.find_elfcall_deps_for">[docs]</a>    <span class="k">def</span> <span class="nf">find_elfcall_deps_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a library (that is assumed to be in metadata, from elfcall)</span>
+<span class="sd">        find libraries that the linker is assumed to hit and find symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">deps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">symbols</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">symbols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s2">&quot;lib&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">deps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">][</span><span class="s2">&quot;realpath&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">deps</span></div>
+
+<div class="viewcode-block" id="Prediction.create_elfcall_deps_lookup"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.predict.base.Prediction.create_elfcall_deps_lookup">[docs]</a>    <span class="k">def</span> <span class="nf">create_elfcall_deps_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">libs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is subbing in a library with a version of itself, and requires binaries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">deps</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">libs</span><span class="p">:</span>
+            <span class="n">deps</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">lib</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;lib&quot;</span><span class="p">:</span> <span class="n">lib</span><span class="p">,</span>
+                <span class="s2">&quot;deps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_elfcall_deps_for</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">return</span> <span class="n">deps</span></div></div>
 
 
-<div class="viewcode-block" id="Actual"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.predict.base.Actual">[docs]</a><span class="k">class</span> <span class="nc">Actual</span><span class="p">(</span><span class="n">Prediction</span><span class="p">):</span>
+<div class="viewcode-block" id="match_by_prefix"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.predict.base.match_by_prefix">[docs]</a><span class="k">def</span> <span class="nf">match_by_prefix</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">spliced_meta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Given a splice result with a command, get an actual result.</span>
+<span class="sd">    Given an iterable of two things, match based on library prefix. E.g.,</span>
+<span class="sd">    basename -&gt; split at . -&gt; match first piece</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="Actual.predict"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.predict.base.Actual.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">splice</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="c1"># Check each binary to match the command</span>
-        <span class="n">executable</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">splice</span><span class="o">.</span><span class="n">command</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Binaries will have &quot;original&quot; and then &quot;spliced&quot;</span>
-        <span class="k">for</span> <span class="n">binary_type</span><span class="p">,</span> <span class="n">binaries</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">binaries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">binary</span> <span class="ow">in</span> <span class="n">binaries</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">binary</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">executable</span><span class="p">):</span>
-                    <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">binary</span><span class="p">),</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span>
-                        <span class="n">splice</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">res</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-                    <span class="n">res</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span>
-                    <span class="n">res</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmd</span>
-                    <span class="n">res</span><span class="p">[</span><span class="s2">&quot;binary&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">binary</span>
-                    <span class="n">res</span><span class="p">[</span><span class="s2">&quot;binary_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">binary_type</span>
-                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-
-        <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;actual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span></div></div>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">binary_dep</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">spliced_dep</span> <span class="ow">in</span> <span class="n">spliced_meta</span><span class="p">:</span>
+            <span class="c1"># No use to compare exact same libs</span>
+            <span class="k">if</span> <span class="n">spliced_dep</span> <span class="o">==</span> <span class="n">binary_dep</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">spliced_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spliced_dep</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dep_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">binary_dep</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">spliced_prefix</span> <span class="o">==</span> <span class="n">dep_prefix</span><span class="p">:</span>
+                <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="n">binary_dep</span><span class="p">,</span> <span class="s2">&quot;spliced&quot;</span><span class="p">:</span> <span class="n">spliced_dep</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">matches</span></div>
 </pre></div>
 
            </div>

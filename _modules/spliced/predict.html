@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spliced.predict &mdash; Spliced 0.0.15 documentation</title>
+  <title>spliced.predict &mdash; Spliced 0.0.16 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/sphinx-argparse.css" type="text/css" />
@@ -15,6 +15,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -29,7 +30,7 @@
             <a href="../../index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -76,10 +77,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for spliced.predict</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span><span class="p">,</span> <span class="n">Actual</span>
+<span></span><span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span>
 <span class="kn">from</span> <span class="nn">.symbolator</span> <span class="kn">import</span> <span class="n">SymbolatorPrediction</span>
 <span class="kn">from</span> <span class="nn">.libabigail</span> <span class="kn">import</span> <span class="n">LibabigailPrediction</span>
 <span class="kn">from</span> <span class="nn">.spack</span> <span class="kn">import</span> <span class="n">SpackTest</span>
+<span class="kn">from</span> <span class="nn">.smeagle</span> <span class="kn">import</span> <span class="n">SmeaglePrediction</span>
 
 
 <div class="viewcode-block" id="get_predictors"><a class="viewcode-back" href="../../api_reference/internal/spliced.html#spliced.predict.get_predictors">[docs]</a><span class="k">def</span> <span class="nf">get_predictors</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -88,6 +90,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">names</span> <span class="o">=</span> <span class="n">names</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="n">predictors</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;smeagle&quot;</span><span class="p">:</span> <span class="n">SmeaglePrediction</span><span class="p">(),</span>
         <span class="s2">&quot;symbolator&quot;</span><span class="p">:</span> <span class="n">SymbolatorPrediction</span><span class="p">(),</span>
         <span class="s2">&quot;libabigail&quot;</span><span class="p">:</span> <span class="n">LibabigailPrediction</span><span class="p">(),</span>
         <span class="s2">&quot;spack-test&quot;</span><span class="p">:</span> <span class="n">SpackTest</span><span class="p">(),</span>
@@ -98,9 +101,6 @@
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
                 <span class="n">keepers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictor</span>
         <span class="n">predictors</span> <span class="o">=</span> <span class="n">keepers</span>
-
-    <span class="c1"># Provide the actual no matter what</span>
-    <span class="n">predictors</span><span class="p">[</span><span class="s2">&quot;actual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Actual</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">predictors</span></div>
 </pre></div>

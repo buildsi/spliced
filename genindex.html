@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Spliced 0.0.15 documentation</title>
+  <title>Index &mdash; Spliced 0.0.16 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/sphinx-argparse.css" type="text/css" />
@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
@@ -29,7 +30,7 @@
             <a href="index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -106,8 +107,6 @@
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.libabigail.LibabigailPrediction.abidiff">abidiff (spliced.predict.libabigail.LibabigailPrediction attribute)</a>
 </li>
-      <li><a href="api_reference/internal/spliced.html#spliced.predict.base.Actual">Actual (class in spliced.predict.base)</a>
-</li>
       <li><a href="api_reference/internal/spliced.html#spliced.experiment.spack.add_contenders">add_contenders() (in module spliced.experiment.spack)</a>
 </li>
   </ul></td>
@@ -152,7 +151,7 @@
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.logger.ColorizingStreamHandler.colors">colors (spliced.logger.ColorizingStreamHandler attribute)</a>
 </li>
-      <li><a href="api_reference/internal/spliced.html#spliced.experiment.base.Experiment.command">command (spliced.experiment.base.Experiment property)</a>
+      <li><a href="api_reference/internal/spliced.html#spliced.predict.base.Prediction.create_elfcall_deps_lookup">create_elfcall_deps_lookup() (spliced.predict.base.Prediction method)</a>
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.logger.ColorizingStreamHandler.CYAN">CYAN (spliced.logger.ColorizingStreamHandler attribute)</a>
 </li>
@@ -192,10 +191,12 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference/internal/spliced.html#spliced.predict.libabigail.LibabigailPrediction.find_tool">find_tool() (spliced.predict.libabigail.LibabigailPrediction method)</a>
+      <li><a href="api_reference/internal/spliced.html#spliced.predict.base.Prediction.find_elfcall_deps_for">find_elfcall_deps_for() (spliced.predict.base.Prediction method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/internal/spliced.html#spliced.predict.libabigail.LibabigailPrediction.find_tool">find_tool() (spliced.predict.libabigail.LibabigailPrediction method)</a>
+</li>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.libabigail.LibabigailPrediction.find_tooling">find_tooling() (spliced.predict.libabigail.LibabigailPrediction method)</a>
 </li>
   </ul></td>
@@ -204,17 +205,17 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference/internal/spliced.html#spliced.experiment.base.Splice.get_binaries">get_binaries() (spliced.experiment.base.Splice method)</a>
-</li>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.symbolator.get_corpus">get_corpus() (in module spliced.predict.symbolator)</a>
 </li>
-      <li><a href="api_reference/internal/spliced.html#spliced.experiment.base.Splice.get_libs">get_libs() (spliced.experiment.base.Splice method)</a>
+      <li><a href="api_reference/internal/spliced.html#spliced.experiment.spack.get_linked_deps">get_linked_deps() (in module spliced.experiment.spack)</a>
+</li>
+      <li><a href="api_reference/internal/spliced.html#spliced.client.get_parser">get_parser() (in module spliced.client)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference/internal/spliced.html#spliced.client.get_parser">get_parser() (in module spliced.client)</a>
-</li>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.get_predictors">get_predictors() (in module spliced.predict)</a>
+</li>
+      <li><a href="api_reference/internal/spliced.html#spliced.experiment.spack.SpackExperiment.get_spack_ld_library_paths">get_spack_ld_library_paths() (spliced.experiment.spack.SpackExperiment method)</a>
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.logger.ColorizingStreamHandler.GREEN">GREEN (spliced.logger.ColorizingStreamHandler attribute)</a>
 </li>
@@ -263,6 +264,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference/internal/spliced.html#spliced.logger.ColorizingStreamHandler.MAGENTA">MAGENTA (spliced.logger.ColorizingStreamHandler attribute)</a>
+</li>
+      <li><a href="api_reference/internal/spliced.html#spliced.predict.base.match_by_prefix">match_by_prefix() (in module spliced.predict.base)</a>
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.experiment.base.Splice.match_libs">match_libs() (spliced.experiment.base.Splice method)</a>
 </li>
@@ -316,8 +319,6 @@
       <li><a href="api_reference/internal/spliced.html#spliced.experiment.base.Experiment.predict">predict() (spliced.experiment.base.Experiment method)</a>
 
       <ul>
-        <li><a href="api_reference/internal/spliced.html#spliced.predict.base.Actual.predict">(spliced.predict.base.Actual method)</a>
-</li>
         <li><a href="api_reference/internal/spliced.html#spliced.predict.base.Prediction.predict">(spliced.predict.base.Prediction method)</a>
 </li>
         <li><a href="api_reference/internal/spliced.html#spliced.predict.libabigail.LibabigailPrediction.predict">(spliced.predict.libabigail.LibabigailPrediction method)</a>
@@ -355,6 +356,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.libabigail.LibabigailPrediction.run_abidiff">run_abidiff() (spliced.predict.libabigail.LibabigailPrediction method)</a>
 </li>
+      <li><a href="api_reference/internal/spliced.html#spliced.experiment.spack.SpackExperiment.run_elfcall">run_elfcall() (spliced.experiment.spack.SpackExperiment method)</a>
+</li>
       <li><a href="api_reference/internal/spliced.html#spliced.experiment.base.Experiment.run_parallel">run_parallel() (spliced.experiment.base.Experiment method)</a>
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.symbolator.run_replacement_splice">run_replacement_splice() (in module spliced.predict.symbolator)</a>
@@ -362,8 +365,6 @@
       <li><a href="api_reference/internal/spliced.html#spliced.client.run_spliced">run_spliced() (in module spliced.client)</a>
 </li>
       <li><a href="api_reference/internal/spliced.html#spliced.predict.symbolator.run_symbol_solver">run_symbol_solver() (in module spliced.predict.symbolator)</a>
-</li>
-      <li><a href="api_reference/internal/spliced.html#spliced.predict.symbolator.run_symbols_splice">run_symbols_splice() (in module spliced.predict.symbolator)</a>
 </li>
   </ul></td>
 </tr></table>

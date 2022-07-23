@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Guide &mdash; Spliced 0.0.15 documentation</title>
+  <title>User Guide &mdash; Spliced 0.0.16 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx-argparse.css" type="text/css" />
@@ -15,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -31,7 +33,7 @@
             <a href="../index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -98,44 +100,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="user-guide">
-<span id="getting-started-user-guide"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline"></a></h1>
-<div class="section" id="why-spliced">
-<h2>Why spliced?<a class="headerlink" href="#why-spliced" title="Permalink to this headline"></a></h2>
+  <section id="user-guide">
+<span id="getting-started-user-guide"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h1>
+<section id="why-spliced">
+<h2>Why spliced?<a class="headerlink" href="#why-spliced" title="Permalink to this heading"></a></h2>
 <p>Spliced will allow you to run splice experiments using various predictor.
 Let’s review some terminology first.</p>
 <blockquote>
 <div><ul class="simple">
-<li><strong>predictor</strong>: is a tool that can take some set of binaries or libraries, and say “I think if you use A with B, it will work.”</li>
-<li><strong>experiment</strong>: an experiment is a set of steps you can do to perform a splice. For example, running a splice experiment with spack means you provide libraries to spack, and it splices them.</li>
-<li><strong>splice</strong>: We typically call the library we want to “cut out” the splice.</li>
-<li><strong>replace</strong> We typically call the library we want to replace the splice with (or “splice in” if you prefer) the replacement library.</li>
+<li><p><strong>predictor</strong>: is a tool that can take some set of binaries or libraries, and say “I think if you use A with B, it will work.”</p></li>
+<li><p><strong>experiment</strong>: an experiment is a set of steps you can do to perform a splice. For example, running a splice experiment with spack means you provide libraries to spack, and it splices them.</p></li>
+<li><p><strong>splice</strong>: We typically call the library we want to “cut out” the splice.</p></li>
+<li><p><strong>replace</strong> We typically call the library we want to replace the splice with (or “splice in” if you prefer) the replacement library.</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="what-experiments-are-available">
-<h2>What experiments are available?<a class="headerlink" href="#what-experiments-are-available" title="Permalink to this headline"></a></h2>
+</section>
+<section id="what-experiments-are-available">
+<h2>What experiments are available?<a class="headerlink" href="#what-experiments-are-available" title="Permalink to this heading"></a></h2>
 <p>Currently, our main experiment runner is <a class="reference external" href="https://github.com/spack/spack">spack</a> and we are installing from a fork and branch
 under vsoch to get extra functionality that may (or may not) eventually be integrated. We also plan to add a manual experiment - e.g.,
 instead of asking spack to figure out how a package and dependencies work together, just shove two at each other and force it.
 We haven’t developed this use case yet.</p>
-</div>
-<div class="section" id="what-predictors-are-available">
-<h2>What predictors are available?<a class="headerlink" href="#what-predictors-are-available" title="Permalink to this headline"></a></h2>
+</section>
+<section id="what-predictors-are-available">
+<h2>What predictors are available?<a class="headerlink" href="#what-predictors-are-available" title="Permalink to this heading"></a></h2>
 <p>As stated above, a <strong>predictor</strong> is a tool that can take some set of binaries or libraries, and say “I think if you use A with B, it will work.”
 spliced currently has the following predictors:</p>
 <blockquote>
 <div><ul class="simple">
-<li><strong>actual</strong>: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our “ground truth” for the other predictors that aren’t actually testing anything, but just predicting.</li>
-<li><strong>libabigail</strong>: is a <a class="reference external" href="https://sourceware.org/libabigail/">library provided by RedHat</a> that provides tooling for assessing ABI compatibility.</li>
-<li><strong>symbolator</strong>: is a <a class="reference external" href="https://github.com/buildsi/symbolator">simple library developed by the group here</a> that makes predictions based on comparing symbol sets.</li>
-<li><strong>spack-test</strong>: will, given that the splice has an id that matches a spack dag hash, run tests associated with that spec.</li>
-<li><strong>smeagle</strong>: is <a class="reference external" href="https://github.com/buildsi/Smeagle">another library being developed here</a> that is not added yet, but will be eventually.</li>
+<li><p><strong>actual</strong>: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our “ground truth” for the other predictors that aren’t actually testing anything, but just predicting.</p></li>
+<li><p><strong>libabigail</strong>: is a <a class="reference external" href="https://sourceware.org/libabigail/">library provided by RedHat</a> that provides tooling for assessing ABI compatibility.</p></li>
+<li><p><strong>symbolator</strong>: is a <a class="reference external" href="https://github.com/buildsi/symbolator">simple library developed by the group here</a> that makes predictions based on comparing symbol sets.</p></li>
+<li><p><strong>spack-test</strong>: will, given that the splice has an id that matches a spack dag hash, run tests associated with that spec.</p></li>
+<li><p><strong>smeagle</strong>: is <a class="reference external" href="https://github.com/buildsi/Smeagle">another library being developed here</a> that is not added yet, but will be eventually.</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="config-file">
-<h2>Config File<a class="headerlink" href="#config-file" title="Permalink to this headline"></a></h2>
+</section>
+<section id="config-file">
+<h2>Config File<a class="headerlink" href="#config-file" title="Permalink to this heading"></a></h2>
 <p>Great, so let’s get started! A splice experiment starts with a config file, a YAML file
 to help you generate splicing commands, either to run yourself locally or to hand
 of to an automated solution. It’s a simple YAML file that should minimally have the following:</p>
@@ -165,12 +167,12 @@ The above says:</p>
 To then run the workflow, simply input “curl.yaml” as the splice variable in the GitHub
 workflow interface. If you don’t include a command, then the splice and prediction can still happen,
 but we don’t have a good way to test if the binary still (minimally) runs.</p>
-</div>
-<div class="section" id="spliced-commands">
-<h2>Spliced Commands<a class="headerlink" href="#spliced-commands" title="Permalink to this headline"></a></h2>
+</section>
+<section id="spliced-commands">
+<h2>Spliced Commands<a class="headerlink" href="#spliced-commands" title="Permalink to this heading"></a></h2>
 <p>Spliced provides the following commands via the <code class="docutils literal notranslate"><span class="pre">spliced</span></code> command line client.</p>
-<div class="section" id="command">
-<h3>Command<a class="headerlink" href="#command" title="Permalink to this headline"></a></h3>
+<section id="command">
+<h3>Command<a class="headerlink" href="#command" title="Permalink to this heading"></a></h3>
 <p>Thus the first thing we might want to do is take a config YAML file, and see all the commands it can generate
 for us.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced <span class="nb">command</span> examples/curl.yaml
@@ -184,20 +186,20 @@ for us.</p>
 <p>It looks exactly as you’d expect - every version of curl with instruction to splice zlib (meaning different versions) and a command (the last part of the line)
 to test. Given the expeiment runner is spack, spack will receive this request and handle install, etc. We could then try running one of those commands, discussed
 next.</p>
-</div>
-<div class="section" id="splice">
-<h3>Splice<a class="headerlink" href="#splice" title="Permalink to this headline"></a></h3>
+</section>
+<section id="splice">
+<h3>Splice<a class="headerlink" href="#splice" title="Permalink to this heading"></a></h3>
 <p>The most basic functionality is to perform a splice! You can either [generate a matrix](#splice-matrix) via a config file,
 provide the same config file to splice (appropriate for runners with custom variables to include like library paths)
 or come up with your own.  Current runners supported include:</p>
 <blockquote>
 <div><ul class="simple">
-<li>spack</li>
+<li><p>spack</p></li>
 </ul>
 </div></blockquote>
 <p>And likely we will add a “manual” runner soon.</p>
-<div class="section" id="spack-splice">
-<h4>Spack Splice<a class="headerlink" href="#spack-splice" title="Permalink to this headline"></a></h4>
+<section id="spack-splice">
+<h4>Spack Splice<a class="headerlink" href="#spack-splice" title="Permalink to this heading"></a></h4>
 <p>Let’s start with an example command that says:</p>
 <div class="line-block">
 <div class="line">splice all versions of zlib to replace the current version of zlib in curl</div>
@@ -216,10 +218,10 @@ or come up with your own.  Current runners supported include:</p>
 <p>The experiment is just a named identifier, for your use (to store with the results). When you do this
 you’ll see:</p>
 <ol class="arabic simple">
-<li>Concretizing <a class="reference external" href="mailto:curl&#37;&#52;&#48;7&#46;50&#46;2">curl<span>&#64;</span>7<span>&#46;</span>50<span>&#46;</span>2</a>: the main package concretizing and installing. If either of these steps fails, you’ll get a result object reporting the error.</li>
-<li>Splicing (for each version of the dependency found) this can also have various points of failure, which are logged.</li>
-<li>Running splice predictors (not developed yet) but will give a prediction if the splice will work!</li>
-<li>Commands, if provided, are then run to give an “actual” report of if it worked (according to the command) or not.</li>
+<li><p>Concretizing <a class="reference external" href="mailto:curl&#37;&#52;&#48;7&#46;50&#46;2">curl<span>&#64;</span>7<span>&#46;</span>50<span>&#46;</span>2</a>: the main package concretizing and installing. If either of these steps fails, you’ll get a result object reporting the error.</p></li>
+<li><p>Splicing (for each version of the dependency found) this can also have various points of failure, which are logged.</p></li>
+<li><p>Running splice predictors (not developed yet) but will give a prediction if the splice will work!</p></li>
+<li><p>Commands, if provided, are then run to give an “actual” report of if it worked (according to the command) or not.</p></li>
 </ol>
 <p>By default, the predictors used will be all that are provided (libabigail and symbolator and an actual) and if
 any predictor dependency is missing, a warning will be printed and it will be skipped. If you want to filter
@@ -254,10 +256,10 @@ Here is what an entire run looks like, with a testing command and  output saved 
 <span class="go">Making predictions for symbolator</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="matrix">
-<h3>Matrix<a class="headerlink" href="#matrix" title="Permalink to this headline"></a></h3>
+</section>
+</section>
+<section id="matrix">
+<h3>Matrix<a class="headerlink" href="#matrix" title="Permalink to this heading"></a></h3>
 <p>While you can perform a single splice manually, generally you’d want to instead create a matrix!
 You can do this with the <cite>splice matrix</cite> command, which will output json that you can use in GitHub or other CI workflows.
 The spliced format</p>
@@ -289,22 +291,22 @@ The spliced format</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced matrix examples/curl.yaml --outfile examples/curl-matrix.json
 </pre></div>
 </div>
-</div>
-<div class="section" id="validate">
-<h3>Validate<a class="headerlink" href="#validate" title="Permalink to this headline"></a></h3>
+</section>
+<section id="validate">
+<h3>Validate<a class="headerlink" href="#validate" title="Permalink to this heading"></a></h3>
 <p>Once you have a result, you can use the <code class="docutils literal notranslate"><span class="pre">validate</span></code> command to ensure the format is correct.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced validate pkg-sqlite<span class="se">\@</span><span class="m">3</span>.35.5-splice-zlib-with-zlib-experiment-sqlite-splices.json
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="github-actions">
-<h2>GitHub Actions<a class="headerlink" href="#github-actions" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+<section id="github-actions">
+<h2>GitHub Actions<a class="headerlink" href="#github-actions" title="Permalink to this heading"></a></h2>
 <p>Spliced provides a set of GitHub actions that make it easy to run splice experiments on GitHub.
 The current documentation for these is in the <code class="docutils literal notranslate"><span class="pre">.github/workflows/test-action.yaml</span></code> file, and we will
 add more detail here when the action development is finished (or when it is requested, whichever comes first).</p>
-<div class="section" id="artifacts">
-<h3>Artifacts<a class="headerlink" href="#artifacts" title="Permalink to this headline"></a></h3>
+<section id="artifacts">
+<h3>Artifacts<a class="headerlink" href="#artifacts" title="Permalink to this heading"></a></h3>
 <p>The artifacts action will discover artifacts within some number of days, download them to a root (defaults to artifacts)
 in the following structure:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">artifacts</span>
@@ -326,9 +328,9 @@ the experiment happens to be named similar to the package, but it doesn’t have
 Since experiments are typically stored as yaml files in the same directory, you shouldn’t have issue
 managing this namespace unless you decide to redo an experiment with the same name. If you do this, you’ll
 need to manually delete the experiment folder if you want new results to be propogated.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

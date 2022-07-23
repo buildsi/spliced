@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Developer Guide &mdash; Spliced 0.0.15 documentation</title>
+  <title>Developer Guide &mdash; Spliced 0.0.16 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx-argparse.css" type="text/css" />
@@ -15,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -31,7 +33,7 @@
             <a href="../index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -46,6 +48,10 @@
 <li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#design-of-spliced">Design of Spliced</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spack-experiment-runner">Spack Experiment Runner</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#add-an-experiment">Add An Experiment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#add-a-predictor">Add A Predictor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#develop-with-docker">Develop with Docker</a></li>
@@ -84,30 +90,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="developer-guide">
-<span id="getting-started-developer-guide"></span><h1>Developer Guide<a class="headerlink" href="#developer-guide" title="Permalink to this headline"></a></h1>
+  <section id="developer-guide">
+<span id="getting-started-developer-guide"></span><h1>Developer Guide<a class="headerlink" href="#developer-guide" title="Permalink to this heading"></a></h1>
 <p>This developer guide includes more complex interactions like adding experiments
 or using containers. If you haven’t read <a class="reference internal" href="installation.html#getting-started-installation"><span class="std std-ref">Installation</span></a>
 you should do that first.</p>
-<div class="section" id="add-an-experiment">
-<h2>Add An Experiment<a class="headerlink" href="#add-an-experiment" title="Permalink to this headline"></a></h2>
+<section id="design-of-spliced">
+<h2>Design of Spliced<a class="headerlink" href="#design-of-spliced" title="Permalink to this heading"></a></h2>
+<p>As a reminder, spiced works by having <strong>experiment runners</strong> (e.g., spack) that present a splice object with metadata about libraries to a <strong>predictor</strong> to parse (and make predictions for). This design section will include details for how the experiment runner and subsequent predictors work.</p>
+<section id="spack-experiment-runner">
+<h3>Spack Experiment Runner<a class="headerlink" href="#spack-experiment-runner" title="Permalink to this heading"></a></h3>
+<p>The spack experiment runner works by starting with a main library (e.g., caliper) and a dependency of interest (e.g., papi). We then, for each version of the depedency:</p>
+<ol class="arabic simple">
+<li><p>Perform a splice of the new version into the main package to derive a new spliced directory.</p></li>
+<li><p>Find libs and binaries within the new (spliced) package install (and the original)</p></li>
+<li><p>Use <a class="reference external" href="https://vsoch.github.io/elfcall">Elfcall</a> to emulate the linker and find paths of libraries with needed (undefined) symbols.</p></li>
+<li><p>Present the elfcall output to each predictor to use appropriately.</p></li>
+</ol>
+<p>In the case of a “diff” comparator like libabigail or symbolator, we match names of libraries that are used for each of the original dependency (A) and spliced dependency (B) case.</p>
+<p>In the case of smeagle, we first check if elfcall didn’t find any symbols, and if so we stop and report failure. The smeagle model depends on function symbol names and will always fail if a symbol is entirely missing. If we found all our symbols, we then
+derive first smeagle json (saved to a cache based on the library name) and
+then a scoped set of asp facts the main library (A) and the entire set of dependencies (under the namespace B) to compare to. Since elfcall only matches one library to one symbol, there won’t be conflicts within the B space.</p>
+<p><strong>Note</strong> that elfcall can only parse ELF. A library or binary that is not ELF cannot be included, and this is a small set but still represents a limitation of the analysis.</p>
+</section>
+</section>
+<section id="add-an-experiment">
+<h2>Add An Experiment<a class="headerlink" href="#add-an-experiment" title="Permalink to this heading"></a></h2>
 <p>The core of an experiment is to be able to run the initial steps for a splice,
 and return the splice object, which should have binaries and libraries for a spec pre and post splice,
 along with other metadata. This general format allows us to have an experiment runner like spack
 (that will install what we need and then set the paths) or eventually a manual runner (where we can just
 set them arbitrarily to our liking).</p>
-</div>
-<div class="section" id="add-a-predictor">
-<h2>Add A Predictor<a class="headerlink" href="#add-a-predictor" title="Permalink to this headline"></a></h2>
-<p>A predictor should be added as a module to [spliced/predict](spliced/predict) so it is retrieved
+</section>
+<section id="add-a-predictor">
+<h2>Add A Predictor<a class="headerlink" href="#add-a-predictor" title="Permalink to this heading"></a></h2>
+<p>A predictor should be added as a module to <code class="docutils literal notranslate"><span class="pre">spliced/predict</span></code> so it is retrieved
 on init. It should have a main function, predict, which takes a splice object and optional kwargs.
-At this point you can iterate through the splice structure to use whatever metadata you need. E.g.,:</p>
-<blockquote>
-<div><ul class="simple">
-<li>splice.libs: is a dictionary with “original” and “spliced” for original and spliced libs, respectively</li>
-<li>splice.binaries: is the same structure, but with binaries for the original and spliced package</li>
-</ul>
-</div></blockquote>
+At this point you can iterate through the splice structure to use whatever metadata you need. The splice metadata is derived from <a href="#id1"><span class="problematic" id="id2">`Elfcall _&lt;https://vsoch.github.io/elfcall&gt;`_</span></a> which should have all the sets of libraries found and symbols for each (and we stop when all needed and undefined symbols are found). E.g.,:</p>
+<p>## TODO need to update here</p>
 <p>Importantly, your predictor should set <cite>spliced.predictions[&lt;name_of_predictor&gt;]</cite> to be a list of dictionaries,
 where you can put any needed metadata. The binary/lib is suggested, along with a return code or message from the console,
 and <em>importantly</em> you should have a boolean true/false for “prediction” about whether the splice is predicted to work.
@@ -128,23 +148,23 @@ Here is an example list of results (with a single splice prediction using abicom
 <p>To be clear, the predictor must save a list of predictions to the splice.predicitions, keyed by the name, and the following fields are requried:</p>
 <blockquote>
 <div><ul class="simple">
-<li>binary</li>
-<li>lib</li>
-<li>prediction</li>
+<li><p>binary</p></li>
+<li><p>lib</p></li>
+<li><p>prediction</p></li>
 </ul>
 </div></blockquote>
 <p>The following fields are not required but suggested:</p>
 <blockquote>
 <div><ul class="simple">
-<li>message (the terminal output of running the predictor)</li>
-<li>return_code</li>
-<li>original_lib or original_binary if relevant for the command</li>
-<li>any other relevant results information</li>
+<li><p>message (the terminal output of running the predictor)</p></li>
+<li><p>return_code</p></li>
+<li><p>original_lib or original_binary if relevant for the command</p></li>
+<li><p>any other relevant results information</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="develop-with-docker">
-<h2>Develop with Docker<a class="headerlink" href="#develop-with-docker" title="Permalink to this headline"></a></h2>
+</section>
+<section id="develop-with-docker">
+<h2>Develop with Docker<a class="headerlink" href="#develop-with-docker" title="Permalink to this heading"></a></h2>
 <p>You can easily build a docker container in the present working directory:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker build -t spliced .
 </pre></div>
@@ -164,9 +184,9 @@ Here is an example list of results (with a single splice prediction using abicom
 <span class="go">pkg-sqlite@3.35.5-splice-zlib-with-zlib-experiment-sqlite-splices.json is valid! 😂️</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="creating-a-container-base">
-<h2>Creating a container base<a class="headerlink" href="#creating-a-container-base" title="Permalink to this headline"></a></h2>
+</section>
+<section id="creating-a-container-base">
+<h2>Creating a container base<a class="headerlink" href="#creating-a-container-base" title="Permalink to this heading"></a></h2>
 <p>Typically, a container base should have the dependencies that you need to run your
 splice. E.g., if you want to use the libabigial splicer, libabigail should
 be installed. We provide a set of automated builds for containers to provide the software
@@ -174,15 +194,15 @@ needed [here](docker) (e.g., including libabigail, spack, and symbolator) so you
 or if you choose, bootstrap these containers for your own customization. Note that for these containers:</p>
 <blockquote>
 <div><ul class="simple">
-<li>we provide several os bases - the default of the spliced execuable is ubuntu 20.04, and you can change this with <cite>–container</cite></li>
-<li>the containers are flagged with [spack labels](<a class="reference external" href="https://github.com/spack/label-schema">https://github.com/spack/label-schema</a>) for <cite>org.spack.compilers</cite> to be discovered by the tool. If you don’t provide labels, all compilers in the container will be used.</li>
-<li>it’s assumed you have software you need in the container, or use our container bases as testing CI bases and install there on the fly.</li>
+<li><p>we provide several os bases - the default of the spliced execuable is ubuntu 20.04, and you can change this with <cite>–container</cite></p></li>
+<li><p>the containers are flagged with [spack labels](<a class="reference external" href="https://github.com/spack/label-schema">https://github.com/spack/label-schema</a>) for <cite>org.spack.compilers</cite> to be discovered by the tool. If you don’t provide labels, all compilers in the container will be used.</p></li>
+<li><p>it’s assumed you have software you need in the container, or use our container bases as testing CI bases and install there on the fly.</p></li>
 </ul>
 </div></blockquote>
 <p>If you want to use the default containers provided by spliced, you shouldn’t need to worry about this.
 If you have any questions, don’t hesitate to open an issue.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

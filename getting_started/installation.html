@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; Spliced 0.0.15 documentation</title>
+  <title>Installation &mdash; Spliced 0.0.16 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/sphinx-argparse.css" type="text/css" />
@@ -15,6 +16,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -31,7 +33,7 @@
             <a href="../index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -45,6 +47,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Getting Started</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-dependencies">Development Dependencies</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pypi">Pypi</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#virtual-environment">Virtual Environment</a></li>
 </ul>
@@ -87,8 +90,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="installation">
-<span id="getting-started-installation"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+  <section id="installation">
+<span id="getting-started-installation"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <p>Spliced can be installed from pypi, or from source.</p>
 <p>Note that <a class="reference external" href="https://github.com/spack/spack">spack</a> is required to be on your path
 given that you are running a spack matrix build, and since splicing is required (which is
@@ -97,16 +100,31 @@ under development) you need to clone a branch from vsoch.</p>
 <span class="gp">$ </span><span class="nb">source</span> spack/share/spack/setup-env.sh
 </pre></div>
 </div>
-<div class="section" id="pypi">
-<h2>Pypi<a class="headerlink" href="#pypi" title="Permalink to this headline"></a></h2>
+<section id="development-dependencies">
+<h2>Development Dependencies<a class="headerlink" href="#development-dependencies" title="Permalink to this heading"></a></h2>
+<p>The smeagle predictor currently requires cle:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">git clone https://github.com/vsoch/cle /tmp/cle</span>
+<span class="go">cd /tmp/cle</span>
+
+<span class="gp"># </span>archinfo, pyvex, pyelftools, <span class="k">then</span> cle
+<span class="go">pip install wheel</span>
+<span class="go">pip install git+https://github.com/angr/archinfo</span>
+<span class="go">pip install git+https://github.com/angr/pyvex</span>
+<span class="go">pip install git+https://github.com/eliben/pyelftools</span>
+<span class="go">pip install .</span>
+</pre></div>
+</div>
+</section>
+<section id="pypi">
+<h2>Pypi<a class="headerlink" href="#pypi" title="Permalink to this heading"></a></h2>
 <p>The module is available in pypi as <a class="reference external" href="https://pypi.org/project/spliced/">spliced</a>.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install spliced
 </pre></div>
 </div>
 <p>This will provide the latest release. If you want a branch or development version, you can install from GitHub, shown next.</p>
-</div>
-<div class="section" id="virtual-environment">
-<h2>Virtual Environment<a class="headerlink" href="#virtual-environment" title="Permalink to this headline"></a></h2>
+</section>
+<section id="virtual-environment">
+<h2>Virtual Environment<a class="headerlink" href="#virtual-environment" title="Permalink to this heading"></a></h2>
 <p>Here is how to clone the repository and do a local install.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone git@github.com:buildsi/spliced
 <span class="gp">$ </span><span class="nb">cd</span> spliced
@@ -132,11 +150,11 @@ under development) you need to clone a branch from vsoch.</p>
 </div>
 <p>You’ll next want to configure and run experiments, discussed next in <a class="reference internal" href="index.html#getting-started"><span class="std std-ref">Getting Started</span></a>.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">If you are running spack experiments you will need spack on the path! Any other experiment technologies that you decide to use are also required.</p>
+<p class="admonition-title">Warning</p>
+<p>If you are running spack experiments you will need spack on the path! Any other experiment technologies that you decide to use are also required.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

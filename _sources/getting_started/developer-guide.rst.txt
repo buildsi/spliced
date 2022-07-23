@@ -8,8 +8,32 @@ This developer guide includes more complex interactions like adding experiments
 or using containers. If you haven't read :ref:`getting_started-installation`
 you should do that first.
 
+Design of Spliced
+=================
+
+As a reminder, spiced works by having **experiment runners** (e.g., spack) that present a splice object with metadata about libraries to a **predictor** to parse (and make predictions for). This design section will include details for how the experiment runner and subsequent predictors work.
+
+Spack Experiment Runner
+-----------------------
+
+The spack experiment runner works by starting with a main library (e.g., caliper) and a dependency of interest (e.g., papi). We then, for each version of the depedency:
+
+1. Perform a splice of the new version into the main package to derive a new spliced directory.
+2. Find libs and binaries within the new (spliced) package install (and the original)
+3. Use `Elfcall <https://vsoch.github.io/elfcall>`_ to emulate the linker and find paths of libraries with needed (undefined) symbols.
+4. Present the elfcall output to each predictor to use appropriately.
+
+In the case of a "diff" comparator like libabigail or symbolator, we match names of libraries that are used for each of the original dependency (A) and spliced dependency (B) case.
+
+In the case of smeagle, we first check if elfcall didn't find any symbols, and if so we stop and report failure. The smeagle model depends on function symbol names and will always fail if a symbol is entirely missing. If we found all our symbols, we then
+derive first smeagle json (saved to a cache based on the library name) and 
+then a scoped set of asp facts the main library (A) and the entire set of dependencies (under the namespace B) to compare to. Since elfcall only matches one library to one symbol, there won't be conflicts within the B space.
+
+**Note** that elfcall can only parse ELF. A library or binary that is not ELF cannot be included, and this is a small set but still represents a limitation of the analysis.
+
+
 Add An Experiment
-==================
+=================
 
 The core of an experiment is to be able to run the initial steps for a splice,
 and return the splice object, which should have binaries and libraries for a spec pre and post splice,
@@ -20,12 +44,11 @@ set them arbitrarily to our liking).
 Add A Predictor
 ===============
 
-A predictor should be added as a module to [spliced/predict](spliced/predict) so it is retrieved
+A predictor should be added as a module to ``spliced/predict`` so it is retrieved
 on init. It should have a main function, predict, which takes a splice object and optional kwargs.
-At this point you can iterate through the splice structure to use whatever metadata you need. E.g.,:
+At this point you can iterate through the splice structure to use whatever metadata you need. The splice metadata is derived from `Elfcall _<https://vsoch.github.io/elfcall>`_ which should have all the sets of libraries found and symbols for each (and we stop when all needed and undefined symbols are found). E.g.,:
 
- - splice.libs: is a dictionary with "original" and "spliced" for original and spliced libs, respectively
- - splice.binaries: is the same structure, but with binaries for the original and spliced package
+## TODO need to update here
  
 Importantly, your predictor should set `spliced.predictions[<name_of_predictor>]` to be a list of dictionaries,
 where you can put any needed metadata. The binary/lib is suggested, along with a return code or message from the console,
