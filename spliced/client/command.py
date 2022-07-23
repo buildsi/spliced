@@ -21,7 +21,7 @@ def matrix(args, parser, extra, subparser):
     experiment.load(args.config_yaml)
 
     if args.generator == "spack":
-        generate_spack_matrix(args, experiment, " ".join(extra))
+        generate_spack_matrix(args, experiment)
 
 
 def command(args, parser, extra, subparser):
@@ -33,7 +33,7 @@ def command(args, parser, extra, subparser):
     experiment.load(args.config_yaml)
 
     if args.generator == "spack":
-        generate_spack_commands(args, experiment, " ".join(extra))
+        generate_spack_commands(args, experiment)
 
 
 def get_package_versions(package):
@@ -85,7 +85,7 @@ def get_splice_versions(experiment):
     return splice_versions
 
 
-def generate_spack_commands(args, experiment, command=None):
+def generate_spack_commands(args, experiment):
     """
     Generate a list of spliced commands
     """
@@ -93,9 +93,6 @@ def generate_spack_commands(args, experiment, command=None):
     versions = get_package_versions(experiment.package)
     splice_versions = get_splice_versions(experiment)
     commands = []
-
-    # Command can come from command line or config file
-    command = command or experiment.command
 
     # Generate list of commands
     for version in versions:
@@ -113,8 +110,6 @@ def generate_spack_commands(args, experiment, command=None):
                     experiment.name,
                 )
             )
-            if command:
-                cmd = "%s %s" % (cmd, command)
             commands.append(cmd)
 
     # flatten to be printable
@@ -126,7 +121,7 @@ def generate_spack_commands(args, experiment, command=None):
         print(commands)
 
 
-def generate_spack_matrix(args, experiment, command=None):
+def generate_spack_matrix(args, experiment):
     """A spack matrix derives versions from spack, and prepares
     to generate commands (and metadata) to support a spack splice
     experiment
@@ -136,9 +131,6 @@ def generate_spack_matrix(args, experiment, command=None):
 
     # We will build up a matrix of container and associated compilers
     matrix = []
-
-    # Command can come from command line or config file
-    command = command or experiment.command
 
     # Generate list of commands
     for version in versions:
@@ -156,8 +148,6 @@ def generate_spack_matrix(args, experiment, command=None):
                     experiment.name,
                 )
             )
-            if command:
-                cmd = "%s %s" % (cmd, command)
             matrix.append(
                 {
                     "command": cmd,

@@ -16,6 +16,23 @@ under development) you need to clone a branch from vsoch.
     $ source spack/share/spack/setup-env.sh
 
 
+Development Dependencies
+========================
+
+The smeagle predictor currently requires cle:
+
+.. code:: console
+
+    git clone https://github.com/vsoch/cle /tmp/cle
+    cd /tmp/cle
+    
+    # archinfo, pyvex, pyelftools, then cle
+    pip install wheel
+    pip install git+https://github.com/angr/archinfo
+    pip install git+https://github.com/angr/pyvex
+    pip install git+https://github.com/eliben/pyelftools
+    pip install .
+
 Pypi
 ====
 

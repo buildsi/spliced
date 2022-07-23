@@ -2,6 +2,9 @@
 % A and B are two instances of the same library. Can B replace A?
 %=============================================================================
 
+%missing(Symbol, Direction, Type, Location) :-
+%    abi_typelocation("a", Symbol, Direction, Type, Location),    
+%    not abi_typelocation("b", Symbol, Direction, Type, Location).
 
 missing_exports(Symbol, Type, Location) :-
 

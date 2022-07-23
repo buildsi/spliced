@@ -8,13 +8,18 @@
 from .base import Experiment
 import os
 import sys
-import shlex
 import traceback
+import spliced.utils as utils
+from spliced.logger import logger
+from elfcall.main import BinaryInterface
 
 try:
     import spack.binary_distribution as bindist
+    import spack.user_environment as uenv
+    import spack.util.environment
     import spack.rewiring
     import spack.bootstrap
+    import spack.store
     from spack.spec import Spec
 except Exception as e:
     sys.exit("This needs to be run from spack python, also: %s" % e)
@@ -95,7 +100,8 @@ class SpackExperiment(Experiment):
         A mock splice is not possible with spack (it usually means replacing one
         dependency with another that isn't an actual dependency) but we can still
         install the needed specs and then add their libs / binaries for other
-        predictors.
+        predictors. A "mock" of different libs means different_libs is set to True
+        on the splice.
         """
         print("Preparing mock splice for %s -> %s" % (replace_name, splice_name))
 
@@ -105,7 +111,10 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-splice-concretization-failed", success=False, splice=splice_name
+                "mock-splice-concretization-failed",
+                success=False,
+                splice=splice_name,
+                different_libs=True,
             )
             return
 
@@ -115,7 +124,10 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-splice-install-failed", success=False, splice=splice_name
+                "mock-splice-install-failed",
+                success=False,
+                splice=splice_name,
+                different_libs=True,
             )
             return
 
@@ -125,7 +137,10 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-replace-concretization-failed", success=False, splice=replace_name
+                "mock-replace-concretization-failed",
+                success=False,
+                splice=replace_name,
+                different_libs=True,
             )
             return
 
@@ -135,15 +150,18 @@ class SpackExperiment(Experiment):
         except:
             traceback.print_exc()
             self.add_splice(
-                "mock-replace-install-failed", success=False, splice=replace_name
+                "mock-replace-install-failed",
+                success=False,
+                splice=replace_name,
+                different_libs=True,
             )
             return
 
         # If we get here, we can add binaries for the main thing, and all libs from te splice and replace
         splice = self.add_splice(
-            "mock-splice-success", success=True, splice=splice_name
+            "mock-splice-success", success=True, splice=splice_name, different_libs=True
         )
-        self._populate_mock_splice(splice, spec_main, dep, replace)
+        self._populate_splice(splice, spec_main, replace)
 
     def do_splice(self, splice_name, spec_main, transitive=True):
         """
@@ -175,7 +193,6 @@ class SpackExperiment(Experiment):
             spliced_spec = spec_main.splice(dep, transitive=transitive)
         except:
             splice = self.add_splice("splice-failed", success=False, splice=splice_name)
-            self._populate_failed_splice(splice, dep, spec_main)
             return
 
         # Failure case 5: the dag hash is unchanged
@@ -183,7 +200,6 @@ class SpackExperiment(Experiment):
             splice = self.add_splice(
                 "splice-dag-hash-unchanged", success=False, splice=splice_name
             )
-            self._populate_failed_splice(splice, dep, spec_main)
             return
 
         # Failure case 6: the rewiring fails during rewiring
@@ -194,7 +210,6 @@ class SpackExperiment(Experiment):
             splice = self.add_splice(
                 "rewiring-failed", success=False, splice=splice_name
             )
-            self._populate_failed_splice(splice, dep, spec_main)
             return
 
         # Failure case 5: the spliced prefix doesn't exist, so there was a rewiring issue
@@ -202,7 +217,6 @@ class SpackExperiment(Experiment):
             splice = self.add_splice(
                 "splice-prefix-doesnt-exist", success=False, splice=splice_name
             )
-            self._populate_failed_splice(splice, dep, spec_main)
             return
 
         # If we get here, a success case!
@@ -212,74 +226,117 @@ class SpackExperiment(Experiment):
         self._populate_splice(splice, spliced_spec, spec_main)
         return self.splices
 
-    def _populate_mock_splice(self, splice, original, dep, replace):
+    def _populate_spack_directory(self, path):
         """
-        A mock splice is not actually done by spack, but we add all libs to emulate
-        a splice.
+        Given a path, find all libraries and resolve links.
         """
-        binary = None
-        if self.command:
+        paths = set()
+        if not os.path.exists(path):
+            return paths
+        for contender in utils.recursive_find(path):
+            if os.path.islink(contender):
+                contender = os.path.realpath(contender)
+            paths.add(contender)
+        return paths
 
-            # We need to know the binary of interest from the command
-            binary = shlex.split(self.command)[0]
-
-        # We still care about the original lib we are testing
-        splice.binaries["original"] = list(add_contenders(original, "bin", binary))
-
-        # We don't need to "discover" the dependency or replacement, we have them directly
-        splice.libs["dep"] = [
-            {"dep": str(dep), "paths": list(add_contenders(dep, "lib"))}
-        ]
-        splice.libs["replace"] = [
-            {"dep": str(replace), "paths": list(add_contenders(replace, "lib"))}
-        ]
-
-    def _populate_failed_splice(self, splice, dep, original):
+    def get_spack_ld_library_paths(self, original):
         """
-        Given a failed spack splice, try to still populate the failed object with
-        libs and binaries from the original library and dependency.
+        Get all of spack's changes to the LD_LIBRARY_PATH for elfcall
         """
-        binary = None
-        if self.command:
+        loads = set()
+        # Get all deps to add to path
+        env_mod = spack.util.environment.EnvironmentModifications()
+        for depspec in original.traverse(root=True, order="post"):
+            env_mod.extend(uenv.environment_modifications_for_spec(depspec))
+            env_mod.prepend_path(uenv.spack_loaded_hashes_var, depspec.dag_hash())
 
-            # We need to know the binary of interest from the command
-            binary = shlex.split(self.command)[0]
-
-        # Add binaries to the libary for just the original lib
-        splice.binaries["original"] = list(add_contenders(original, "bin", binary))
-
-        # The splice name won't have a version
-        spliced_lib = self.splice.split("@")[0]
-
-        # And add libs for the original and (non-spliced) dependency
-        splice.libs["dep"] = add_libraries(dep, spliced_lib)
-        splice.libs["original"] = add_libraries(original)
+        # Look for appends to LD_LIBRARY_PATH
+        for env in env_mod.env_modifications:
+            if env.name == "LD_LIBRARY_PATH":
+                loads.add(env.value)
+        return loads
 
     def _populate_splice(self, splice, spliced_spec, original):
         """
         Prepare each splice to also include binaries and libs involved.
+        The populate splice algorithm is included here. For the spack experiment,
+        the splice must be successful to test it.
+
+        1. Find all binaries and libraries for original package and spliced package
+        2. Use elfcall on each found binary or library to get list of libraries
+           and symbols that the linker would find. This set stops for each one
+           when all imported (needed) symbols are found
+        3. Present this result to predictor
+           Libabigail and symbolator will name match and do "diffs"
+           Smeagle doesn't care about the original
+           We will need elfcall to report back if there are any missing
+           imported symbols. If yes, STOP (optimization)
+           SEE SMEAGLE FOR REST
         """
-        # If we have a command, get te binary of interest from it
-        # Otherwise we have to add all binaries
-        binary = None
-        if self.command:
+        # Populate list of all binaries/libs for each of original and spliced
+        # This does not include dependencies - these will be added in spice.metadata
+        # below using elfcall!
+        for subdir in ["bin", "lib"]:
+            original_dir = os.path.join(original.prefix, subdir)
+            [
+                splice.original.add(x)
+                for x in self._populate_spack_directory(original_dir)
+            ]
+            splice_dir = os.path.join(spliced_spec.prefix, subdir)
+            if os.path.exists(splice_dir):
+                [
+                    splice.spliced.add(x)
+                    for x in self._populate_spack_directory(splice_dir)
+                ]
 
-            # We need to know the binary of interest from the command
-            binary = shlex.split(self.command)[0]
+        # IMPORTANT we must emulate "spack load" in order for libs to be found...
+        loads = {}
+        with spack.store.db.read_transaction():
+            loads["original"] = self.get_spack_ld_library_paths(original)
+            loads["spliced"] = self.get_spack_ld_library_paths(spliced_spec)
 
-        # Add binaries to the libary for both spliced and original lib
-        splice.binaries["spliced"] = list(add_contenders(spliced_spec, "bin", binary))
-        splice.binaries["original"] = list(add_contenders(original, "bin", binary))
+        # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
+        for lib in splice.original:
+            res = self.run_elfcall(lib, ld_library_paths=loads["original"])
+            if not res:
+                # If we fail to parse it, cannot be in analysis
+                splice.original.remove(lib)
+                continue
+            splice.metadata[lib] = res
 
-        # The splice name won't have a version
-        spliced_lib = self.splice.split("@")[0]
+        for lib in splice.spliced:
 
-        # And add libs for the spliced dependency (each from original and spliced)
-        splice.libs["spliced"] = add_libraries(spliced_spec, spliced_lib)
-        splice.libs["original"] = add_libraries(original, spliced_lib)
+            # Some shared dependency, don't need to parse twice!
+            if lib in splice.metadata:
+                continue
+            res = self.run_elfcall(lib, ld_library_paths=loads["spliced"])
+            if not res:
+                splice.spliced.remove(lib)
+                continue
+            splice.metadata[lib] = res
 
         # Add the dag hash as the identifier
         splice.add_identifier("/" + spliced_spec.dag_hash()[0:6])
+
+    def run_elfcall(self, lib, ld_library_paths=None):
+        """
+        A wrapper to run elfcall and ensure we add LD_LIBRARY_PATH additions
+        (usually from spack)
+        """
+        bi = BinaryInterface(lib)
+
+        # We don't want to include non-ELF files (and possible limitation - we cannot parse Non ELF)
+        try:
+            return bi.gen_output(
+                lib,
+                secure=False,
+                no_default_libs=False,
+                ld_library_paths=ld_library_paths,
+            )
+        except:
+            logger.warning(
+                "Cannot parse binary or library %s, not including in analysis." % lib
+            )
 
 
 def get_linked_deps(spec):

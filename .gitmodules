@@ -1,0 +1,3 @@
+[submodule "examples/smeagle"]
+	path = examples/smeagle
+	url = https://github.com/buildsi/smeagle-examples

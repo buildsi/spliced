@@ -10,6 +10,10 @@
  
 This library is written and maintained by [@vsoch](https://github.com/vsoch)
  
+## TODO
+
+ - Can we (and do we want to) run in parallel?
+ 
 ## License
 
 Spack is distributed under the terms of both the MIT license and the

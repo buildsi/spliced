@@ -5,7 +5,6 @@
 
 # An experiment loads in a splice setup, and runs a splice session.
 
-# TODO can we run in parallel?
 
 from spliced.logger import logger
 import spliced.predict
@@ -18,7 +17,8 @@ import re
 
 
 class Splice:
-    """A Splice holds the metadata for a splice, and if successful (or possible)
+    """
+    A Splice holds the metadata for a splice, and if successful (or possible)
     will hold a result. A default splice result is not successful
     """
 
@@ -26,16 +26,22 @@ class Splice:
         self,
         package=None,
         splice=None,
-        command=None,
         experiment=None,
         replace=None,
         result=None,
         success=False,
+        different_libs=False,
     ):
 
-        # Typically has "original" and "spliced"
-        self.binaries = {}
-        self.libs = {}
+        # Keep track of original and spliced paths
+        self.original = set()
+        self.spliced = set()
+
+        # This lookup has metadata for each (e.g., elfcall)
+        self.metadata = {}
+
+        # Extra stats for the predictor to record
+        self.stats = {}
 
         self.predictions = {}
         self.package = package
@@ -43,8 +49,10 @@ class Splice:
         self.success = success
         self.result = result
         self.splice = splice
-        self.command = command
         self.id = None
+
+        # Are we splicing different libs?
+        self.different_libs = different_libs
 
     def add_identifier(self, identifier):
         """
@@ -58,40 +66,21 @@ class Splice:
         """
         pass
 
-    def get_binaries(self):
-        """return if the splice was successful and the binaries for it"""
-        binaries = self.binaries.get("spliced", [])
-        if not binaries:
-            print(
-                "Warning - this splice was not successful or not possible, predictions will use original binaries installed of spliced."
-            )
-            binaries = self.binaries.get("original", [])
-        return binaries
-
-    def get_libs(self):
-        """return if the splice was successful and the libs for it"""
-        # Same is case for libset - use what we have
-        libs = self.libs.get("spliced", [])
-        if not libs:
-            print(
-                "Warning - this splice was not successful or not possible, predictions will use dependency libs (not spliced) instead."
-            )
-            libs = self.libs.get("libs", [])
-        return libs
-
     def to_dict(self):
         """
         Return the result as a dictionary
         """
         return {
-            "binaries": self.binaries,
+            "original": list(self.original),
+            "spliced": list(self.spliced),
             "predictions": self.predictions,
-            "libs": self.libs,
+            "stats": self.stats,
             "experiment": self.experiment,
             "result": self.result,
             "success": self.success,
             "splice": self.splice,
             "package": self.package,
+            "different_libs": self.different_libs,
         }
 
     def to_json(self):
@@ -126,7 +115,6 @@ class Experiment:
         package,
         splice,
         experiment,
-        command=None,
         replace=None,
         validate=True,
         splice_versions=None,
@@ -137,8 +125,6 @@ class Experiment:
         self.config = {"splice": splice, "package": package, "replace": replace}
         if experiment:
             self._experiment = experiment
-        if command:
-            self.config["command"] = command
         if splice_versions:
             self._splice_versions = splice_versions
         if validate:
@@ -188,20 +174,27 @@ class Experiment:
     def validate(self):
         jsonschema.validate(instance=self.config, schema=spliced.schemas.spliced_schema)
 
-    def add_splice(self, result, success=False, splice=None, command=None):
-        """Add a splice to the experiment
+    def add_splice(
+        self, result, success=False, splice=None, command=None, different_libs=False
+    ):
+        """
+        Add a splice to the experiment
 
         A splice can either be successful (so it will have libs, binaries, etc)
         or it can represent a failed state (for any number of reasons)
+
+        TODO refactor so we do one splice at a time
+        TODO can we cache the splice setup?
+        # ALSO add cache variable to save cache for smeagle (add to spack experiment)
         """
         new_splice = Splice(
             package=self.package,
             splice=splice or self.splice,
             result=result,
             success=success,
-            command=command or self.command,
             experiment=self.name,
             replace=self.replace,
+            different_libs=different_libs,
         )
         self.splices.append(new_splice)
 
@@ -219,10 +212,6 @@ class Experiment:
     @property
     def splice_versions(self):
         return self.config.get("splice_versions") or self._splice_versions
-
-    @property
-    def command(self):
-        return self.config.get("command")
 
     @property
     def name(self):
