@@ -132,14 +132,15 @@ class SmeaglePrediction(Prediction):
         """
         Given a library, run cle to generate facts and save to cache. Return key.
         """
-        cache_key = (
-            os.path.join(self.cache_dir, lib.replace(os.sep, "-").strip("-")) + ".json"
-        )
+        # Keep same path, but under cache
+        cache_key = os.path.join(self.cache_dir, lib.strip(os.sep) + ".json")
         if os.path.exists(cache_key):
             return cache_key
         logger.info("Generating facts for %s with cle..." % lib)
         data = self.smeagle.get_smeagle_data(lib)
         if "data" in data and data["data"] and data["return_code"] == 0:
+            cache_dir = os.path.dirname(cache_key)
+            utils.mkdir_p(cache_dir)
             utils.write_json(data["data"], cache_key)
         else:
             logger.warning(

@@ -3,9 +3,7 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import spliced.utils as utils
 
-import shlex
 import os
 
 
@@ -20,34 +18,48 @@ class Prediction:
     def __str__(self):
         return str(self.__class__.__name__)
 
+    # Elfcall metadata functions
+    # We assume now that most experiment runners (and predictors) could use this
+    # If we derive another means, this can be generalized
+    def find_elfcall_deps_for(self, splice, lib):
+        """
+        Given a library (that is assumed to be in metadata, from elfcall)
+        find libraries that the linker is assumed to hit and find symbols.
+        """
+        deps = set()
+        for _, symbols in splice.metadata[lib].items():
+            for _, meta in symbols.items():
+                if "lib" not in meta:
+                    continue
+                deps.add(meta["lib"]["realpath"])
+        return deps
 
-class Actual(Prediction):
+    def create_elfcall_deps_lookup(self, splice, libs):
+        """
+        This is subbing in a library with a version of itself, and requires binaries
+        """
+        deps = {}
+        for lib in libs:
+            deps[os.path.basename(lib)] = {
+                "lib": lib,
+                "deps": self.find_elfcall_deps_for(splice, lib),
+            }
+        return deps
+
+
+def match_by_prefix(meta, spliced_meta):
     """
-    Given a splice result with a command, get an actual result.
+    Given an iterable of two things, match based on library prefix. E.g.,
+    basename -> split at . -> match first piece
     """
-
-    def predict(self, splice):
-        if not splice.command:
-            return
-
-        # Check each binary to match the command
-        executable = shlex.split(splice.command)[0]
-        results = []
-
-        # Binaries will have "original" and then "spliced"
-        for binary_type, binaries in splice.binaries.items():
-            for binary in binaries:
-                if binary.endswith(executable):
-                    cmd = "%s%s%s" % (
-                        os.path.dirname(binary),
-                        os.path.sep,
-                        splice.command,
-                    )
-                    res = utils.run_command(cmd)
-                    res["prediction"] = True if res["return_code"] == 0 else False
-                    res["command"] = cmd
-                    res["binary"] = binary
-                    res["binary_type"] = binary_type
-                    results.append(res)
-
-        splice.predictions["actual"] = results
+    matches = []
+    for binary_dep in meta:
+        for spliced_dep in spliced_meta:
+            # No use to compare exact same libs
+            if spliced_dep == binary_dep:
+                continue
+            spliced_prefix = os.path.basename(spliced_dep).split(".")[0]
+            dep_prefix = os.path.basename(binary_dep).split(".")[0]
+            if spliced_prefix == dep_prefix:
+                matches.append({"original": binary_dep, "spliced": spliced_dep})
+    return matches

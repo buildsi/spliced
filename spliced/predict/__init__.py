@@ -1,4 +1,4 @@
-from .base import Prediction, Actual
+from .base import Prediction
 from .symbolator import SymbolatorPrediction
 from .libabigail import LibabigailPrediction
 from .spack import SpackTest
@@ -11,7 +11,7 @@ def get_predictors(names=None):
     """
     names = names or []
     predictors = {
-        "smeagle": SmeaglePrediction(),
+        #        "smeagle": SmeaglePrediction(),
         "symbolator": SymbolatorPrediction(),
         "libabigail": LibabigailPrediction(),
         "spack-test": SpackTest(),
@@ -22,8 +22,5 @@ def get_predictors(names=None):
             if name in names:
                 keepers[name] = predictor
         predictors = keepers
-
-    # Provide the actual no matter what
-    predictors["actual"] = Actual()
 
     return predictors

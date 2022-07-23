@@ -5,7 +5,6 @@
 
 # An experiment loads in a splice setup, and runs a splice session.
 
-# TODO can we run in parallel?
 
 from spliced.logger import logger
 import spliced.predict
@@ -27,7 +26,6 @@ class Splice:
         self,
         package=None,
         splice=None,
-        command=None,
         experiment=None,
         replace=None,
         result=None,
@@ -50,8 +48,10 @@ class Splice:
         self.success = success
         self.result = result
         self.splice = splice
-        self.command = command
         self.id = None
+
+        # Are we splicing different libs?
+        self.different_libs = False
 
     def add_identifier(self, identifier):
         """
@@ -79,6 +79,7 @@ class Splice:
             "success": self.success,
             "splice": self.splice,
             "package": self.package,
+            "different_libs": self.different_libs,
         }
 
     def to_json(self):
@@ -113,7 +114,6 @@ class Experiment:
         package,
         splice,
         experiment,
-        command=None,
         replace=None,
         validate=True,
         splice_versions=None,
@@ -124,8 +124,6 @@ class Experiment:
         self.config = {"splice": splice, "package": package, "replace": replace}
         if experiment:
             self._experiment = experiment
-        if command:
-            self.config["command"] = command
         if splice_versions:
             self._splice_versions = splice_versions
         if validate:
@@ -191,7 +189,6 @@ class Experiment:
             splice=splice or self.splice,
             result=result,
             success=success,
-            command=command or self.command,
             experiment=self.name,
             replace=self.replace,
         )
@@ -211,10 +208,6 @@ class Experiment:
     @property
     def splice_versions(self):
         return self.config.get("splice_versions") or self._splice_versions
-
-    @property
-    def command(self):
-        return self.config.get("command")
 
     @property
     def name(self):

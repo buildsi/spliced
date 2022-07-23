@@ -8,7 +8,6 @@
 from .base import Experiment
 import os
 import sys
-import shlex
 import traceback
 import spliced.utils as utils
 from spliced.logger import logger
@@ -72,6 +71,7 @@ class SpackExperiment(Experiment):
             self.mock_splice(self.splice, self.replace, spec_main)
 
         elif self.splice != self.replace:
+            self.splice.different_libs = True
             for version in spec_spliced.package.versions:
                 if not version:
                     continue
@@ -242,6 +242,8 @@ class SpackExperiment(Experiment):
            SEE SMEAGLE FOR REST
         """
         # Populate list of all binaries/libs for each of original and spliced
+        # This does not include dependencies - these will be added in spice.metadata
+        # below using elfcall!
         for subdir in ["bin", "lib"]:
             original_dir = os.path.join(original.prefix, subdir)
             [
@@ -249,7 +251,11 @@ class SpackExperiment(Experiment):
                 for x in self._populate_spack_directory(original_dir)
             ]
             splice_dir = os.path.join(spliced_spec.prefix, subdir)
-            [splice.spliced.add(x) for x in self._populate_spack_directory(splice_dir)]
+            if os.path.exists(splice_dir):
+                [
+                    splice.spliced.add(x)
+                    for x in self._populate_spack_directory(splice_dir)
+                ]
 
         # Populate metadata with elfcall output for each library or binary
         libs = set().union(splice.original).union(splice.spliced)
