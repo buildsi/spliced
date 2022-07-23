@@ -11,7 +11,7 @@ def get_predictors(names=None):
     """
     names = names or []
     predictors = {
-        #        "smeagle": SmeaglePrediction(),
+        "smeagle": SmeaglePrediction(),
         "symbolator": SymbolatorPrediction(),
         "libabigail": LibabigailPrediction(),
         "spack-test": SpackTest(),
