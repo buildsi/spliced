@@ -6,7 +6,7 @@
 from .base import Prediction
 from spliced.logger import logger
 import spliced.utils as utils
-import itertools
+from .base import match_by_prefix
 
 import os
 
@@ -78,58 +78,23 @@ class LibabigailPrediction(Prediction):
             self.find_tooling()
 
         # If no splice libs OR no tools, cut out early
-        if not splice.libs or (not self.abicompat and not self.abidiff):
+        if (
+            not splice.original
+            or not splice.spliced
+            or (not self.abicompat and not self.abidiff)
+        ):
             return
 
-        # We have TWO cases here:
-        # Case 1: We ONLY have a list of libs that were spliced.
-        if (
-            "spliced" in splice.libs
-            and "original" in splice.libs
-            and splice.libs["spliced"]
-        ):
-            self.splice_equivalent_libs(splice, splice.libs["spliced"])
+        if splice.different_libs:
+            return self.splice_different_libs(splice)
+        return self.splice_equivalent_libs(splice)
 
-        # Case 2: We are mocking a splice, and we have TWO sets of libs: some original, and some to replace with
-        elif "dep" in splice.libs and "replace" in splice.libs:
-            self.splice_different_libs(
-                splice, splice.libs["dep"], splice.libs["replace"]
-            )
-
-    def splice_different_libs(self, splice, original_libs, replace_libs):
+    def splice_different_libs(self, splice):
         """
         In the case of splicing "the same lib" into itself (a different version)
         we can do matching based on names.
         """
-        # If we have spliced binaries, this means the spack splice was successful.
-        # Otherwise, we do not, but we have the original deps to test
-        binaries = splice.get_binaries()
-
-        # Flatten original and replacement libs
-        original_libs = list(itertools.chain(*[x["paths"] for x in original_libs]))
-        replace_libs = list(itertools.chain(*[x["paths"] for x in replace_libs]))
-
-        # Assemble a set of predictions using abicompat
-        predictions = []
-        for binary in binaries:
-            for original_lib in original_libs:
-                for replace_lib in replace_libs:
-
-                    # Run abicompat to make a prediction
-                    res = self.run_abicompat(binary, original_lib, replace_lib)
-                    res["splice_type"] = "different_lib"
-                    predictions.append(res)
-
-        # Assemble a set of predictions using abidiff
-        for original_lib in original_libs:
-            for replace_lib in replace_libs:
-
-                res = self.run_abidiff(original_lib, replace_lib)
-                res["splice_type"] = "different_lib"
-                predictions.append(res)
-
-        if predictions:
-            splice.predictions["libabigail"] = predictions
+        raise NotImplementedError
 
     def run_abidiff(self, original_lib, replace_lib):
         """
@@ -140,8 +105,8 @@ class LibabigailPrediction(Prediction):
         res["command"] = command
 
         # The spliced lib and original
-        res["replace"] = replace_lib
-        res["lib"] = original_lib
+        res["spliced_lib"] = replace_lib
+        res["original_lib"] = original_lib
 
         # If there is a libabigail output, print to see
         if res["message"] != "":
@@ -160,8 +125,8 @@ class LibabigailPrediction(Prediction):
         res["binary"] = binary
 
         # The spliced lib and original
-        res["lib"] = lib
-        res["original_lib"] = original
+        res["original_lib"] = lib
+        res["spliced_lib"] = original
 
         # If there is a libabigail output, print to see
         if res["message"] != "":
@@ -169,76 +134,55 @@ class LibabigailPrediction(Prediction):
         res["prediction"] = res["message"] == "" and res["return_code"] == 0
         return res
 
-    def splice_equivalent_libs(self, splice, libs):
+    def splice_equivalent_libs(self, splice):
         """
         In the case of splicing "the same lib" into itself (a different version)
         we can do matching based on names. We can use abicomat with binaries, and
         abidiff for just between the libs.
         """
-        # Flatten original libs into flat list
-        original_libs = list(
-            itertools.chain(*[x["paths"] for x in splice.libs.get("original", [])])
-        )
 
-        # If we have spliced binaries, this means the spack splice was successful.
-        # Otherwise, we do not, but we have the original deps to test
-        binaries = splice.get_binaries()
+        # For each original (we assume working) binary, find its deps from elfcall,
+        # and then match to the equivalent lib (via basename) for the splice
+        original_deps = self.create_elfcall_deps_lookup(splice, splice.original)
+        spliced_deps = self.create_elfcall_deps_lookup(splice, splice.spliced)
 
-        # Assemble a set of predictions
+        # Create a set of predictions for each spliced binary / lib combination
         predictions = []
-        for binary in binaries:
-            for libset in libs:
-                for lib in libset["paths"]:
 
-                    # Try to match libraries based on prefix (versioning is likely to change)
-                    libprefix = os.path.basename(lib).split(".")[0]
+        # Keep track of abidiffs we've done
+        abidiffs = set()
+        for binary, meta in original_deps.items():
+            # Match the binary to the spliced one
+            if binary not in spliced_deps:
+                continue
 
-                    # Find an original library path with the same prefix
-                    originals = [
-                        x
-                        for x in original_libs
-                        if os.path.basename(x).startswith(libprefix)
-                    ]
-                    if not originals:
-                        logger.warning(
-                            "Warning, original comparison library not found for %s, required for abicompat."
-                            % lib
-                        )
-                        continue
+            spliced_meta = spliced_deps[binary]
+            binary_fullpath = meta["lib"]
 
-                    # The best we can do is compare all contender matches
-                    for original in originals:
+            # We must find a matching lib for each based on prefix
+            matches = match_by_prefix(meta["deps"], spliced_meta["deps"])
 
-                        # Run abicompat to make a prediction
-                        res = self.run_abicompat(binary, original, lib)
-                        res["splice_type"] = "same_lib"
-                        predictions.append(res)
+            # If we don't have matches, nothing to look at
+            if not matches:
+                continue
 
-        # Next predictions using abidiff
-        for libset in libs:
-            for lib in libset["paths"]:
+            # Also cache the lib (original or after splice) if we don't have it yet
+            for match in matches:
 
-                # Try to match libraries based on prefix (versioning is likely to change)
-                libprefix = os.path.basename(lib).split(".")[0]
+                # Run abicompat with the binary
+                result = self.run_abicompat(
+                    binary_fullpath, match["original"], match["spliced"]
+                )
+                result["splice_type"] = "same_lib"
+                predictions.append(result)
 
-                # Find an original library path with the same prefix
-                originals = [
-                    x
-                    for x in original_libs
-                    if os.path.basename(x).startswith(libprefix)
-                ]
-                if not originals:
-                    logger.warning(
-                        "Warning, original comparison library not found for %s, required for abidiff."
-                        % lib
-                    )
-                    continue
-
-                # The best we can do is compare all contender matches
-                for original in originals:
-                    res = self.run_abidiff(original, lib)
+                # Run abidiff if we haven't for this pair yet
+                key = (match["original"], match["spliced"])
+                if key not in abidiffs:
+                    res = self.run_abidiff(match["original"], match["spliced"])
                     res["splice_type"] = "same_lib"
                     predictions.append(res)
+                    abidiffs.add(key)
 
         if predictions:
             splice.predictions["libabigail"] = predictions

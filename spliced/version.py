@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-__version__ = "0.0.15"
+__version__ = "0.0.16"
 AUTHOR = "Vanessa Sochat"
 NAME = "spliced"
 PACKAGE_URL = "https://github.com/buildsi/spliced"
@@ -19,8 +19,18 @@ INSTALL_REQUIRES = (
     ("requests", {"min_version": None}),
     ("symbolator-python", {"min_version": None}),
     ("jsonschema", {"min_version": None}),
+    # required for smeagle
+    # Note that we also require cle
+    ("clingo", {"min_version": None}),
+    ("elfcall", {"min_version": None}),
+    # Note that smeagle also requires cle
+    # git clone https://github.com/vsoch/cle
+    # archinfo, pyvex, pyelftools, then cle
+    # pip install wheel
+    # pip install git+https://github.com/angr/archinfo
+    # pip install git+https://github.com/angr/pyvex
+    # pip install git+https://github.com/eliben/pyelftools
 )
-
 
 TESTS_REQUIRES = (("pytest", {"min_version": "4.6.2"}),)
 
