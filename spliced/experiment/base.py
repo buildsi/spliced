@@ -18,7 +18,8 @@ import re
 
 
 class Splice:
-    """A Splice holds the metadata for a splice, and if successful (or possible)
+    """
+    A Splice holds the metadata for a splice, and if successful (or possible)
     will hold a result. A default splice result is not successful
     """
 
@@ -33,9 +34,15 @@ class Splice:
         success=False,
     ):
 
-        # Typically has "original" and "spliced"
-        self.binaries = {}
-        self.libs = {}
+        # Keep track of original and spliced paths
+        self.original = set()
+        self.spliced = set()
+
+        # This lookup has metadata for each (e.g., elfcall)
+        self.metadata = {}
+
+        # Extra stats for the predictor to record
+        self.stats = {}
 
         self.predictions = {}
         self.package = package
@@ -58,35 +65,15 @@ class Splice:
         """
         pass
 
-    def get_binaries(self):
-        """return if the splice was successful and the binaries for it"""
-        binaries = self.binaries.get("spliced", [])
-        if not binaries:
-            print(
-                "Warning - this splice was not successful or not possible, predictions will use original binaries installed of spliced."
-            )
-            binaries = self.binaries.get("original", [])
-        return binaries
-
-    def get_libs(self):
-        """return if the splice was successful and the libs for it"""
-        # Same is case for libset - use what we have
-        libs = self.libs.get("spliced", [])
-        if not libs:
-            print(
-                "Warning - this splice was not successful or not possible, predictions will use dependency libs (not spliced) instead."
-            )
-            libs = self.libs.get("libs", [])
-        return libs
-
     def to_dict(self):
         """
         Return the result as a dictionary
         """
         return {
-            "binaries": self.binaries,
+            "original": self.original,
+            "spliced": self.spliced,
             "predictions": self.predictions,
-            "libs": self.libs,
+            "stats": self.stats,
             "experiment": self.experiment,
             "result": self.result,
             "success": self.success,
@@ -189,10 +176,15 @@ class Experiment:
         jsonschema.validate(instance=self.config, schema=spliced.schemas.spliced_schema)
 
     def add_splice(self, result, success=False, splice=None, command=None):
-        """Add a splice to the experiment
+        """
+        Add a splice to the experiment
 
         A splice can either be successful (so it will have libs, binaries, etc)
         or it can represent a failed state (for any number of reasons)
+
+        TODO refactor so we do one splice at a time
+        TODO can we cache the splice setup?
+        # ALSO add cache variable to save cache for smeagle (add to spack experiment)
         """
         new_splice = Splice(
             package=self.package,

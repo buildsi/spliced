@@ -21,6 +21,7 @@ INSTALL_REQUIRES = (
     ("jsonschema", {"min_version": None}),
     # required for smeagle
     ("clingo", {"min_version": None}),
+    ("elfcall", {"min_version": None}),
 )
 
 TESTS_REQUIRES = (("pytest", {"min_version": "4.6.2"}),)
