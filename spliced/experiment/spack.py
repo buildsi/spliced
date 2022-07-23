@@ -277,9 +277,6 @@ class SpackExperiment(Experiment):
                     for x in self._populate_spack_directory(splice_dir)
                 ]
 
-        # Populate metadata with elfcall output for each library or binary
-        libs = set().union(splice.original).union(splice.spliced)
-
         # IMPORTANT we must emulate "spack load" in order for libs to be found...
         loads = {}
         with spack.store.db.read_transaction():
