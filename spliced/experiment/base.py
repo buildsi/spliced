@@ -49,16 +49,23 @@ class Splice:
         self.success = success
         self.result = result
         self.splice = splice
-        self.id = None
+        self.original_id = None
+        self.spliced_id = None
 
         # Are we splicing different libs?
         self.different_libs = different_libs
 
-    def add_identifier(self, identifier):
+    def add_original_identifier(self, identifier):
         """
         Add some experiment specific identifier (e.g., dag hash for spack)
         """
-        self.id = identifier
+        self.original_id = identifier
+
+    def add_spliced_identifier(self, identifier):
+        """
+        Add some experiment specific identifier (e.g., dag hash for spack)
+        """
+        self.spliced_id = identifier
 
     def match_libs(self):
         """

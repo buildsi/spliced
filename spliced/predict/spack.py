@@ -12,14 +12,26 @@ class SpackTest(Prediction):
     If we find this is a spack package (e.g, installed in a spack root) run spack test for the splice.
     """
 
-    def predict(self, splice):
-        if not splice.id or not splice.id.startswith("/"):
-            return
-
-        # Check each binary to match the command
+    def spack_test(self, identifier):
+        """
+        Run spack tests for original and spliced
+        """
         executable = utils.which("spack")
-        cmd = "%s test run %s" % (executable, splice.id)
+        cmd = "%s test run %s" % (executable, identifier)
         res = utils.run_command(cmd)
         res["prediction"] = True if res["return_code"] == 0 else False
         res["command"] = cmd
-        splice.predictions["spack-test"] = [res]
+        return res
+
+    def predict(self, splice):
+        splice.predictions["spack-test"] = []
+
+        # Run spack tests for original and spliced
+        if splice.original_id:
+            test_original = self.spack_test(splice.original_id)
+            test_original["install"] = "original"
+            splice.predictions["spack-test"].append(test_original)
+        if splice.spliced_id:
+            test_spliced = self.spack_test(splice.spliced_id)
+            test_spliced["install"] = "spliced"
+            splice.predictions["spack-test"].append(test_spliced)

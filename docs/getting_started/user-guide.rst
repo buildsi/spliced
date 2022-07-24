@@ -31,11 +31,17 @@ What predictors are available?
 As stated above, a **predictor** is a tool that can take some set of binaries or libraries, and say "I think if you use A with B, it will work."
 spliced currently has the following predictors:
 
- - **actual**: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our "ground truth" for the other predictors that aren't actually testing anything, but just predicting.
- - **libabigail**: is a `library provided by RedHat <https://sourceware.org/libabigail/>`_ that provides tooling for assessing ABI compatibility.
+ - **actual**: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our "ground truth" for the other predictors that aren't actually testing anything, but just predicting. For this predictor we test the original install and the spec install.
+ - **libabigail**: is a `library provided by RedHat <https://sourceware.org/libabigail/>`_ that provides tooling for assessing ABI compatibility. You'll need the tools installed on your path, and if using the spack experiment runner, it will fall back to installing them with spack.
  - **symbolator**: is a `simple library developed by the group here <https://github.com/buildsi/symbolator>`_ that makes predictions based on comparing symbol sets.
  - **spack-test**: will, given that the splice has an id that matches a spack dag hash, run tests associated with that spec.
- - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is not added yet, but will be eventually.
+ - **abi-laboratory**: will use the ``abi-dumper`` and ``abi-compliance-checker`` from the Abi Laboratory, and requires that you export ``SPLICED_ABILAB_CONTAINER`` to be a path to `the Singularity container here <>`_, as shown with the Singularity pull command below.
+ - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is added but considered to be in experimental state. It requires `my branch of cle <https://github.com/vsoch/cle>`_.
+
+.. code-block:: console
+
+    $ singularity pull docker://ghcr.io/buildsi/abi-laboratory-docker
+    $ export SPLICED_ABILAB_CONTAINER=$PWD/abi-laboratory-docker_latest.sif
 
 Config File
 ===========

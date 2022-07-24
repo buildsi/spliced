@@ -3,6 +3,7 @@ from .symbolator import SymbolatorPrediction
 from .libabigail import LibabigailPrediction
 from .spack import SpackTest
 from .smeagle import SmeaglePrediction
+from .abi_laboratory import AbiLaboratoryPrediction
 
 
 def get_predictors(names=None):
@@ -15,6 +16,7 @@ def get_predictors(names=None):
         "symbolator": SymbolatorPrediction(),
         "libabigail": LibabigailPrediction(),
         "spack-test": SpackTest(),
+        "abi-laboratory": AbiLaboratoryPrediction(),
     }
     if names:
         keepers = {}

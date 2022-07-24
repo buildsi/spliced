@@ -316,7 +316,8 @@ class SpackExperiment(Experiment):
             splice.metadata[lib] = res
 
         # Add the dag hash as the identifier
-        splice.add_identifier("/" + spliced_spec.dag_hash()[0:6])
+        splice.add_spliced_identifier("/" + spliced_spec.dag_hash()[0:6])
+        splice.add_original_identifier("/" + original.dag_hash()[0:6])
 
     def run_elfcall(self, lib, ld_library_paths=None):
         """
