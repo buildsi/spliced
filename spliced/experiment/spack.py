@@ -75,14 +75,21 @@ class SpackExperiment(Experiment):
         # A splice with the same package as the library is the first type
         # For this case, we already have a version in mind
         if self.splice == self.replace and "@" in self.splice:
-            self.do_splice(self.splice, spec_main, transitive)
+            return self.do_splice(self.splice, spec_main, transitive)
 
         # If the splice and replace are different, we can't attempt a splice with
         # spack (there is simply no support for it) but we can emulate it
         elif self.splice != self.replace and "@" in self.splice:
-            self.mock_splice(self.splice, self.replace, spec_main)
+            return self.mock_splice(self.splice, self.replace, spec_main)
 
-        elif self.splice != self.replace:
+        # New spack requires concretized to ask for package
+        spec_spliced = self.concretize(
+            spec=spec_spliced, error_message="splice-concretization-failed"
+        )
+        if not spec_spliced:
+            return
+
+        if self.splice != self.replace:
             for version in spec_spliced.package.versions:
                 if not version:
                     continue
@@ -104,6 +111,25 @@ class SpackExperiment(Experiment):
                 % (self.splice, self.replace)
             )
 
+    def concretize(self, spec_name, error_message, spec=None):
+        """
+        A shared function to attempt concretization.
+        """
+        # Try to first concretize the splice dependency
+        try:
+            if spec:
+                spec.concretize()
+                return spec
+            return Spec(spec_name).concretized()
+        except:
+            traceback.print_exc()
+            self.add_splice(
+                error_message,
+                success=False,
+                splice=spec_name,
+                different_libs=True,
+            )
+
     def mock_splice(self, splice_name, replace_name, spec_main):
         """
         A mock splice is not possible with spack (it usually means replacing one
@@ -115,16 +141,8 @@ class SpackExperiment(Experiment):
         print("Preparing mock splice for %s -> %s" % (replace_name, splice_name))
 
         # Try to first concretize the splice dependency
-        try:
-            dep = Spec(splice_name).concretized()
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                "mock-splice-concretization-failed",
-                success=False,
-                splice=splice_name,
-                different_libs=True,
-            )
+        dep = self.concretize(splice_name, "mock-splice-concretization-failed")
+        if not dep:
             return
 
         # And install the dependency
@@ -178,15 +196,8 @@ class SpackExperiment(Experiment):
         """
         print("Testing splicing in (and out) %s" % splice_name)
 
-        # Failure case 2: dependency fails to concretize
-        # We can't test anything here
-        try:
-            dep = Spec(splice_name).concretized()
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                "splice-concretization-failed", success=False, splice=splice_name
-            )
+        dep = self.concretize(splice_name, "splice-concretization-failed")
+        if not dep:
             return
 
         # Failure case 3: the dependency does not build, we can't test anything here
@@ -323,8 +334,6 @@ class SpackExperiment(Experiment):
             iter_deps(res, "original")
             all_libs.add(lib)
             splice.metadata[lib] = res
-
-        # TODO add calculating sizes here
 
         for lib in splice.spliced:
 
