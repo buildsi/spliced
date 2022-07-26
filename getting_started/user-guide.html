@@ -49,7 +49,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#why-spliced">Why spliced?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-experiments-are-available">What experiments are available?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#what-predictors-are-available">What predictors are available?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-predictors-are-available">What predictors are available?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#smeagle">Smeagle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#abi-laboratory-predictor">Abi Laboratory Predictor</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#config-file">Config File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#spliced-commands">Spliced Commands</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#command">Command</a></li>
@@ -71,7 +75,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/spliced.html">Spliced API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/spliced.html">spliced package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/internal/modules.html">Internal API</a></li>
 </ul>
 
@@ -128,13 +132,36 @@ We haven’t developed this use case yet.</p>
 spliced currently has the following predictors:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>actual</strong>: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our “ground truth” for the other predictors that aren’t actually testing anything, but just predicting.</p></li>
-<li><p><strong>libabigail</strong>: is a <a class="reference external" href="https://sourceware.org/libabigail/">library provided by RedHat</a> that provides tooling for assessing ABI compatibility.</p></li>
-<li><p><strong>symbolator</strong>: is a <a class="reference external" href="https://github.com/buildsi/symbolator">simple library developed by the group here</a> that makes predictions based on comparing symbol sets.</p></li>
+<li><p><strong>actual</strong>: This is a base level of predictor that will (for the spack runner) run spack tests for each of the original install and spliced version. This is our “ground truth” for the other predictors that aren’t actually testing anything, but just predicting.</p></li>
+<li><p><strong>libabigail</strong>: is a <a class="reference external" href="https://sourceware.org/libabigail/">library provided by RedHat</a> that provides tooling for assessing ABI compatibility. You’ll need the tools installed on your path, and if using the spack experiment runner, it will fall back to installing them with spack.</p></li>
+<li><p><strong>symbols</strong>: makes predictions based on comparing symbol sets.</p></li>
 <li><p><strong>spack-test</strong>: will, given that the splice has an id that matches a spack dag hash, run tests associated with that spec.</p></li>
-<li><p><strong>smeagle</strong>: is <a class="reference external" href="https://github.com/buildsi/Smeagle">another library being developed here</a> that is not added yet, but will be eventually.</p></li>
+<li><p><strong>abi-laboratory</strong>: will use the <code class="docutils literal notranslate"><span class="pre">abi-dumper</span></code> and <code class="docutils literal notranslate"><span class="pre">abi-compliance-checker</span></code> from the Abi Laboratory, and requires that you export <code class="docutils literal notranslate"><span class="pre">SPLICED_ABILAB_CONTAINER</span></code> to be a path to <a href="#id1"><span class="problematic" id="id2">`the Singularity container here &lt;&gt;`_</span></a>, as shown with the Singularity pull command below.</p></li>
+<li><p><strong>smeagle</strong>: is <a class="reference external" href="https://github.com/buildsi/Smeagle">another library being developed here</a> that is added but considered to be in experimental state. It requires <a class="reference external" href="https://github.com/vsoch/cle">my branch of cle</a>.</p></li>
 </ul>
 </div></blockquote>
+<section id="smeagle">
+<h3>Smeagle<a class="headerlink" href="#smeagle" title="Permalink to this heading"></a></h3>
+<p>Smeagle (under development) will run given that its dependencies are installed, and that you have set
+a cache to save facts. For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">SPLICED_SMEAGLE_CACHE</span><span class="o">=</span>/p/vast1/build/smeagle-cache
+</pre></div>
+</div>
+<p>Note that it will output facts json files, and they will be prefixed with smeagle
+and organized by library location so you can share the cache between predictors.</p>
+</section>
+<section id="abi-laboratory-predictor">
+<h3>Abi Laboratory Predictor<a class="headerlink" href="#abi-laboratory-predictor" title="Permalink to this heading"></a></h3>
+<p>The ABI Laboratory predictor uses <a class="reference external" href="https://github.com/buildsi/abi-laboratory-docker">this GitHub packages container</a> to run the prediction. This means that you need to pull it and export to the environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>singularity pull docker://ghcr.io/buildsi/abi-laboratory-docker
+<span class="gp">$ </span><span class="nb">export</span> <span class="nv">SPLICED_ABILAB_CONTAINER</span><span class="o">=</span><span class="nv">$PWD</span>/abi-laboratory-docker_latest.sif
+</pre></div>
+</div>
+<p>The ABI Laboratory also supports using a cache for results:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">SPLICED_ABILAB_CACHE</span><span class="o">=</span>/p/vast1/build/smeagle-cache
+</pre></div>
+</div>
+</section>
 </section>
 <section id="config-file">
 <h2>Config File<a class="headerlink" href="#config-file" title="Permalink to this heading"></a></h2>
@@ -223,13 +250,13 @@ you’ll see:</p>
 <li><p>Running splice predictors (not developed yet) but will give a prediction if the splice will work!</p></li>
 <li><p>Commands, if provided, are then run to give an “actual” report of if it worked (according to the command) or not.</p></li>
 </ol>
-<p>By default, the predictors used will be all that are provided (libabigail and symbolator and an actual) and if
+<p>By default, the predictors used will be all that are provided (libabigail and symbols and an actual) and if
 any predictor dependency is missing, a warning will be printed and it will be skipped. If you want to filter
 to a specific number of predictors, use <cite>–predictor</cite> for each.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbolator
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbols
 </pre></div>
 </div>
-<p>The above would run the experiment with a symbolator prediction.
+<p>The above would run the experiment with a symbols prediction.
 Note that the “actual” run is always performed if a command is provided, but not if it isn’t.
 Here is what an entire run looks like, with a testing command and  output saved to a json file with <cite>–outfile</cite></p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --runner spack --replace zlib --experiment curl --outfile examples/curl-result.json curl --head https://linuxize.com/

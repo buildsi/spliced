@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.predict.smeagle package &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spliced.utils package" href="spliced.utils.html" />
+    <link rel="prev" title="spliced.predict package" href="spliced.predict.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="spliced.html">spliced package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spliced.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spliced.client.html">spliced.client package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spliced.experiment.html">spliced.experiment package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="spliced.predict.html">spliced.predict package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="spliced.predict.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#module-spliced.predict.abi_laboratory">spliced.predict.abi_laboratory module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#module-spliced.predict.base">spliced.predict.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#module-spliced.predict.libabigail">spliced.predict.libabigail module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#module-spliced.predict.spack">spliced.predict.spack module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#module-spliced.predict.symbols">spliced.predict.symbols module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spliced.predict.html#module-spliced.predict">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spliced.utils.html">spliced.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced.logger">spliced.logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced.schemas">spliced.schemas module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced.version">spliced.version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="spliced.html">spliced package</a> &raquo;</li>
+          <li><a href="spliced.predict.html">spliced.predict package</a> &raquo;</li>
+      <li>spliced.predict.smeagle package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api_reference/spliced.predict.smeagle.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spliced-predict-smeagle-package">
+<h1>spliced.predict.smeagle package<a class="headerlink" href="#spliced-predict-smeagle-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-spliced.predict.smeagle.asp">
+<span id="spliced-predict-smeagle-asp-module"></span><h2>spliced.predict.smeagle.asp module<a class="headerlink" href="#module-spliced.predict.smeagle.asp" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.AspFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.asp.</span></span><span class="sig-name descname"><span class="pre">AspFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#AspFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.AspFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An asp function</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.AspFunction.symbol">
+<span class="sig-name descname"><span class="pre">symbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#AspFunction.symbol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.AspFunction.symbol" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.AspFunctionBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.asp.</span></span><span class="sig-name descname"><span class="pre">AspFunctionBuilder</span></span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#AspFunctionBuilder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.AspFunctionBuilder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.asp.</span></span><span class="sig-name descname"><span class="pre">PyclingoDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.devnull">
+<span class="sig-name descname"><span class="pre">devnull</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.devnull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.devnull" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.fact">
+<span class="sig-name descname"><span class="pre">fact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.fact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.fact" title="Permalink to this definition"></a></dt>
+<dd><p>ASP fact (a rule without a body).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.h1">
+<span class="sig-name descname"><span class="pre">h1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.h1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.h1" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.h2">
+<span class="sig-name descname"><span class="pre">h2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.h2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.h2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.newline">
+<span class="sig-name descname"><span class="pre">newline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.newline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.newline" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic_programs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facts_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.solve" title="Permalink to this definition"></a></dt>
+<dd><p>Run the solver for a model and some number of logic programs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.PyclingoDriver.title">
+<span class="sig-name descname"><span class="pre">title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#PyclingoDriver.title"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.PyclingoDriver.title" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.asp.Result">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.asp.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/asp.html#Result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.asp.Result" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of an ASP solve.</p>
+</dd></dl>
+
+</section>
+<section id="module-spliced.predict.smeagle.smeagle">
+<span id="spliced-predict-smeagle-smeagle-module"></span><h2>spliced.predict.smeagle.smeagle module<a class="headerlink" href="#module-spliced.predict.smeagle.smeagle" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.smeagle.</span></span><span class="sig-name descname"><span class="pre">SmeagleRunner</span></span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner.compatible_test">
+<span class="sig-name descname"><span class="pre">compatible_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.compatible_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.compatible_test" title="Permalink to this definition"></a></dt>
+<dd><p>A set test scopes a library A (lib) to be compared against its space of
+dependencies (lib_set). To properly scope the output list of facts,
+we take a lookup that has key (the library facts json to load) and value
+as the set of symbols to include in the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner.generate_facts">
+<span class="sig-name descname"><span class="pre">generate_facts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib_basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.generate_facts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.generate_facts" title="Permalink to this definition"></a></dt>
+<dd><p>Generate facts for one entry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner.get_smeagle_data">
+<span class="sig-name descname"><span class="pre">get_smeagle_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.get_smeagle_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.get_smeagle_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get smeagle data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner.load_data">
+<span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.load_data" title="Permalink to this definition"></a></dt>
+<dd><p>Common function to derive json data and a library.
+Each is optional to be provided, and we are flexible to accept either.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner.stability_test">
+<span class="sig-name descname"><span class="pre">stability_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.stability_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.stability_test" title="Permalink to this definition"></a></dt>
+<dd><p>Run the stability test for two entries.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spliced.predict.smeagle.solver">
+<span id="spliced-predict-smeagle-solver-module"></span><h2>spliced.predict.smeagle.solver module<a class="headerlink" href="#module-spliced.predict.smeagle.solver" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.FactGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">FactGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib_basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#FactGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.FactGenerator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.smeagle.solver.SolverBase" title="spliced.predict.smeagle.solver.SolverBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverBase</span></code></a></p>
+<p>Class to orchestrate fact generation (uses FactGeneratorSetup)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.FactGenerator.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#FactGenerator.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.FactGenerator.solve" title="Permalink to this definition"></a></dt>
+<dd><p>Generate facts</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.FactGeneratorSetup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">FactGeneratorSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib_basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#FactGeneratorSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.FactGeneratorSetup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.smeagle.solver.GeneratorBase" title="spliced.predict.smeagle.solver.GeneratorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneratorBase</span></code></a></p>
+<p>Class to accept one library and generate facts.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.FactGeneratorSetup.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#FactGeneratorSetup.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.FactGeneratorSetup.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup to prepare for the solve.
+This base function provides fact generation for one library.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">GeneratorBase</span></span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The GeneratorBase is the base for any kind of Setup (fact generator or solve)
+Base functions to set up an ABI Stability and Compatability Solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.add_library">
+<span class="sig-name descname"><span class="pre">add_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.add_library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.add_library" title="Permalink to this definition"></a></dt>
+<dd><p>Given a loaded Smeagle Model, generate facts for it.</p>
+<p>If an identifier is given we are doing a comparison / diff between two
+libraries, and this is akin to a namespace, usually A and B.
+Otherwise we just output facts without one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.add_location">
+<span class="sig-name descname"><span class="pre">add_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.add_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.add_location" title="Permalink to this definition"></a></dt>
+<dd><p>Convenience function to print a location, ensuring to add identifier if defined</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.generate_function">
+<span class="sig-name descname"><span class="pre">generate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callsite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.generate_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.generate_function" title="Permalink to this definition"></a></dt>
+<dd><p>Generate facts for a function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.generate_variable">
+<span class="sig-name descname"><span class="pre">generate_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.generate_variable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.generate_variable" title="Permalink to this definition"></a></dt>
+<dd><p>Generate facts for a variable</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.lib_basename">
+<span class="sig-name descname"><span class="pre">lib_basename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.lib_basename" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.parse_aggregate">
+<span class="sig-name descname"><span class="pre">parse_aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.parse_aggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.parse_aggregate" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a struct or a class (and maybe union)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.parse_aggregate_by_value">
+<span class="sig-name descname"><span class="pre">parse_aggregate_by_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.parse_aggregate_by_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.parse_aggregate_by_value" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an aggregate by value.</p>
+<p>When it’s by value the parser cle has already provided registers
+and we don’t need to worry about offsets</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.parse_array">
+<span class="sig-name descname"><span class="pre">parse_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.parse_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.parse_array" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a struct or a class (and maybe union)</p>
+<p>abi_typelocation(“example”,”_Z3fooiPP7Structy”,”Import”,”Array[5]”,”((%rsi))”).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.parse_empty_struct">
+<span class="sig-name descname"><span class="pre">parse_empty_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.parse_empty_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.parse_empty_struct" title="Permalink to this definition"></a></dt>
+<dd><p>Make up a fact for an empty struct</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.parse_opaque">
+<span class="sig-name descname"><span class="pre">parse_opaque</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.parse_opaque"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.parse_opaque" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an opaque (recursive) type</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.parse_type">
+<span class="sig-name descname"><span class="pre">parse_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_added</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.parse_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.parse_type" title="Permalink to this definition"></a></dt>
+<dd><p>Top level function to parse an underlying type fact.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.unwrap_immediate_type">
+<span class="sig-name descname"><span class="pre">unwrap_immediate_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.unwrap_immediate_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.unwrap_immediate_type" title="Permalink to this definition"></a></dt>
+<dd><p>Unwrap the type just one level</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.unwrap_location">
+<span class="sig-name descname"><span class="pre">unwrap_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.unwrap_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.unwrap_location" title="Permalink to this definition"></a></dt>
+<dd><p>Unwrap the type</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.GeneratorBase.unwrap_type">
+<span class="sig-name descname"><span class="pre">unwrap_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#GeneratorBase.unwrap_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.GeneratorBase.unwrap_type" title="Permalink to this definition"></a></dt>
+<dd><p>Unwrap the type</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.SolverBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">SolverBase</span></span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#SolverBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.SolverBase" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Common base functions for some kind of solver.
+For stability, compatibility, or just fact generation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.SolverBase.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#SolverBase.print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.SolverBase.print" title="Permalink to this definition"></a></dt>
+<dd><p>Print a result to the terminal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.SolverBase.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#SolverBase.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.SolverBase.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup to prepare for the solve.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySetSolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">StabilitySetSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libsB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySetSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySetSolver" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.smeagle.solver.StabilitySolver" title="spliced.predict.smeagle.solver.StabilitySolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">StabilitySolver</span></code></a></p>
+<p>Class to orchestrate a Stability Set Solver.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySetSolverSetup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">StabilitySetSolverSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libsB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySetSolverSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySetSolverSetup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.smeagle.solver.GeneratorBase" title="spliced.predict.smeagle.solver.GeneratorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneratorBase</span></code></a></p>
+<p>Class to set up and run an ABI Stability and Compatability Solver
+using one library A, a set of symbols for it, and a set of dependency
+libraries B, under namespace B, also each with symbols.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySetSolverSetup.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySetSolverSetup.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySetSolverSetup.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup to prepare for the solve.
+This function overrides the base setup, which will generate facts only
+for one function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySolver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">StabilitySolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySolver" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.smeagle.solver.SolverBase" title="spliced.predict.smeagle.solver.SolverBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolverBase</span></code></a></p>
+<p>Class to orchestrate a Stability Solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logic_programs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySolver.solve" title="Permalink to this definition"></a></dt>
+<dd><p>Run the solve</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySolverSetup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.solver.</span></span><span class="sig-name descname"><span class="pre">StabilitySolverSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySolverSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySolverSetup" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.smeagle.solver.GeneratorBase" title="spliced.predict.smeagle.solver.GeneratorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeneratorBase</span></code></a></p>
+<p>Class to set up and run an ABI Stability and Compatability Solver.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.solver.StabilitySolverSetup.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">driver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/solver.html#StabilitySolverSetup.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.solver.StabilitySolverSetup.setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup to prepare for the solve.
+This function overrides the base setup, which will generate facts only
+for one function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spliced.predict.smeagle">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spliced.predict.smeagle" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.</span></span><span class="sig-name descname"><span class="pre">SmeaglePrediction</span></span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="spliced.predict.html#spliced.predict.base.Prediction" title="spliced.predict.base.Prediction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prediction</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.generate_cle_data">
+<span class="sig-name descname"><span class="pre">generate_cle_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'smeagle'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.generate_cle_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.generate_cle_data" title="Permalink to this definition"></a></dt>
+<dd><p>Given a library, run cle to generate facts and save to cache. Return key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Run smeagle to add to the predictions
+# Testing command:
+# spliced splice –package <a class="reference external" href="mailto:swig&#37;&#52;&#48;3&#46;0&#46;8">swig<span>&#64;</span>3<span>&#46;</span>0<span>&#46;</span>8</a> –splice pcre –runner spack –replace pcre –experiment experiment</p>
+<ol class="arabic simple">
+<li><p>splice is going to have libraries found and symbols and imported missing</p></li>
+<li><p>If any imported missing, record splice fail (we need all the symbols)</p></li>
+<li><p>Get list of associated paths from elfcall, generate facts for each</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>try to mamke cache based on the library fullpath</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>After facts are generated, spliced-&gt;smeagle runner should:</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>generate asp facts for main lib/binary for all symbols in the union set across dependencies</p></li>
+<li><p>for each dependency, only genderate asp facts for the symbols that come from it</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>An entirely new ASP model that compares A (the single binary/lib) to B (symbols across deps)
+If no splice libs OR no tools, cut out early</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.test_lib">
+<span class="sig-name descname"><span class="pre">test_lib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facts_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.test_lib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.test_lib" title="Permalink to this definition"></a></dt>
+<dd><p>Given an initial library (lib) that we have facts (facts_path) for, use the
+splice lookup to derive the exact dependency libraries (and set of symbols)
+that are needed. IF a dependency library fails to generate facts, we simply
+don’t include its symbols. We do this so we can still make a prediction on
+imperfect information.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spliced.predict.html" class="btn btn-neutral float-left" title="spliced.predict package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spliced.utils.html" class="btn btn-neutral float-right" title="spliced.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

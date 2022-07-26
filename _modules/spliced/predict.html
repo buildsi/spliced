@@ -48,7 +48,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../api_reference/spliced.html">Spliced API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference/spliced.html">spliced package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference/internal/modules.html">Internal API</a></li>
 </ul>
 
@@ -78,22 +78,24 @@
              
   <h1>Source code for spliced.predict</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span>
-<span class="kn">from</span> <span class="nn">.symbolator</span> <span class="kn">import</span> <span class="n">SymbolatorPrediction</span>
+<span class="kn">from</span> <span class="nn">.symbols</span> <span class="kn">import</span> <span class="n">SymbolsPrediction</span>
 <span class="kn">from</span> <span class="nn">.libabigail</span> <span class="kn">import</span> <span class="n">LibabigailPrediction</span>
 <span class="kn">from</span> <span class="nn">.spack</span> <span class="kn">import</span> <span class="n">SpackTest</span>
 <span class="kn">from</span> <span class="nn">.smeagle</span> <span class="kn">import</span> <span class="n">SmeaglePrediction</span>
+<span class="kn">from</span> <span class="nn">.abi_laboratory</span> <span class="kn">import</span> <span class="n">AbiLaboratoryPrediction</span>
 
 
-<div class="viewcode-block" id="get_predictors"><a class="viewcode-back" href="../../api_reference/internal/spliced.html#spliced.predict.get_predictors">[docs]</a><span class="k">def</span> <span class="nf">get_predictors</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_predictors"><a class="viewcode-back" href="../../api_reference/spliced.predict.html#spliced.predict.get_predictors">[docs]</a><span class="k">def</span> <span class="nf">get_predictors</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a lookup of predictors for an experiment to run.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">names</span> <span class="o">=</span> <span class="n">names</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="n">predictors</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;smeagle&quot;</span><span class="p">:</span> <span class="n">SmeaglePrediction</span><span class="p">(),</span>
-        <span class="s2">&quot;symbolator&quot;</span><span class="p">:</span> <span class="n">SymbolatorPrediction</span><span class="p">(),</span>
+        <span class="s2">&quot;symbols&quot;</span><span class="p">:</span> <span class="n">SymbolsPrediction</span><span class="p">(),</span>
         <span class="s2">&quot;libabigail&quot;</span><span class="p">:</span> <span class="n">LibabigailPrediction</span><span class="p">(),</span>
         <span class="s2">&quot;spack-test&quot;</span><span class="p">:</span> <span class="n">SpackTest</span><span class="p">(),</span>
+        <span class="s2">&quot;abi-laboratory&quot;</span><span class="p">:</span> <span class="n">AbiLaboratoryPrediction</span><span class="p">(),</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">names</span><span class="p">:</span>
         <span class="n">keepers</span> <span class="o">=</span> <span class="p">{}</span>

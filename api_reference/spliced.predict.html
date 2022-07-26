@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.predict package &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spliced.predict.smeagle package" href="spliced.predict.smeagle.html" />
+    <link rel="prev" title="spliced.experiment package" href="spliced.experiment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="spliced.html">spliced package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="spliced.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spliced.client.html">spliced.client package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spliced.experiment.html">spliced.experiment package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">spliced.predict package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-spliced.predict.abi_laboratory">spliced.predict.abi_laboratory module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-spliced.predict.base">spliced.predict.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-spliced.predict.libabigail">spliced.predict.libabigail module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-spliced.predict.spack">spliced.predict.spack module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-spliced.predict.symbols">spliced.predict.symbols module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-spliced.predict">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spliced.utils.html">spliced.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced.logger">spliced.logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced.schemas">spliced.schemas module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced.version">spliced.version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.html#module-spliced">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="spliced.html">spliced package</a> &raquo;</li>
+      <li>spliced.predict package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api_reference/spliced.predict.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spliced-predict-package">
+<h1>spliced.predict package<a class="headerlink" href="#spliced-predict-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spliced.predict.smeagle.html">spliced.predict.smeagle package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spliced.predict.smeagle.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.predict.smeagle.html#module-spliced.predict.smeagle.asp">spliced.predict.smeagle.asp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.predict.smeagle.html#module-spliced.predict.smeagle.smeagle">spliced.predict.smeagle.smeagle module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.predict.smeagle.html#module-spliced.predict.smeagle.solver">spliced.predict.smeagle.solver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spliced.predict.smeagle.html#module-spliced.predict.smeagle">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-spliced.predict.abi_laboratory">
+<span id="spliced-predict-abi-laboratory-module"></span><h2>spliced.predict.abi_laboratory module<a class="headerlink" href="#module-spliced.predict.abi_laboratory" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.abi_laboratory.</span></span><span class="sig-name descname"><span class="pre">AbiLaboratoryPrediction</span></span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.base.Prediction" title="spliced.predict.base.Prediction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prediction</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Run the ABI laboratory to add to the predictions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_abi_laboratory">
+<span class="sig-name descname"><span class="pre">run_abi_laboratory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.run_abi_laboratory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_abi_laboratory" title="Permalink to this definition"></a></dt>
+<dd><p>Run abi-dumper + abi-compliance-checker with original and comparison library</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.splice_different_libs">
+<span class="sig-name descname"><span class="pre">splice_different_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.splice_different_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.splice_different_libs" title="Permalink to this definition"></a></dt>
+<dd><p>In the case of splicing “the same lib” into itself (a different version)
+we can do matching based on names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.splice_equivalent_libs">
+<span class="sig-name descname"><span class="pre">splice_equivalent_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.splice_equivalent_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.splice_equivalent_libs" title="Permalink to this definition"></a></dt>
+<dd><p>In the case of splicing “the same lib” into itself (a different version)
+we can do matching based on names. We can use abicomat with binaries, and
+abidiff for just between the libs.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spliced.predict.base">
+<span id="spliced-predict-base-module"></span><h2>spliced.predict.base module<a class="headerlink" href="#module-spliced.predict.base" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.base.Prediction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.base.</span></span><span class="sig-name descname"><span class="pre">Prediction</span></span><a class="reference internal" href="../_modules/spliced/predict/base.html#Prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.Prediction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A prediction is a base for assessing a Splice and making predictions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.base.Prediction.create_elfcall_deps_lookup">
+<span class="sig-name descname"><span class="pre">create_elfcall_deps_lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#Prediction.create_elfcall_deps_lookup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.Prediction.create_elfcall_deps_lookup" title="Permalink to this definition"></a></dt>
+<dd><p>This is subbing in a library with a version of itself, and requires binaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.base.Prediction.find_elfcall_deps_for">
+<span class="sig-name descname"><span class="pre">find_elfcall_deps_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#Prediction.find_elfcall_deps_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.Prediction.find_elfcall_deps_for" title="Permalink to this definition"></a></dt>
+<dd><p>Given a library (that is assumed to be in metadata, from elfcall)
+find libraries that the linker is assumed to hit and find symbols.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.base.Prediction.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#Prediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.Prediction.predict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.base.get_prefix">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.base.</span></span><span class="sig-name descname"><span class="pre">get_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#get_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.get_prefix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.base.match_by_prefix">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.base.</span></span><span class="sig-name descname"><span class="pre">match_by_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spliced_meta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#match_by_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.match_by_prefix" title="Permalink to this definition"></a></dt>
+<dd><p>Given an iterable of two things, match based on library prefix. E.g.,
+basename -&gt; split at . -&gt; match first piece</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.base.time_run_decorator">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.base.</span></span><span class="sig-name descname"><span class="pre">time_run_decorator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#time_run_decorator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.time_run_decorator" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator to add run seconds to result</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.base.timed_run">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.base.</span></span><span class="sig-name descname"><span class="pre">timed_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/base.html#timed_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.timed_run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-spliced.predict.libabigail">
+<span id="spliced-predict-libabigail-module"></span><h2>spliced.predict.libabigail module<a class="headerlink" href="#module-spliced.predict.libabigail" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.libabigail.</span></span><span class="sig-name descname"><span class="pre">LibabigailPrediction</span></span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.base.Prediction" title="spliced.predict.base.Prediction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prediction</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.abicompat">
+<span class="sig-name descname"><span class="pre">abicompat</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.abicompat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.abidiff">
+<span class="sig-name descname"><span class="pre">abidiff</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.abidiff" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.find_tool">
+<span class="sig-name descname"><span class="pre">find_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.find_tool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.find_tool" title="Permalink to this definition"></a></dt>
+<dd><p>Find a specific named tool (abidiff or abicompat)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.find_tooling">
+<span class="sig-name descname"><span class="pre">find_tooling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.find_tooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.find_tooling" title="Permalink to this definition"></a></dt>
+<dd><p>Find abicompat and abidiff and add to class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Run libabigail to add to the predictions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.run_abicompat">
+<span class="sig-name descname"><span class="pre">run_abicompat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.run_abicompat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.run_abicompat" title="Permalink to this definition"></a></dt>
+<dd><p>Run abicompat against two libraries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.run_abidiff">
+<span class="sig-name descname"><span class="pre">run_abidiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_lib</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.run_abidiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.run_abidiff" title="Permalink to this definition"></a></dt>
+<dd><p>Run abi diff with an original and comparison library</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.splice_different_libs">
+<span class="sig-name descname"><span class="pre">splice_different_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.splice_different_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.splice_different_libs" title="Permalink to this definition"></a></dt>
+<dd><p>In the case of splicing “the same lib” into itself (a different version)
+we can do matching based on names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.splice_equivalent_libs">
+<span class="sig-name descname"><span class="pre">splice_equivalent_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#LibabigailPrediction.splice_equivalent_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.splice_equivalent_libs" title="Permalink to this definition"></a></dt>
+<dd><p>In the case of splicing “the same lib” into itself (a different version)
+we can do matching based on names. We can use abicomat with binaries, and
+abidiff for just between the libs.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.add_to_path">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.libabigail.</span></span><span class="sig-name descname"><span class="pre">add_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/libabigail.html#add_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.add_to_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-spliced.predict.spack">
+<span id="spliced-predict-spack-module"></span><h2>spliced.predict.spack module<a class="headerlink" href="#module-spliced.predict.spack" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.spack.SpackTest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.spack.</span></span><span class="sig-name descname"><span class="pre">SpackTest</span></span><a class="reference internal" href="../_modules/spliced/predict/spack.html#SpackTest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.spack.SpackTest" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.base.Prediction" title="spliced.predict.base.Prediction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prediction</span></code></a></p>
+<p>If we find this is a spack package (e.g, installed in a spack root) run spack test for the splice.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.spack.SpackTest.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/spack.html#SpackTest.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.spack.SpackTest.predict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.spack.SpackTest.spack_test">
+<span class="sig-name descname"><span class="pre">spack_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/spack.html#SpackTest.spack_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.spack.SpackTest.spack_test" title="Permalink to this definition"></a></dt>
+<dd><p>Run spack tests for original and spliced</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-spliced.predict.symbols">
+<span id="spliced-predict-symbols-module"></span><h2>spliced.predict.symbols module<a class="headerlink" href="#module-spliced.predict.symbols" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.predict.symbols.SymbolsPrediction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.symbols.</span></span><span class="sig-name descname"><span class="pre">SymbolsPrediction</span></span><a class="reference internal" href="../_modules/spliced/predict/symbols.html#SymbolsPrediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.symbols.SymbolsPrediction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spliced.predict.base.Prediction" title="spliced.predict.base.Prediction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prediction</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.symbols.SymbolsPrediction.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/symbols.html#SymbolsPrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.symbols.SymbolsPrediction.predict" title="Permalink to this definition"></a></dt>
+<dd><p>Run symbolator to add to the predictions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.symbols.SymbolsPrediction.splice_different_libs">
+<span class="sig-name descname"><span class="pre">splice_different_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/symbols.html#SymbolsPrediction.splice_different_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.symbols.SymbolsPrediction.splice_different_libs" title="Permalink to this definition"></a></dt>
+<dd><p>This is subbing in a library with a version of itself, and requires binaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.symbols.SymbolsPrediction.splice_equivalent_libs">
+<span class="sig-name descname"><span class="pre">splice_equivalent_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/symbols.html#SymbolsPrediction.splice_equivalent_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.symbols.SymbolsPrediction.splice_equivalent_libs" title="Permalink to this definition"></a></dt>
+<dd><p>This is subbing in a library with a version of itself, and requires binaries</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.symbols.compress_symbol_set">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.symbols.</span></span><span class="sig-name descname"><span class="pre">compress_symbol_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/symbols.html#compress_symbol_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.symbols.compress_symbol_set" title="Permalink to this definition"></a></dt>
+<dd><p>Write symbol:prefix into set to compare to.</p>
+</dd></dl>
+
+</section>
+<section id="module-spliced.predict">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spliced.predict" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="spliced.predict.get_predictors">
+<span class="sig-prename descclassname"><span class="pre">spliced.predict.</span></span><span class="sig-name descname"><span class="pre">get_predictors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict.html#get_predictors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.get_predictors" title="Permalink to this definition"></a></dt>
+<dd><p>Get a lookup of predictors for an experiment to run.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spliced.experiment.html" class="btn btn-neutral float-left" title="spliced.experiment package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spliced.predict.smeagle.html" class="btn btn-neutral float-right" title="spliced.predict.smeagle package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

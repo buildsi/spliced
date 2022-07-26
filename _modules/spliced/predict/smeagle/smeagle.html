@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.predict.smeagle.smeagle &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference/spliced.html">spliced package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference/internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../predict.html">spliced.predict</a> &raquo;</li>
+          <li><a href="../smeagle.html">spliced.predict.smeagle</a> &raquo;</li>
+      <li>spliced.predict.smeagle.smeagle</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spliced.predict.smeagle.smeagle</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2013-2021 Lawrence Livermore National Security, LLC and other</span>
+<span class="c1"># Spack Project Developers. See the top-level COPYRIGHT file for details.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">.solver</span> <span class="kn">import</span> <span class="n">FactGenerator</span><span class="p">,</span> <span class="n">StabilitySetSolver</span><span class="p">,</span> <span class="n">StabilitySolver</span>
+
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="SmeagleRunner"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.smeagle.SmeagleRunner">[docs]</a><span class="k">class</span> <span class="nc">SmeagleRunner</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load in Smeagle output files, write to database, and run solver.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compatible_lp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">here</span><span class="p">,</span> <span class="s2">&quot;lp&quot;</span><span class="p">,</span> <span class="s2">&quot;compatible.lp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stability_lp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">here</span><span class="p">,</span> <span class="s2">&quot;lp&quot;</span><span class="p">,</span> <span class="s2">&quot;stability.lp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="SmeagleRunner.load_data"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.smeagle.SmeagleRunner.load_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Common function to derive json data and a library.</span>
+<span class="sd">        Each is optional to be provided, and we are flexible to accept either.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lib</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;You must provide data or a library path.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_smeagle_data</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lib</span><span class="p">:</span>
+            <span class="n">lib</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Cut out early if we don&#39;t have the records</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Cannot find database entry for </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">lib</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">lib</span></div>
+
+<div class="viewcode-block" id="SmeagleRunner.generate_facts"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.smeagle.SmeagleRunner.generate_facts">[docs]</a>    <span class="k">def</span> <span class="nf">generate_facts</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lib_basename</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate facts for one entry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="n">FactGenerator</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">lib_basename</span><span class="o">=</span><span class="n">lib_basename</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span>
+        <span class="p">)</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SmeagleRunner.get_smeagle_data"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.smeagle.SmeagleRunner.get_smeagle_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_smeagle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get smeagle data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lib</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Library </span><span class="si">%s</span><span class="s2"> does not exist!&quot;</span> <span class="o">%</span> <span class="n">lib</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">cle</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;cle is required to run the smeagle predictor.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get a smeagle corpus (facts.json)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ld</span> <span class="o">=</span> <span class="n">cle</span><span class="o">.</span><span class="n">Loader</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">load_debug_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">auto_load_libs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">ld</span><span class="o">.</span><span class="n">corpus</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Cannot load corpus: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">exc</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}}</span></div>
+
+<div class="viewcode-block" id="SmeagleRunner.compatible_test"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.smeagle.SmeagleRunner.compatible_test">[docs]</a>    <span class="k">def</span> <span class="nf">compatible_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">lib_set</span><span class="p">,</span> <span class="n">lookup</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A set test scopes a library A (lib) to be compared against its space of</span>
+<span class="sd">        dependencies (lib_set). To properly scope the output list of facts,</span>
+<span class="sd">        we take a lookup that has key (the library facts json to load) and value</span>
+<span class="sd">        as the set of symbols to include in the model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compatible_lp</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Logic program </span><span class="si">%s</span><span class="s2"> does not exist!&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">compatible_lp</span><span class="p">)</span>
+
+        <span class="c1"># This function assumes that the data files exist (provided in lookup)</span>
+        <span class="c1"># We have to incrementally add the lib as A, and then all data as B,</span>
+        <span class="c1"># each scoped to the set of symbols we know are used or provided</span>
+
+        <span class="n">setup</span> <span class="o">=</span> <span class="n">StabilitySetSolver</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">lib_set</span><span class="p">,</span> <span class="n">lookup</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">logic_programs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compatible_lp</span><span class="p">)</span>
+
+        <span class="c1"># Assuming anything missing is failure</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="n">lib</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="n">lib_set</span><span class="p">,</span> <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+        <span class="c1"># Keep a subset of data (missing stuff) for the result</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;not_compatible&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">missing</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="c1"># Add details about missing only if missing!</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">missing</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="SmeagleRunner.stability_test"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.smeagle.SmeagleRunner.stability_test">[docs]</a>    <span class="k">def</span> <span class="nf">stability_test</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lib1</span><span class="p">,</span> <span class="n">lib2</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the stability test for two entries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We must have the stability program!</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stability_lp</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Logic program </span><span class="si">%s</span><span class="s2"> does not exist!&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">stability_lp</span><span class="p">)</span>
+
+        <span class="c1"># First get facts from smeagle</span>
+        <span class="n">lib1_res</span><span class="p">,</span> <span class="n">lib1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">lib1</span><span class="p">,</span> <span class="n">data1</span><span class="p">)</span>
+        <span class="n">lib2_res</span><span class="p">,</span> <span class="n">lib2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">lib2</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span>
+
+        <span class="c1"># The spliced lib and original (assume failure)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;original_lib&quot;</span><span class="p">:</span> <span class="n">lib1</span><span class="p">,</span> <span class="s2">&quot;lib&quot;</span><span class="p">:</span> <span class="n">lib2</span><span class="p">,</span> <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+        <span class="c1"># If either result has nonzero return code, no go</span>
+        <span class="k">if</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;return_code_original&quot;</span><span class="p">:</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;return_code_splice&quot;</span><span class="p">:</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message_original&quot;</span><span class="p">:</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message_splice&quot;</span><span class="p">:</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Smeagle failed to generate facts for both libraries&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>
+
+        <span class="c1"># The original library running smeagle failed</span>
+        <span class="k">if</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;return_code_original&quot;</span><span class="p">:</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;return_code_splice&quot;</span><span class="p">:</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message_original&quot;</span><span class="p">:</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Smeagle failed to generate facts for the original library&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>
+
+        <span class="c1"># The spliced library running smeagle failed</span>
+        <span class="k">if</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;return_code_original&quot;</span><span class="p">:</span> <span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;return_code_splice&quot;</span><span class="p">:</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message_splice&quot;</span><span class="p">:</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Smeagle failed to generate facts for the spliced library&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>
+
+        <span class="c1"># Success case gets here</span>
+        <span class="c1"># Setup and run the stability solver</span>
+        <span class="c1"># lib1 is original, lib2 is splice</span>
+        <span class="n">setup</span> <span class="o">=</span> <span class="n">StabilitySolver</span><span class="p">(</span><span class="n">lib1_res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">lib2_res</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">logic_programs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stability_lp</span><span class="p">)</span>
+
+        <span class="c1"># Assuming anything missing is failure</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Keep a subset of data (missing stuff) for the result</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;missing_imports&quot;</span><span class="p">,</span> <span class="s2">&quot;missing_exports&quot;</span><span class="p">,</span> <span class="s2">&quot;changed_callsites&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">missing</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="c1"># Add details about missing only if missing!</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">missing</span>
+        <span class="k">return</span> <span class="n">res</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

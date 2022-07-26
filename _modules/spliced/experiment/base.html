@@ -48,7 +48,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/spliced.html">Spliced API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/spliced.html">spliced package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_reference/internal/modules.html">Internal API</a></li>
 </ul>
 
@@ -95,7 +95,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 
 
-<div class="viewcode-block" id="Splice"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Splice">[docs]</a><span class="k">class</span> <span class="nc">Splice</span><span class="p">:</span>
+<div class="viewcode-block" id="Splice"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Splice">[docs]</a><span class="k">class</span> <span class="nc">Splice</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Splice holds the metadata for a splice, and if successful (or possible)</span>
 <span class="sd">    will hold a result. A default splice result is not successful</span>
@@ -115,43 +115,55 @@
         <span class="c1"># Keep track of original and spliced paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spliced</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># This lookup has metadata for each (e.g., elfcall)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Extra stats for the predictor to record</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sizes_bytes&quot;</span><span class="p">:</span> <span class="p">{}}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">package</span> <span class="o">=</span> <span class="n">package</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ids</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">success</span> <span class="o">=</span> <span class="n">success</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">result</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">splice</span> <span class="o">=</span> <span class="n">splice</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Are we splicing different libs?</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">different_libs</span> <span class="o">=</span> <span class="n">different_libs</span>
 
-<div class="viewcode-block" id="Splice.add_identifier"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Splice.add_identifier">[docs]</a>    <span class="k">def</span> <span class="nf">add_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
+<div class="viewcode-block" id="Splice.add_spec"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Splice.add_spec">[docs]</a>    <span class="k">def</span> <span class="nf">add_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a spec (with a key) to metadata</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_identifier</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">spec</span><span class="o">.</span><span class="n">dag_hash</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span></div>
+
+<div class="viewcode-block" id="Splice.add_identifier"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Splice.add_identifier">[docs]</a>    <span class="k">def</span> <span class="nf">add_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add some experiment specific identifier (e.g., dag hash for spack)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">identifier</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">identifier</span></div>
 
-<div class="viewcode-block" id="Splice.match_libs"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Splice.match_libs">[docs]</a>    <span class="k">def</span> <span class="nf">match_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Splice.match_libs"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Splice.match_libs">[docs]</a>    <span class="k">def</span> <span class="nf">match_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Try to match dependencies between spliced/original library for comparison</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Splice.to_dict"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Splice.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Splice.to_dict"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Splice.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the result as a dictionary</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;specs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+            <span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids</span><span class="p">,</span>
             <span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original</span><span class="p">),</span>
             <span class="s2">&quot;spliced&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spliced</span><span class="p">),</span>
+            <span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span>
             <span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">,</span>
             <span class="s2">&quot;stats&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="p">,</span>
             <span class="s2">&quot;experiment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">,</span>
@@ -162,14 +174,14 @@
             <span class="s2">&quot;different_libs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">different_libs</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Splice.to_json"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Splice.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Splice.to_json"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Splice.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the result as json</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span></div></div>
 
 
-<div class="viewcode-block" id="Experiment"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment">[docs]</a><span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+<div class="viewcode-block" id="Experiment"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment">[docs]</a><span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A base Experiment holds information for a splice experiment!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -179,7 +191,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_splice_versions</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Experiment.load"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.load"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a config from a yaml file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -189,7 +201,7 @@
         <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Experiment.init"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
+<div class="viewcode-block" id="Experiment.init"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">package</span><span class="p">,</span>
         <span class="n">splice</span><span class="p">,</span>
@@ -209,17 +221,17 @@
         <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Experiment.run"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.run"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        run the experiment.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Experiment.run_parallel"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.run_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">run_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.run_parallel"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.run_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">run_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO- will be nice to possibly speed things up!</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Experiment.predict"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.predict"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a single named predictor (or a list to skip) make predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -235,13 +247,13 @@
             <span class="k">for</span> <span class="n">splice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">splices</span><span class="p">:</span>
                 <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Experiment.to_json"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.to_json"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a json dump of results</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="Experiment.to_dict"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.to_dict"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a dictionary of results</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -250,10 +262,10 @@
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">results</span></div>
 
-<div class="viewcode-block" id="Experiment.validate"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Experiment.validate"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">jsonschema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">spliced</span><span class="o">.</span><span class="n">schemas</span><span class="o">.</span><span class="n">spliced_schema</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Experiment.add_splice"><a class="viewcode-back" href="../../../api_reference/internal/spliced.html#spliced.experiment.base.Experiment.add_splice">[docs]</a>    <span class="k">def</span> <span class="nf">add_splice</span><span class="p">(</span>
+<div class="viewcode-block" id="Experiment.add_splice"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.base.Experiment.add_splice">[docs]</a>    <span class="k">def</span> <span class="nf">add_splice</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">splice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">different_libs</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

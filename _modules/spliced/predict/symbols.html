@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.predict.symbols &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/spliced.html">spliced package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../predict.html">spliced.predict</a> &raquo;</li>
+      <li>spliced.predict.symbols</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spliced.predict.symbols</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2013-2022 Lawrence Livermore National Security, LLC and other</span>
+<span class="c1"># Spack Project Developers. See the top-level COPYRIGHT file for details.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span><span class="p">,</span> <span class="n">match_by_prefix</span><span class="p">,</span> <span class="n">time_run_decorator</span><span class="p">,</span> <span class="n">get_prefix</span>
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+
+
+<div class="viewcode-block" id="SymbolsPrediction"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.symbols.SymbolsPrediction">[docs]</a><span class="k">class</span> <span class="nc">SymbolsPrediction</span><span class="p">(</span><span class="n">Prediction</span><span class="p">):</span>
+<div class="viewcode-block" id="SymbolsPrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.symbols.SymbolsPrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run symbolator to add to the predictions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">splice</span><span class="o">.</span><span class="n">different_libs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_different_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_equivalent_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SymbolsPrediction.splice_different_libs"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.symbols.SymbolsPrediction.splice_different_libs">[docs]</a>    <span class="k">def</span> <span class="nf">splice_different_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is subbing in a library with a version of itself, and requires binaries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="SymbolsPrediction.splice_equivalent_libs"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.symbols.SymbolsPrediction.splice_equivalent_libs">[docs]</a>    <span class="k">def</span> <span class="nf">splice_equivalent_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is subbing in a library with a version of itself, and requires binaries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For each original (we assume working) binary, find its deps from elfcall,</span>
+        <span class="c1"># and then match to the equivalent lib (via basename) for the splice</span>
+        <span class="n">original_deps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_elfcall_deps_lookup</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span><span class="p">)</span>
+        <span class="n">spliced_deps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_elfcall_deps_lookup</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">)</span>
+
+        <span class="c1"># Create a set of predictions for top level binary without considering</span>
+        <span class="c1"># level of a dependency (binary-checks-*) and each spliced binary / lib combination</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">binary</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">original_deps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="c1"># Match the binary to the spliced one</span>
+            <span class="k">if</span> <span class="n">binary</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spliced_deps</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">binary</span><span class="si">}</span><span class="s2"> is missing from splice! This should not happen!&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Compare spliced and binary symbols</span>
+            <span class="n">binary_fullpath</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">]</span>
+            <span class="n">binary_symbols</span> <span class="o">=</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">binary_fullpath</span><span class="p">]</span>
+
+            <span class="c1"># Case 1: any missing symbols in original (so we cannot continue)</span>
+            <span class="k">if</span> <span class="n">binary_symbols</span><span class="p">[</span><span class="s2">&quot;missing&quot;</span><span class="p">]:</span>
+                <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary_fullpath</span><span class="p">,</span>
+                        <span class="s2">&quot;splice_type&quot;</span><span class="p">:</span> <span class="s2">&quot;same_lib&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;binary-checks-loader-missing-symbols-for-original&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Loader found missing symbols for original binary: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                        <span class="o">%</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;missing&quot;</span><span class="p">]),</span>
+                        <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Case 2: Symbol provisioner change (or symbol entirely missing)</span>
+            <span class="n">spliced_meta</span> <span class="o">=</span> <span class="n">spliced_deps</span><span class="p">[</span><span class="n">binary</span><span class="p">]</span>
+            <span class="n">spliced_fullpath</span> <span class="o">=</span> <span class="n">spliced_meta</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">]</span>
+            <span class="n">spliced_symbols</span> <span class="o">=</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">spliced_fullpath</span><span class="p">]</span>
+
+            <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">check_symbol_provisioner_change</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span> <span class="n">spliced_meta</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># We must find a matching lib for each based on prefix</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="n">match_by_prefix</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">],</span> <span class="n">spliced_meta</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">])</span>
+
+            <span class="c1"># If we don&#39;t have matches, nothing to look at</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Also cache the lib (original or after splice) if we don&#39;t have it yet</span>
+            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+
+                <span class="c1"># Case 4: missing previously found symbols (abicompat)</span>
+                <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">missing_previously_found_symbols</span><span class="p">(</span>
+                        <span class="n">binary_fullpath</span><span class="p">,</span> <span class="n">binary_symbols</span><span class="p">,</span> <span class="n">spliced_symbols</span><span class="p">,</span> <span class="n">match</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Case 3: Look at exported symbols of the spliced in and compare with exported of the original</span>
+                <span class="c1"># Any new missing exports (may not fail binary of interest but could fail something else)</span>
+                <span class="c1"># abidiff case. We can only run this case for direct dependencies</span>
+                <span class="n">original_key</span> <span class="o">=</span> <span class="s2">&quot;original:&quot;</span> <span class="o">+</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;original&quot;</span><span class="p">]</span>
+                <span class="n">spliced_key</span> <span class="o">=</span> <span class="s2">&quot;spliced:&quot;</span> <span class="o">+</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">original_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span>
+                    <span class="ow">or</span> <span class="n">spliced_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span>
+                <span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">missing_previously_found_exports</span><span class="p">(</span>
+                        <span class="n">binary_fullpath</span><span class="p">,</span>
+                        <span class="n">match</span><span class="p">,</span>
+                        <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">original_key</span><span class="p">],</span>
+                        <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">spliced_key</span><span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;symbols&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictions</span></div></div>
+
+
+<span class="nd">@time_run_decorator</span>
+<span class="k">def</span> <span class="nf">missing_previously_found_exports</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">original_symbols</span><span class="p">,</span> <span class="n">spliced_symbols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If exports changed between an original and spliced, it won&#39;t work in different contexts</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Want to find symbols in main binary for this dependency of interest</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">original_symbols</span><span class="p">[</span><span class="s2">&quot;exported&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">spliced_symbols</span><span class="p">[</span><span class="s2">&quot;exported&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+    <span class="c1"># We cannot be missing symbols in original (before) that aren&#39;t in spliced (after)</span>
+    <span class="n">missing_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">before</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">after</span><span class="p">]</span>
+
+    <span class="c1"># It is predicted to work if we don&#39;t have any missing symbols</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary</span><span class="p">,</span>
+        <span class="s2">&quot;splice_type&quot;</span><span class="p">:</span> <span class="s2">&quot;same_lib&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;original_lib&quot;</span><span class="p">:</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;original&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;spliced_lib&quot;</span><span class="p">:</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;missing-previously-found-symbols&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">missing_symbols</span><span class="p">,</span>
+        <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing_symbols</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@time_run_decorator</span>
+<span class="k">def</span> <span class="nf">missing_previously_found_symbols</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">original_symbols</span><span class="p">,</span> <span class="n">spliced_symbols</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A previously found (and thus needed) symbol cannot be missing after the splice.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Want to find symbols in main binary for this dependency of interest</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">s</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">original_symbols</span><span class="p">[</span><span class="s2">&quot;found&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;lib&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">][</span><span class="s2">&quot;realpath&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;original&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">s</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">spliced_symbols</span><span class="p">[</span><span class="s2">&quot;found&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;lib&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">][</span><span class="s2">&quot;realpath&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="c1"># We cannot be missing symbols in original (before) that aren&#39;t in spliced (after)</span>
+    <span class="n">missing_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">before</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">after</span><span class="p">]</span>
+
+    <span class="c1"># It is predicted to work if we don&#39;t have any missing symbols</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary</span><span class="p">,</span>
+        <span class="s2">&quot;splice_type&quot;</span><span class="p">:</span> <span class="s2">&quot;same_lib&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;original_lib&quot;</span><span class="p">:</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;original&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;spliced_lib&quot;</span><span class="p">:</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;missing-previously-found-symbols&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">missing_symbols</span><span class="p">,</span>
+        <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing_symbols</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="nd">@time_run_decorator</span>
+<span class="k">def</span> <span class="nf">check_symbol_provisioner_change</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">meta</span><span class="p">,</span> <span class="n">spliced_meta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compared an original and spliced binary/lib and determind if a symbol provisioner changes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">binary_fullpath</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">]</span>
+    <span class="n">spliced_fullpath</span> <span class="o">=</span> <span class="n">spliced_meta</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">]</span>
+    <span class="n">binary_symbols</span> <span class="o">=</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">binary_fullpath</span><span class="p">]</span>
+    <span class="n">spliced_symbols</span> <span class="o">=</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">spliced_fullpath</span><span class="p">]</span>
+
+    <span class="c1"># Case 2: Get symbol names and prefixes for each of original and spliced</span>
+    <span class="c1"># If spliced has a symbol name from a different prefix, that&#39;s a problem.</span>
+    <span class="c1"># E.g both swig and pcre-v1 have common dependency (A in libfoo.so)</span>
+    <span class="c1"># and changing the dependency means that we cut off a piece of the tree with</span>
+    <span class="c1"># the symbol we needed.</span>
+    <span class="c1"># symbol provisioner change</span>
+    <span class="c1"># symbol X changed from being provided by A to now provided by B</span>
+    <span class="n">original_symbols</span> <span class="o">=</span> <span class="n">compress_symbol_set</span><span class="p">(</span><span class="n">binary_symbols</span><span class="p">[</span><span class="s2">&quot;found&quot;</span><span class="p">])</span>
+    <span class="n">spliced_symbols</span> <span class="o">=</span> <span class="n">compress_symbol_set</span><span class="p">(</span><span class="n">spliced_symbols</span><span class="p">[</span><span class="s2">&quot;found&quot;</span><span class="p">])</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">original_symbols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spliced_symbols</span><span class="p">:</span>
+            <span class="n">changed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;symbol </span><span class="si">{symbol}</span><span class="s2"> is missing in splice&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">spliced_symbols</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">!=</span> <span class="n">prefix</span><span class="p">:</span>
+            <span class="n">changed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;symbol </span><span class="si">{symbol}</span><span class="s2"> was originally provided by </span><span class="si">{prefix}</span><span class="s2">, after splice is provided by </span><span class="si">{spliced_symbols[symbol]}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># It is predicted to work if we don&#39;t have any changed</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary_fullpath</span><span class="p">,</span>
+        <span class="s2">&quot;splice_type&quot;</span><span class="p">:</span> <span class="s2">&quot;same_lib&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;binary-checks-symbol-provisioner-change&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Symbol provider changes: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">changed</span><span class="p">),</span>
+        <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="n">changed</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="compress_symbol_set"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.symbols.compress_symbol_set">[docs]</a><span class="k">def</span> <span class="nf">compress_symbol_set</span><span class="p">(</span><span class="n">symbols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write symbol:prefix into set to compare to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">compressed</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">symbols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s2">&quot;lib&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">compressed</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_prefix</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">][</span><span class="s2">&quot;realpath&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">compressed</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

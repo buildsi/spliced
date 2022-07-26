@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.predict.smeagle &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/spliced.html">spliced package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../predict.html">spliced.predict</a> &raquo;</li>
+      <li>spliced.predict.smeagle</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spliced.predict.smeagle</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2013-2021 Lawrence Livermore National Security, LLC and other</span>
+<span class="c1"># Spack Project Developers. See the top-level COPYRIGHT file for details.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
+
+<span class="kn">from</span> <span class="nn">spliced.predict.base</span> <span class="kn">import</span> <span class="n">Prediction</span>
+<span class="kn">from</span> <span class="nn">.smeagle</span> <span class="kn">import</span> <span class="n">SmeagleRunner</span>
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+
+<div class="viewcode-block" id="SmeaglePrediction"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction">[docs]</a><span class="k">class</span> <span class="nc">SmeaglePrediction</span><span class="p">(</span><span class="n">Prediction</span><span class="p">):</span>
+<div class="viewcode-block" id="SmeaglePrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run smeagle to add to the predictions</span>
+<span class="sd">        # Testing command:</span>
+<span class="sd">        # spliced splice --package swig@3.0.8 --splice pcre --runner spack --replace pcre --experiment experiment</span>
+
+<span class="sd">        1. splice is going to have libraries found and symbols and imported missing</span>
+<span class="sd">        2. If any imported missing, record splice fail (we need all the symbols)</span>
+<span class="sd">        3. Get list of associated paths from elfcall, generate facts for each</span>
+<span class="sd">          - try to mamke cache based on the library fullpath</span>
+<span class="sd">        4. After facts are generated, spliced-&gt;smeagle runner should:</span>
+<span class="sd">          - generate asp facts for main lib/binary for all symbols in the union set across dependencies</span>
+<span class="sd">          - for each dependency, only genderate asp facts for the symbols that come from it</span>
+<span class="sd">        5. An entirely new ASP model that compares A (the single binary/lib) to B (symbols across deps)</span>
+<span class="sd">           If no splice libs OR no tools, cut out early</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Smeagle makes predictions from the spliced libs only</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># If we have defined a cache, use it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;SPLICED_SMEAGLE_CACHE_DIR&quot;</span><span class="p">,</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;spliced-cache&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Smeagle cache directory is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+
+        <span class="c1"># default do not cleanup cache</span>
+        <span class="n">cleanup</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">):</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">mkdir_p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
+
+        <span class="c1"># ...unless it&#39;s a temporary one!</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">tempdir</span><span class="p">()</span>
+            <span class="n">cleanup</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Create a smeagle runner!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smeagle</span> <span class="o">=</span> <span class="n">SmeagleRunner</span><span class="p">()</span>
+
+        <span class="c1"># Keep subset of spliced libs-&gt;data we can generate facts for</span>
+        <span class="n">spliced</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Prepare to add predictions to splice</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># For each spliced binary/lib, generate facts, save to cache</span>
+        <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">:</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cache_key</span><span class="p">:</span>
+                <span class="n">spliced</span><span class="p">[</span><span class="n">lib</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache_key</span>
+
+        <span class="c1"># For each library/binary we can test, make predictions</span>
+        <span class="k">for</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span> <span class="ow">in</span> <span class="n">spliced</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_lib</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cleanup</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SmeaglePrediction.test_lib"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.test_lib">[docs]</a>    <span class="k">def</span> <span class="nf">test_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an initial library (lib) that we have facts (facts_path) for, use the</span>
+<span class="sd">        splice lookup to derive the exact dependency libraries (and set of symbols)</span>
+<span class="sd">        that are needed. IF a dependency library fails to generate facts, we simply</span>
+<span class="sd">        don&#39;t include its symbols. We do this so we can still make a prediction on</span>
+<span class="sd">        imperfect information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If any symbols missing, fail fast - the model couldn&#39;t work</span>
+        <span class="k">if</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">][</span><span class="s2">&quot;missing&quot;</span><span class="p">]:</span>
+            <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;lib&quot;</span><span class="p">:</span> <span class="n">lib</span><span class="p">,</span>
+                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">][</span><span class="s2">&quot;missing&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Library is missing symbols, so smeagle model would fail.&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Keep stats for the splice and lib</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="n">lib</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Keep lookup of library -&gt; symbols for facts for it, and all symbols</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">deps</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># If we get here we aren&#39;t missing symbols!</span>
+        <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">][</span><span class="s2">&quot;found&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dep</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">][</span><span class="s2">&quot;realpath&quot;</span><span class="p">]</span>
+
+            <span class="c1"># If the dep is a system lib, for the time being we cannot include</span>
+            <span class="c1"># The reason is because no Dwarf == no symbols == no go.</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;^(/usr|/lib)&quot;</span><span class="p">,</span> <span class="n">dep</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Look for dependency in facts cache</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
+
+            <span class="c1"># If we can&#39;t generate facts, we can&#39;t include in model</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_key</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># At this point we only care about path to facts, what our model needs</span>
+            <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
+                <span class="n">deps</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+            <span class="n">deps</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+
+        <span class="n">splice</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="n">lib</span><span class="p">][</span><span class="s2">&quot;total_matched_symbols&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+
+        <span class="c1"># Now we need to create a lookup with a set of symbols for each lib</span>
+        <span class="c1"># Since we have this for deps, we just add our main library (A)</span>
+        <span class="c1"># And note we are adding paths to FACTS we don&#39;t care about lib paths</span>
+        <span class="c1"># by this point!</span>
+        <span class="n">B_set</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">deps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">deps</span><span class="p">[</span><span class="n">facts_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">symbols</span>
+
+        <span class="c1"># Write to output so we can have examples</span>
+        <span class="n">output_asp</span> <span class="o">=</span> <span class="n">facts_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;.asp&quot;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_asp</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Stability test compares A (the main library) against all deps, B</span>
+        <span class="c1"># Time how long it takes</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smeagle</span><span class="o">.</span><span class="n">compatible_test</span><span class="p">(</span><span class="n">facts_path</span><span class="p">,</span> <span class="n">B_set</span><span class="p">,</span> <span class="n">deps</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SmeaglePrediction.generate_cle_data"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.generate_cle_data">[docs]</a>    <span class="k">def</span> <span class="nf">generate_cle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a library, run cle to generate facts and save to cache. Return key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Keep same path, but under cache</span>
+        <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">.json&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cache_key</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating facts for </span><span class="si">%s</span><span class="s2"> with cle...&quot;</span> <span class="o">%</span> <span class="n">lib</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smeagle</span><span class="o">.</span><span class="n">get_smeagle_data</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">mkdir_p</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">cache_key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot generate facts for </span><span class="si">%s</span><span class="s2">, will not be included in experiment.&quot;</span>
+                <span class="o">%</span> <span class="n">lib</span>
+            <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

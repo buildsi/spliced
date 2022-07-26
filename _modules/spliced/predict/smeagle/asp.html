@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.predict.smeagle.asp &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference/spliced.html">spliced package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_reference/internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../predict.html">spliced.predict</a> &raquo;</li>
+          <li><a href="../smeagle.html">spliced.predict.smeagle</a> &raquo;</li>
+      <li>spliced.predict.smeagle.asp</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spliced.predict.smeagle.asp</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2013-2021 Lawrence Livermore National Security, LLC and other</span>
+<span class="c1"># Spack Project Developers. See the top-level COPYRIGHT file for details.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">clingo</span>
+
+    <span class="n">clingo_cffi</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">clingo</span><span class="o">.</span><span class="n">Symbol</span><span class="p">,</span> <span class="s2">&quot;_rep&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">clingo</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_id</span><span class="p">(</span><span class="n">thing</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Quote string if needed for it to be a valid identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">AspFunction</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">thing</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AspFunction"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.AspFunction">[docs]</a><span class="k">class</span> <span class="nc">AspFunction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An asp function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AspFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AspFunction.symbol"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.AspFunction.symbol">[docs]</a>    <span class="k">def</span> <span class="nf">symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">argify</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">clingo</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">clingo</span><span class="o">.</span><span class="n">Number</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">clingo</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">clingo</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">argify</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">],</span> <span class="n">positive</span><span class="o">=</span><span class="n">positive</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getitem___</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">_id</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AspFunctionBuilder"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.AspFunctionBuilder">[docs]</a><span class="k">class</span> <span class="nc">AspFunctionBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AspFunction</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<span class="n">fn</span> <span class="o">=</span> <span class="n">AspFunctionBuilder</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Result"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.Result">[docs]</a><span class="k">class</span> <span class="nc">Result</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Result of an ASP solve.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">asp</span> <span class="o">=</span> <span class="n">asp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">satisfiable</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimal</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warnings</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmodels</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># specs ordered by optimization level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cores</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="PyclingoDriver"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver">[docs]</a><span class="k">class</span> <span class="nc">PyclingoDriver</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Driver for the Python clingo interface.</span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            cores (bool): whether to generate unsatisfiable cores for better</span>
+<span class="sd">                error reporting.</span>
+<span class="sd">            out (file-like): optional stream to write a text-based ASP program</span>
+<span class="sd">                for debugging or verification.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">clingo</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">out</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">devnull</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cores</span> <span class="o">=</span> <span class="n">cores</span>
+
+<div class="viewcode-block" id="PyclingoDriver.devnull"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.devnull">[docs]</a>    <span class="k">def</span> <span class="nf">devnull</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span></div>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PyclingoDriver.title"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.title">[docs]</a>    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">char</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">char</span> <span class="o">*</span> <span class="mi">76</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%%</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">char</span> <span class="o">*</span> <span class="mi">76</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyclingoDriver.h1"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.h1">[docs]</a>    <span class="k">def</span> <span class="nf">h1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyclingoDriver.h2"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.h2">[docs]</a>    <span class="k">def</span> <span class="nf">h2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyclingoDriver.newline"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.newline">[docs]</a>    <span class="k">def</span> <span class="nf">newline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyclingoDriver.fact"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.fact">[docs]</a>    <span class="k">def</span> <span class="nf">fact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ASP fact (a rule without a body).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">symbol</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">symbol</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">head</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">symbol</span><span class="p">))</span>
+
+        <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_atom</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_rule</span><span class="p">([</span><span class="n">atom</span><span class="p">],</span> <span class="p">[],</span> <span class="n">choice</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cores</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cores</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assumptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyclingoDriver.solve"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.asp.PyclingoDriver.solve">[docs]</a>    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">setup</span><span class="p">,</span>
+        <span class="n">nmodels</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">stats</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">logic_programs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">facts_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the solver for a model and some number of logic programs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># logic programs to give to the solver</span>
+        <span class="n">logic_programs</span> <span class="o">=</span> <span class="n">logic_programs</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logic_programs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">logic_programs</span> <span class="o">=</span> <span class="p">[</span><span class="n">logic_programs</span><span class="p">]</span>
+
+        <span class="c1"># Initialize the control object for the solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">clingo</span><span class="o">.</span><span class="n">Control</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">solve</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">nmodels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">asp</span><span class="o">.</span><span class="n">trans_ext</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">asp</span><span class="o">.</span><span class="n">eq</span> <span class="o">=</span> <span class="s2">&quot;5&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="s2">&quot;tweety&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">solve</span><span class="o">.</span><span class="n">parallel_mode</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">opt_strategy</span> <span class="o">=</span> <span class="s2">&quot;usc,one&quot;</span>
+
+        <span class="c1"># set up the problem -- this generates facts and rules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assumptions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">backend</span><span class="p">()</span> <span class="k">as</span> <span class="n">backend</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
+            <span class="n">setup</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># If we only want to generate facts, cut out early</span>
+        <span class="k">if</span> <span class="n">facts_only</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># read in provided logic programs</span>
+        <span class="k">for</span> <span class="n">logic_program</span> <span class="ow">in</span> <span class="n">logic_programs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">logic_program</span><span class="p">)</span>
+
+        <span class="c1"># Grounding is the first step in the solve -- it turns our facts</span>
+        <span class="c1"># and first-order logic rules into propositional logic.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">ground</span><span class="p">([(</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="p">[])])</span>
+
+        <span class="c1"># With a grounded program, we can run the solve.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Result</span><span class="p">()</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># stable models if things go well</span>
+        <span class="n">cores</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># unsatisfiable cores if they do not</span>
+
+        <span class="k">def</span> <span class="nf">on_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">cost</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="n">shown</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">terms</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+
+        <span class="c1"># Won&#39;t work after this, need to write files</span>
+        <span class="n">solve_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;assumptions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assumptions</span><span class="p">,</span>
+            <span class="s2">&quot;on_model&quot;</span><span class="p">:</span> <span class="n">on_model</span><span class="p">,</span>
+            <span class="s2">&quot;on_core&quot;</span><span class="p">:</span> <span class="n">cores</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">clingo_cffi</span><span class="p">:</span>
+            <span class="n">solve_kwargs</span><span class="p">[</span><span class="s2">&quot;on_unsat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cores</span><span class="o">.</span><span class="n">append</span>
+        <span class="n">solve_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="o">**</span><span class="n">solve_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># once done, construct the solve result</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">satisfiable</span> <span class="o">=</span> <span class="n">solve_result</span><span class="o">.</span><span class="n">satisfiable</span>
+
+        <span class="k">def</span> <span class="nf">stringify</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">clingo_cffi</span><span class="p">:</span>
+                <span class="c1"># Clingo w/ CFFI will throw an exception on failure</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">string</span>
+                <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">string</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">satisfiable</span><span class="p">:</span>
+            <span class="n">min_cost</span><span class="p">,</span> <span class="n">best_model</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">answers</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">best_model</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sym</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="n">sym</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">[</span><span class="n">sym</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">stringify</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">sym</span><span class="o">.</span><span class="n">arguments</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">cores</span><span class="p">:</span>
+            <span class="n">symbols</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">a</span><span class="o">.</span><span class="n">literal</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">symbolic_atoms</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">core</span> <span class="ow">in</span> <span class="n">cores</span><span class="p">:</span>
+                <span class="n">core_symbols</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">core</span><span class="p">:</span>
+                    <span class="n">sym</span> <span class="o">=</span> <span class="n">symbols</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span>
+                    <span class="n">core_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">cores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">core_symbols</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stats</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Statistics:&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">statistics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

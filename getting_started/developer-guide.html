@@ -21,7 +21,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Spliced API" href="../api_reference/spliced.html" />
+    <link rel="next" title="spliced package" href="../api_reference/spliced.html" />
     <link rel="prev" title="User Guide" href="user-guide.html" /> 
 </head>
 
@@ -61,7 +61,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../api_reference/spliced.html">Spliced API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/spliced.html">spliced package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/internal/modules.html">Internal API</a></li>
 </ul>
 
@@ -107,7 +107,7 @@ you should do that first.</p>
 <li><p>Use <a class="reference external" href="https://vsoch.github.io/elfcall">Elfcall</a> to emulate the linker and find paths of libraries with needed (undefined) symbols.</p></li>
 <li><p>Present the elfcall output to each predictor to use appropriately.</p></li>
 </ol>
-<p>In the case of a “diff” comparator like libabigail or symbolator, we match names of libraries that are used for each of the original dependency (A) and spliced dependency (B) case.</p>
+<p>In the case of a “diff” comparator like libabigail or the symbols predictor, we match names of libraries that are used for each of the original dependency (A) and spliced dependency (B) case.</p>
 <p>In the case of smeagle, we first check if elfcall didn’t find any symbols, and if so we stop and report failure. The smeagle model depends on function symbol names and will always fail if a symbol is entirely missing. If we found all our symbols, we then
 derive first smeagle json (saved to a cache based on the library name) and
 then a scoped set of asp facts the main library (A) and the entire set of dependencies (under the namespace B) to compare to. Since elfcall only matches one library to one symbol, there won’t be conflicts within the B space.</p>
@@ -127,8 +127,14 @@ set them arbitrarily to our liking).</p>
 <p>A predictor should be added as a module to <code class="docutils literal notranslate"><span class="pre">spliced/predict</span></code> so it is retrieved
 on init. It should have a main function, predict, which takes a splice object and optional kwargs.
 At this point you can iterate through the splice structure to use whatever metadata you need. The splice metadata is derived from <a href="#id1"><span class="problematic" id="id2">`Elfcall _&lt;https://vsoch.github.io/elfcall&gt;`_</span></a> which should have all the sets of libraries found and symbols for each (and we stop when all needed and undefined symbols are found). E.g.,:</p>
-<p>## TODO need to update here</p>
-<p>Importantly, your predictor should set <cite>spliced.predictions[&lt;name_of_predictor&gt;]</cite> to be a list of dictionaries,
+<blockquote>
+<div><ul class="simple">
+<li><p>splice.original: includes original library paths</p></li>
+<li><p>splice.spliced: includes spliced library paths</p></li>
+</ul>
+</div></blockquote>
+<p>And you can use the timing function wrappers in the <code class="docutils literal notranslate"><span class="pre">base.py</span></code> under predict to ensure your predictor is timed.
+Importantly, your predictor should set <code class="docutils literal notranslate"><span class="pre">spliced.predictions[&lt;name_of_predictor&gt;]</span></code> to be a list of dictionaries,
 where you can put any needed metadata. The binary/lib is suggested, along with a return code or message from the console,
 and <em>importantly</em> you should have a boolean true/false for “prediction” about whether the splice is predicted to work.
 Here is an example list of results (with a single splice prediction using abicompat) from libaibgail.</p>
@@ -190,7 +196,7 @@ Here is an example list of results (with a single splice prediction using abicom
 <p>Typically, a container base should have the dependencies that you need to run your
 splice. E.g., if you want to use the libabigial splicer, libabigail should
 be installed. We provide a set of automated builds for containers to provide the software
-needed [here](docker) (e.g., including libabigail, spack, and symbolator) so you can use this container set,
+needed [here](docker) (e.g., including libabigail, spack, and symbols) so you can use this container set,
 or if you choose, bootstrap these containers for your own customization. Note that for these containers:</p>
 <blockquote>
 <div><ul class="simple">
@@ -209,7 +215,7 @@ If you have any questions, don’t hesitate to open an issue.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="user-guide.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../api_reference/spliced.html" class="btn btn-neutral float-right" title="Spliced API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../api_reference/spliced.html" class="btn btn-neutral float-right" title="spliced package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

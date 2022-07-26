@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.client.splice &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/spliced.html">spliced package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../client.html">spliced.client</a> &raquo;</li>
+      <li>spliced.client.splice</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spliced.client.splice</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2013-2022 Lawrence Livermore National Security, LLC and other</span>
+<span class="c1"># Spack Project Developers. See the top-level COPYRIGHT file for details.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.splice.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">subparser</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span> <span class="o">==</span> <span class="s2">&quot;spack&quot;</span><span class="p">:</span>
+        <span class="n">run_spack_experiment</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;You must provide an experiment runner.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Runner </span><span class="si">%s</span><span class="s2"> is not recognized&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_spack_experiment"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.splice.run_spack_experiment">[docs]</a><span class="k">def</span> <span class="nf">run_spack_experiment</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a spack experiment, meaning we need to ensure spack is importable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">add_spack_to_path</span><span class="p">()</span>
+
+    <span class="kn">import</span> <span class="nn">spliced.experiment.spack</span>
+
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">spliced</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">spack</span><span class="o">.</span><span class="n">SpackExperiment</span><span class="p">()</span>
+
+    <span class="c1"># We either load a config, or the arguments provided</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">:</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">experiment</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">replace</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Perform the splice!</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+    <span class="c1"># TODO can we run_parallel here as an option? And do splice -&gt; predict as such</span>
+    <span class="c1"># And make predictions</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">predictor</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

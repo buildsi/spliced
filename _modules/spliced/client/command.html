@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spliced.client.command &mdash; Spliced 0.0.16 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx-argparse.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Spliced
+          </a>
+              <div class="version">
+                0.0.16
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/user-guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/developer-guide.html">Developer Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/spliced.html">spliced package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/internal/modules.html">Internal API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Spliced</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../client.html">spliced.client</a> &raquo;</li>
+      <li>spliced.client.command</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spliced.client.command</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2013-2021 Lawrence Livermore National Security, LLC and other</span>
+<span class="c1"># Spack Project Developers. See the top-level COPYRIGHT file for details.</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
+
+
+<span class="kn">import</span> <span class="nn">spliced.experiment</span>
+<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+
+<div class="viewcode-block" id="matrix"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.matrix">[docs]</a><span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">subparser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upper level function for generating an experiment matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Generate a base experiment</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">spliced</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">Experiment</span><span class="p">()</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">generator</span> <span class="o">==</span> <span class="s2">&quot;spack&quot;</span><span class="p">:</span>
+        <span class="n">generate_spack_matrix</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="command"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.command">[docs]</a><span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">subparser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate command list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Generate a base experiment</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">spliced</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">Experiment</span><span class="p">()</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">generator</span> <span class="o">==</span> <span class="s2">&quot;spack&quot;</span><span class="p">:</span>
+        <span class="n">generate_spack_commands</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_package_versions"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.get_package_versions">[docs]</a><span class="k">def</span> <span class="nf">get_package_versions</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a spack package, get a list of all versions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;https://raw.githubusercontent.com/spack/packages/main/data/packages/</span><span class="si">%s</span><span class="s2">.json&quot;</span>
+        <span class="o">%</span> <span class="n">package</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">versions</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Failed to get package versions&quot;</span><span class="p">)</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">versions</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">[</span><span class="s2">&quot;versions&quot;</span><span class="p">]]))</span></div>
+
+
+<div class="viewcode-block" id="get_compiler_labels"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.get_compiler_labels">[docs]</a><span class="k">def</span> <span class="nf">get_compiler_labels</span><span class="p">(</span><span class="n">container</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a container URI, get all associated compiler labels (if they exist)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If we have a container, get compilers. Otherwise default to &quot;all&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">container</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://crane.ggcr.dev/config/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">container</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+                <span class="s2">&quot;Issue retrieving image config for </span><span class="si">% c</span><span class="s2">ontainer: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Labels&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;org.spack.compilers&quot;</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">labels</span></div>
+
+
+<div class="viewcode-block" id="get_splice_versions"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.get_splice_versions">[docs]</a><span class="k">def</span> <span class="nf">get_splice_versions</span><span class="p">(</span><span class="n">experiment</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get splice versions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Do we have splice versions? If not, the only splice is the splice</span>
+    <span class="n">splice_versions</span> <span class="o">=</span> <span class="p">[</span><span class="n">experiment</span><span class="o">.</span><span class="n">splice</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">experiment</span><span class="o">.</span><span class="n">splice_versions</span><span class="p">:</span>
+        <span class="n">splice_versions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">splice_versions</span><span class="p">:</span>
+            <span class="n">splice_versions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span> <span class="n">version</span><span class="p">))</span>
+        <span class="n">splice_versions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">splice_versions</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">splice_versions</span></div>
+
+
+<div class="viewcode-block" id="generate_spack_commands"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.generate_spack_commands">[docs]</a><span class="k">def</span> <span class="nf">generate_spack_commands</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a list of spliced commands</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># These are package versions - splice versions come from list in config</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">get_package_versions</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+    <span class="n">splice_versions</span> <span class="o">=</span> <span class="n">get_splice_versions</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Generate list of commands</span>
+    <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">splice_version</span> <span class="ow">in</span> <span class="n">splice_versions</span><span class="p">:</span>
+
+            <span class="c1"># versioned package</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;spliced splice --package </span><span class="si">%s</span><span class="s2"> --splice </span><span class="si">%s</span><span class="s2"> --runner spack --replace </span><span class="si">%s</span><span class="s2"> --experiment </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">package</span><span class="p">,</span>
+                    <span class="n">splice_version</span><span class="p">,</span>
+                    <span class="n">experiment</span><span class="o">.</span><span class="n">replace</span><span class="p">,</span>
+                    <span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+    <span class="c1"># flatten to be printable</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="generate_spack_matrix"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.generate_spack_matrix">[docs]</a><span class="k">def</span> <span class="nf">generate_spack_matrix</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A spack matrix derives versions from spack, and prepares</span>
+<span class="sd">    to generate commands (and metadata) to support a spack splice</span>
+<span class="sd">    experiment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">get_package_versions</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+    <span class="n">splice_versions</span> <span class="o">=</span> <span class="n">get_splice_versions</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+
+    <span class="c1"># We will build up a matrix of container and associated compilers</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Generate list of commands</span>
+    <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">splice_version</span> <span class="ow">in</span> <span class="n">splice_versions</span><span class="p">:</span>
+
+            <span class="c1"># versioned package</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;spliced splice --package </span><span class="si">%s</span><span class="s2"> --splice </span><span class="si">%s</span><span class="s2"> --runner spack --replace </span><span class="si">%s</span><span class="s2"> --experiment </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">package</span><span class="p">,</span>
+                    <span class="n">splice_version</span><span class="p">,</span>
+                    <span class="n">experiment</span><span class="o">.</span><span class="n">replace</span><span class="p">,</span>
+                    <span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">cmd</span><span class="p">,</span>
+                    <span class="s2">&quot;package&quot;</span><span class="p">:</span> <span class="n">package</span><span class="p">,</span>
+                    <span class="s2">&quot;runner&quot;</span><span class="p">:</span> <span class="s2">&quot;spack&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;splice&quot;</span><span class="p">:</span> <span class="n">experiment</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span>
+                    <span class="s2">&quot;replace&quot;</span><span class="p">:</span> <span class="n">experiment</span><span class="o">.</span><span class="n">replace</span><span class="p">,</span>
+                    <span class="s2">&quot;experiment&quot;</span><span class="p">:</span> <span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">args</span><span class="o">.</span><span class="n">container</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="c1"># We can only get up to 256 max - select randomly</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Warning: original output is length </span><span class="si">%s</span><span class="s2"> and limit is set to </span><span class="si">%s</span><span class="s2"> jobs!&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;::set-output name=matrix::</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;echo &quot;matrix=</span><span class="si">%s</span><span class="s1">&quot; &gt;&gt; $GITHUB_ENV&#39;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Vanessa Sochat.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
