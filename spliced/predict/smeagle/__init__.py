@@ -165,6 +165,7 @@ class SmeaglePrediction(Prediction):
             cache_dir = os.path.dirname(cache_key)
             utils.mkdir_p(cache_dir)
             utils.write_json(data["data"], cache_key)
+            return cache_key
         else:
             logger.warning(
                 "Cannot generate facts for %s, will not be included in experiment."

@@ -24,9 +24,11 @@ class SpackTest(Prediction):
         return res
 
     def predict(self, splice):
-        splice.predictions["spack-test"] = []
-
+        """
+        The spack predictor runs spack test for the original and splice.
+        """
         tests = {}
         for key, identifier in splice.ids.items():
             result = self.spack_test(identifier)
             tests[key] = result
+        splice.predictions["spack-test"] = tests

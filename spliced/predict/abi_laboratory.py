@@ -16,20 +16,22 @@ class AbiLaboratoryPrediction(Prediction):
         """
         Run the ABI laboratory to add to the predictions
         """
-        self.container = os.environ.get("SPLICED_ABILAB_CONTAINER")
-        if not self.container or not os.path.exists(self.container):
-            logger.exit("SPLICED_ABILAB_CONTAINER not defined or does not exist.")
+        self.set_cache()
 
+        if splice.different_libs:
+            return self.splice_different_libs(splice)
+        return self.splice_equivalent_libs(splice)
+
+    def set_cache(self):
+        """
+        Set the cache directory.
+        """
         # If we have defined a cache, use it
         self.cache_dir = os.environ.get(
             "SPLICED_ABILAB_CACHE_DIR",
             os.path.join(tempfile.gettempdir(), "spliced-cache"),
         )
         logger.info("Abi Laboratory cache directory is %s" % self.cache_dir)
-
-        if splice.different_libs:
-            return self.splice_different_libs(splice)
-        return self.splice_equivalent_libs(splice)
 
     def splice_different_libs(self, splice):
         """
@@ -40,7 +42,32 @@ class AbiLaboratoryPrediction(Prediction):
 
     def run_abi_laboratory(self, original_lib, replace_lib, name):
         """
-        Run abi-dumper + abi-compliance-checker with original and comparison library
+        Run abi-dumper + abi-compliance-checker with original and comparison library.
+        This assumes we are in the container, and falls back to running a container.
+        """
+        script_path = "/code/scripts/run_abi_laboratory.sh"
+        if os.path.exists(script_path):
+            return self.run_containerized_abi_laboratory(
+                original_lib, replace_lib, name
+            )
+        return self.run_local_abi_laboratory(original_lib, replace_lib, name)
+
+    def run_local_abi_laboratory(self, original_lib, replace_lib, name):
+        """
+        Run containerized abi laboratory with singularity
+        """
+        script_path = "/code/scripts/run_abi_laboratory.sh"
+        command = "/bin/bash %s %s %s %s" % (
+            script_path,
+            original_lib,
+            replace_lib,
+            name,
+        )
+        return self._run_abi_laboratory(command, original_lib, replace_lib, name)
+
+    def run_containerized_abi_laboratory(self, original_lib, replace_lib, name):
+        """
+        Run containerized abi laboratory with singularity
         """
         command = "singularity run %s %s %s %s" % (
             self.container,
@@ -48,6 +75,12 @@ class AbiLaboratoryPrediction(Prediction):
             replace_lib,
             name,
         )
+        return self._run_abi_laboratory(command, original_lib, replace_lib, name)
+
+    def _run_abi_laboratory(self, command, original_lib, replace_lib, name):
+        """
+        Shared function to run (and return a result)
+        """
         if self.cache_dir:
             cache_key = os.path.join(
                 self.cache_dir,
