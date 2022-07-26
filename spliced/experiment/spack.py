@@ -111,7 +111,9 @@ class SpackExperiment(Experiment):
                 % (self.splice, self.replace)
             )
 
-    def concretize(self, spec_name, error_message, spec=None):
+    def concretize(
+        self, spec_name=None, error_message="spec-concretization-failed", spec=None
+    ):
         """
         A shared function to attempt concretization.
         """
