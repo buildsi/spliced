@@ -51,21 +51,14 @@ class SpackExperiment(Experiment):
 
         print("Concretizing %s" % self.package)
 
-        try:
-            spec_main = Spec(self.package).concretized()
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                "package-concretization-failed", success=False, splice=self.package
-            )
+        spec_main = self.concretize(
+            self.package, error_message="package-concretization-failed"
+        )
+        if not spec_main:
             return []
 
         # Failure case 1: the main package does not build
-        try:
-            spec_main.package.do_install(force=True)
-        except:
-            self.add_splice("package-install-failed", success=False)
-            traceback.print_exc()
+        if not self.do_install(spec_main, "package-install-failed", name=self.package):
             return []
 
         # The second library we can try splicing all versions
@@ -111,8 +104,33 @@ class SpackExperiment(Experiment):
                 % (self.splice, self.replace)
             )
 
+    def do_install(self, spec, error_message, name=None, different_libs=False):
+        """
+        Helper function to do an install.
+        """
+        # Cut out early if installed
+        if spec.installed:
+            return True
+
+        if not name:
+            name = f"{spec.name}@{spec.version}"
+        # Failure case 1: the main package does not build
+        try:
+            spec.package.do_install(force=True)
+            return True
+        except:
+            traceback.print_exc()
+            self.add_splice(
+                error_message, success=False, splice=name, different_libs=different_libs
+            )
+            return False
+
     def concretize(
-        self, spec_name=None, error_message="spec-concretization-failed", spec=None
+        self,
+        spec_name=None,
+        error_message="spec-concretization-failed",
+        spec=None,
+        different_libs=False,
     ):
         """
         A shared function to attempt concretization.
@@ -129,7 +147,7 @@ class SpackExperiment(Experiment):
                 error_message,
                 success=False,
                 splice=spec_name,
-                different_libs=True,
+                different_libs=different_libs,
             )
 
     def mock_splice(self, splice_name, replace_name, spec_main):
@@ -143,47 +161,32 @@ class SpackExperiment(Experiment):
         print("Preparing mock splice for %s -> %s" % (replace_name, splice_name))
 
         # Try to first concretize the splice dependency
-        dep = self.concretize(splice_name, "mock-splice-concretization-failed")
+        dep = self.concretize(
+            splice_name, "mock-splice-concretization-failed", different_libs=True
+        )
         if not dep:
             return
 
         # And install the dependency
-        try:
-            dep.package.do_install(force=True)
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                "mock-splice-install-failed",
-                success=False,
-                splice=splice_name,
-                different_libs=True,
-            )
+        if not self.do_install(
+            dep, "mock-splice-install-failed", name=spec_name, different_libs=True
+        ):
             return
 
         # And also the replacement spec
-        try:
-            replace = Spec(replace_name).concretized()
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                "mock-replace-concretization-failed",
-                success=False,
-                splice=replace_name,
-                different_libs=True,
-            )
+        replace = self.concretize(
+            replace_name, "mock-replace-concretization-failed", different_libs=True
+        )
+        if not replace:
             return
 
-        # And install the replacement
-        try:
-            replace.package.do_install(force=True)
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                "mock-replace-install-failed",
-                success=False,
-                splice=replace_name,
-                different_libs=True,
-            )
+        # And install the dependency
+        if not self.do_install(
+            replace,
+            "mock-replace-install-failed",
+            name=replace_name,
+            different_libs=True,
+        ):
             return
 
         # If we get here, we can add binaries for the main thing, and all libs from te splice and replace
@@ -203,11 +206,7 @@ class SpackExperiment(Experiment):
             return
 
         # Failure case 3: the dependency does not build, we can't test anything here
-        try:
-            dep.package.do_install(force=True)
-        except:
-            traceback.print_exc()
-            self.add_splice("splice-install-failed", success=False, splice=splice_name)
+        if not self.do_install(dep, "splice-install-failed", name=splice_name):
             return
 
         # Failure case 4: the splice itself fails
