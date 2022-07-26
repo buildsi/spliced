@@ -6,7 +6,8 @@
 from .base import Prediction
 from spliced.logger import logger
 import spliced.utils as utils
-from .base import match_by_prefix
+from .base import match_by_prefix, timed_run
+
 
 import os
 
@@ -101,7 +102,7 @@ class LibabigailPrediction(Prediction):
         Run abi diff with an original and comparison library
         """
         command = "%s %s %s" % (self.abidiff, original_lib, replace_lib)
-        res = utils.run_command(command)
+        res = timed_run(command)
         res["command"] = command
 
         # The spliced lib and original
@@ -120,7 +121,7 @@ class LibabigailPrediction(Prediction):
         """
         # Run abicompat to make a prediction
         command = "%s %s %s %s" % (self.abicompat, binary, original, lib)
-        res = utils.run_command(command)
+        res = timed_run(command)
         res["command"] = command
         res["binary"] = binary
 
@@ -152,8 +153,12 @@ class LibabigailPrediction(Prediction):
         # Keep track of abidiffs we've done
         abidiffs = set()
         for binary, meta in original_deps.items():
+
             # Match the binary to the spliced one
             if binary not in spliced_deps:
+                logger.warning(
+                    f"{binary} is missing from splice! This should not happen!"
+                )
                 continue
 
             spliced_meta = spliced_deps[binary]

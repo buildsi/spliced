@@ -6,6 +6,7 @@
 # An experiment loads in a splice setup, and runs a splice session.
 
 from .base import Experiment
+import re
 import os
 import sys
 import traceback
@@ -49,7 +50,15 @@ class SpackExperiment(Experiment):
         transitive = kwargs.get("transitive", True)
 
         print("Concretizing %s" % self.package)
-        spec_main = Spec(self.package).concretized()
+
+        try:
+            spec_main = Spec(self.package).concretized()
+        except:
+            traceback.print_exc()
+            self.add_splice(
+                "package-concretization-failed", success=False, splice=self.package
+            )
+            return []
 
         # Failure case 1: the main package does not build
         try:
@@ -244,6 +253,7 @@ class SpackExperiment(Experiment):
         Get all of spack's changes to the LD_LIBRARY_PATH for elfcall
         """
         loads = set()
+
         # Get all deps to add to path
         env_mod = spack.util.environment.EnvironmentModifications()
         for depspec in original.traverse(root=True, order="post"):
@@ -254,7 +264,7 @@ class SpackExperiment(Experiment):
         for env in env_mod.env_modifications:
             if env.name == "LD_LIBRARY_PATH":
                 loads.add(env.value)
-        return loads
+        return list(loads)
 
     def _populate_splice(self, splice, spliced_spec, original):
         """
@@ -283,17 +293,25 @@ class SpackExperiment(Experiment):
                 for x in self._populate_spack_directory(original_dir)
             ]
             splice_dir = os.path.join(spliced_spec.prefix, subdir)
-            if os.path.exists(splice_dir):
-                [
-                    splice.spliced.add(x)
-                    for x in self._populate_spack_directory(splice_dir)
-                ]
+            [splice.spliced.add(x) for x in self._populate_spack_directory(splice_dir)]
 
         # IMPORTANT we must emulate "spack load" in order for libs to be found...
         loads = {}
         with spack.store.db.read_transaction():
             loads["original"] = self.get_spack_ld_library_paths(original)
             loads["spliced"] = self.get_spack_ld_library_paths(spliced_spec)
+
+        # Save the ld library path loads
+        splice.paths["loads"] = loads
+
+        # Keep set of dependency libs to run elfcall on (other spack deps)
+        dep_libs = set()
+        all_libs = set()
+
+        def iter_deps(res, key):
+            for _, m in res["found"].items():
+                if "lib" in m:
+                    dep_libs.add((m["lib"]["realpath"], key))
 
         # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
         for lib in splice.original:
@@ -302,7 +320,11 @@ class SpackExperiment(Experiment):
                 # If we fail to parse it, cannot be in analysis
                 splice.original.remove(lib)
                 continue
+            iter_deps(res, "original")
+            all_libs.add(lib)
             splice.metadata[lib] = res
+
+        # TODO add calculating sizes here
 
         for lib in splice.spliced:
 
@@ -313,11 +335,33 @@ class SpackExperiment(Experiment):
             if not res:
                 splice.spliced.remove(lib)
                 continue
+            iter_deps(res, "spliced")
+            all_libs.add(lib)
             splice.metadata[lib] = res
 
+        # Run elfcall on all non system libs
+        for libset in dep_libs:
+            lib, ld_path_type = libset
+            all_libs.add(lib)
+
+            # If the dep is a system lib, don't include for now
+            if re.search("^(/usr|/lib)", lib):
+                continue
+
+            key = "%s:%s" % (ld_path_type, lib)
+            if key in splice.metadata:
+                continue
+            res = self.run_elfcall(lib, ld_library_paths=loads[ld_path_type])
+            if res:
+                splice.metadata[key] = res
+
+        # Calculate sizes for all libs
+        for lib in all_libs:
+            splice.stats["sizes_bytes"][lib] = os.path.getsize(lib)
+
         # Add the dag hash as the identifier
-        splice.add_spliced_identifier("/" + spliced_spec.dag_hash()[0:6])
-        splice.add_original_identifier("/" + original.dag_hash()[0:6])
+        splice.add_spec("original", original)
+        splice.add_spec("spliced", spliced_spec)
 
     def run_elfcall(self, lib, ld_library_paths=None):
         """

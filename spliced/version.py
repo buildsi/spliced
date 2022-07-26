@@ -17,7 +17,6 @@ LICENSE = "LICENSE-MIT"
 INSTALL_REQUIRES = (
     ("pyaml", {"min_version": None}),
     ("requests", {"min_version": None}),
-    ("symbolator-python", {"min_version": None}),
     ("jsonschema", {"min_version": None}),
     # required for smeagle
     # Note that we also require cle

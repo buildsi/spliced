@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import spliced.utils as utils
-from .base import Prediction
+from .base import Prediction, timed_run
 
 
 class SpackTest(Prediction):
@@ -18,7 +18,7 @@ class SpackTest(Prediction):
         """
         executable = utils.which("spack")
         cmd = "%s test run %s" % (executable, identifier)
-        res = utils.run_command(cmd)
+        res = timed_run(cmd)
         res["prediction"] = True if res["return_code"] == 0 else False
         res["command"] = cmd
         return res
@@ -26,12 +26,7 @@ class SpackTest(Prediction):
     def predict(self, splice):
         splice.predictions["spack-test"] = []
 
-        # Run spack tests for original and spliced
-        if splice.original_id:
-            test_original = self.spack_test(splice.original_id)
-            test_original["install"] = "original"
-            splice.predictions["spack-test"].append(test_original)
-        if splice.spliced_id:
-            test_spliced = self.spack_test(splice.spliced_id)
-            test_spliced["install"] = "spliced"
-            splice.predictions["spack-test"].append(test_spliced)
+        tests = {}
+        for key, identifier in splice.ids.items():
+            result = self.spack_test(identifier)
+            tests[key] = result

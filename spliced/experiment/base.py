@@ -36,36 +36,38 @@ class Splice:
         # Keep track of original and spliced paths
         self.original = set()
         self.spliced = set()
+        self.paths = {}
 
         # This lookup has metadata for each (e.g., elfcall)
         self.metadata = {}
 
         # Extra stats for the predictor to record
-        self.stats = {}
+        self.stats = {"sizes_bytes": {}}
 
         self.predictions = {}
         self.package = package
+        self.specs = {}
+        self.ids = {}
         self.experiment = experiment
         self.success = success
         self.result = result
         self.splice = splice
-        self.original_id = None
-        self.spliced_id = None
 
         # Are we splicing different libs?
         self.different_libs = different_libs
 
-    def add_original_identifier(self, identifier):
+    def add_spec(self, key, spec):
         """
-        Add some experiment specific identifier (e.g., dag hash for spack)
+        Add a spec (with a key) to metadata
         """
-        self.original_id = identifier
+        self.add_identifier(key, "/" + spec.dag_hash()[0:6])
+        self.specs[key] = spec
 
-    def add_spliced_identifier(self, identifier):
+    def add_identifier(self, key, identifier):
         """
         Add some experiment specific identifier (e.g., dag hash for spack)
         """
-        self.spliced_id = identifier
+        self.ids[key] = identifier
 
     def match_libs(self):
         """
@@ -78,8 +80,11 @@ class Splice:
         Return the result as a dictionary
         """
         return {
+            "specs": {k: str(v) for k, v in self.specs.items()},
+            "ids": self.ids,
             "original": list(self.original),
             "spliced": list(self.spliced),
+            "paths": self.paths,
             "predictions": self.predictions,
             "stats": self.stats,
             "experiment": self.experiment,

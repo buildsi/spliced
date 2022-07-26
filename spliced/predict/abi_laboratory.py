@@ -5,9 +5,9 @@
 
 from .base import Prediction
 from spliced.logger import logger
-import spliced.utils as utils
-from .base import match_by_prefix
+from .base import match_by_prefix, timed_run
 
+import tempfile
 import os
 
 
@@ -20,6 +20,13 @@ class AbiLaboratoryPrediction(Prediction):
         if not self.container or not os.path.exists(self.container):
             logger.exit("SPLICED_ABILAB_CONTAINER not defined or does not exist.")
 
+        # If we have defined a cache, use it
+        self.cache_dir = os.environ.get(
+            "SPLICED_ABILAB_CACHE_DIR",
+            os.path.join(tempfile.gettempdir(), "spliced-cache"),
+        )
+        logger.info("Abi Laboratory cache directory is %s" % self.cache_dir)
+
         if splice.different_libs:
             return self.splice_different_libs(splice)
         return self.splice_equivalent_libs(splice)
@@ -31,7 +38,7 @@ class AbiLaboratoryPrediction(Prediction):
         """
         raise NotImplementedError
 
-    def run_abi_laboratory(self, name, original_lib, replace_lib):
+    def run_abi_laboratory(self, original_lib, replace_lib, name):
         """
         Run abi-dumper + abi-compliance-checker with original and comparison library
         """
@@ -41,7 +48,14 @@ class AbiLaboratoryPrediction(Prediction):
             replace_lib,
             name,
         )
-        res = utils.run_command(command)
+        if self.cache_dir:
+            cache_key = os.path.join(
+                self.cache_dir,
+                "%s-abi-laboratory-%s.html" % (original_lib.strip(os.sep), name),
+            )
+            command = f"{command} {cache_key}"
+
+        res = timed_run(command)
         res["command"] = command
 
         # The spliced lib and original
@@ -60,7 +74,7 @@ class AbiLaboratoryPrediction(Prediction):
         we can do matching based on names. We can use abicomat with binaries, and
         abidiff for just between the libs.
         """
-        basename = "%s-%s-%s" % (splice.package, splice.splice, splice - replace)
+        basename = ("%s-%s" % (splice.package, splice.splice)).replace("@", "-v")
 
         # For each original (we assume working) binary, find its deps from elfcall,
         # and then match to the equivalent lib (via basename) for the splice
