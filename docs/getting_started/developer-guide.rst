@@ -23,7 +23,7 @@ The spack experiment runner works by starting with a main library (e.g., caliper
 3. Use `Elfcall <https://vsoch.github.io/elfcall>`_ to emulate the linker and find paths of libraries with needed (undefined) symbols.
 4. Present the elfcall output to each predictor to use appropriately.
 
-In the case of a "diff" comparator like libabigail or symbolator, we match names of libraries that are used for each of the original dependency (A) and spliced dependency (B) case.
+In the case of a "diff" comparator like libabigail or the symbols predictor, we match names of libraries that are used for each of the original dependency (A) and spliced dependency (B) case.
 
 In the case of smeagle, we first check if elfcall didn't find any symbols, and if so we stop and report failure. The smeagle model depends on function symbol names and will always fail if a symbol is entirely missing. If we found all our symbols, we then
 derive first smeagle json (saved to a cache based on the library name) and 
@@ -48,9 +48,11 @@ A predictor should be added as a module to ``spliced/predict`` so it is retrieve
 on init. It should have a main function, predict, which takes a splice object and optional kwargs.
 At this point you can iterate through the splice structure to use whatever metadata you need. The splice metadata is derived from `Elfcall _<https://vsoch.github.io/elfcall>`_ which should have all the sets of libraries found and symbols for each (and we stop when all needed and undefined symbols are found). E.g.,:
 
-## TODO need to update here
- 
-Importantly, your predictor should set `spliced.predictions[<name_of_predictor>]` to be a list of dictionaries,
+ - splice.original: includes original library paths
+ - splice.spliced: includes spliced library paths
+
+And you can use the timing function wrappers in the ``base.py`` under predict to ensure your predictor is timed. 
+Importantly, your predictor should set ``spliced.predictions[<name_of_predictor>]`` to be a list of dictionaries,
 where you can put any needed metadata. The binary/lib is suggested, along with a return code or message from the console,
 and *importantly* you should have a boolean true/false for "prediction" about whether the splice is predicted to work.
 Here is an example list of results (with a single splice prediction using abicompat) from libaibgail.
@@ -122,7 +124,7 @@ Creating a container base
 Typically, a container base should have the dependencies that you need to run your
 splice. E.g., if you want to use the libabigial splicer, libabigail should
 be installed. We provide a set of automated builds for containers to provide the software 
-needed [here](docker) (e.g., including libabigail, spack, and symbolator) so you can use this container set,
+needed [here](docker) (e.g., including libabigail, spack, and symbols) so you can use this container set,
 or if you choose, bootstrap these containers for your own customization. Note that for these containers:
 
  - we provide several os bases - the default of the spliced execuable is ubuntu 20.04, and you can change this with `--container`

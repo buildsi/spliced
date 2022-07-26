@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
+import spliced.utils as utils
+from time import time
+
 import os
 
 
@@ -47,6 +50,30 @@ class Prediction:
         return deps
 
 
+def time_run_decorator(func):
+    """
+    Decorator to add run seconds to result
+    """
+
+    def wrap_func(*args, **kwargs):
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        result["seconds"] = t2 - t1
+        return result
+
+    return wrap_func
+
+
+@time_run_decorator
+def timed_run(cmd):
+    return utils.run_command(cmd)
+
+
+def get_prefix(lib):
+    return os.path.basename(lib).split(".")[0]
+
+
 def match_by_prefix(meta, spliced_meta):
     """
     Given an iterable of two things, match based on library prefix. E.g.,
@@ -58,8 +85,8 @@ def match_by_prefix(meta, spliced_meta):
             # No use to compare exact same libs
             if spliced_dep == binary_dep:
                 continue
-            spliced_prefix = os.path.basename(spliced_dep).split(".")[0]
-            dep_prefix = os.path.basename(binary_dep).split(".")[0]
+            spliced_prefix = get_prefix(spliced_dep)
+            dep_prefix = get_prefix(binary_dep)
             if spliced_prefix == dep_prefix:
                 matches.append({"original": binary_dep, "spliced": spliced_dep})
     return matches

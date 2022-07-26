@@ -31,11 +31,45 @@ What predictors are available?
 As stated above, a **predictor** is a tool that can take some set of binaries or libraries, and say "I think if you use A with B, it will work."
 spliced currently has the following predictors:
 
- - **actual**: This is a base level of predictor, which (given that you provide a testing command) will simply test a binary, as is, and tell you if it works. This is our "ground truth" for the other predictors that aren't actually testing anything, but just predicting.
- - **libabigail**: is a `library provided by RedHat <https://sourceware.org/libabigail/>`_ that provides tooling for assessing ABI compatibility.
- - **symbolator**: is a `simple library developed by the group here <https://github.com/buildsi/symbolator>`_ that makes predictions based on comparing symbol sets.
+ - **actual**: This is a base level of predictor that will (for the spack runner) run spack tests for each of the original install and spliced version. This is our "ground truth" for the other predictors that aren't actually testing anything, but just predicting.
+ - **libabigail**: is a `library provided by RedHat <https://sourceware.org/libabigail/>`_ that provides tooling for assessing ABI compatibility. You'll need the tools installed on your path, and if using the spack experiment runner, it will fall back to installing them with spack.
+ - **symbols**: makes predictions based on comparing symbol sets.
  - **spack-test**: will, given that the splice has an id that matches a spack dag hash, run tests associated with that spec.
- - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is not added yet, but will be eventually.
+ - **abi-laboratory**: will use the ``abi-dumper`` and ``abi-compliance-checker`` from the Abi Laboratory, and requires that you export ``SPLICED_ABILAB_CONTAINER`` to be a path to `the Singularity container here <>`_, as shown with the Singularity pull command below.
+ - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is added but considered to be in experimental state. It requires `my branch of cle <https://github.com/vsoch/cle>`_.
+
+
+Smeagle
+-------
+
+Smeagle (under development) will run given that its dependencies are installed, and that you have set
+a cache to save facts. For example:
+
+.. code-block:: console
+
+    $ export SPLICED_SMEAGLE_CACHE=/p/vast1/build/smeagle-cache
+
+
+Note that it will output facts json files, and they will be prefixed with smeagle
+and organized by library location so you can share the cache between predictors.
+
+
+Abi Laboratory Predictor
+------------------------
+
+The ABI Laboratory predictor uses `this GitHub packages container <https://github.com/buildsi/abi-laboratory-docker>`_ to run the prediction. This means that you need to pull it and export to the environment:
+
+.. code-block:: console
+
+    $ singularity pull docker://ghcr.io/buildsi/abi-laboratory-docker
+    $ export SPLICED_ABILAB_CONTAINER=$PWD/abi-laboratory-docker_latest.sif
+
+The ABI Laboratory also supports using a cache for results:
+
+.. code-block:: console
+
+    $ export SPLICED_ABILAB_CACHE=/p/vast1/build/smeagle-cache
+
 
 Config File
 ===========
@@ -150,16 +184,16 @@ you'll see:
 3. Running splice predictors (not developed yet) but will give a prediction if the splice will work!
 4. Commands, if provided, are then run to give an "actual" report of if it worked (according to the command) or not.
 
-By default, the predictors used will be all that are provided (libabigail and symbolator and an actual) and if
+By default, the predictors used will be all that are provided (libabigail and symbols and an actual) and if
 any predictor dependency is missing, a warning will be printed and it will be skipped. If you want to filter
 to a specific number of predictors, use `--predictor` for each.
 
 
 .. code-block:: console
 
-    $ spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbolator
+    $ spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbols
 
-The above would run the experiment with a symbolator prediction.
+The above would run the experiment with a symbols prediction.
 Note that the "actual" run is always performed if a command is provided, but not if it isn't. 
 Here is what an entire run looks like, with a testing command and  output saved to a json file with `--outfile`
 

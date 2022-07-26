@@ -7,6 +7,7 @@ from spliced.predict.base import Prediction
 from .smeagle import SmeagleRunner
 from spliced.logger import logger
 import spliced.utils as utils
+from time import time
 import tempfile
 
 import re
@@ -38,7 +39,7 @@ class SmeaglePrediction(Prediction):
         # If we have defined a cache, use it
         self.cache_dir = os.environ.get(
             "SPLICED_SMEAGLE_CACHE_DIR",
-            os.path.join(tempfile.gettempdir(), "smeagle-cache"),
+            os.path.join(tempfile.gettempdir(), "spliced-cache"),
         )
         logger.info("Smeagle cache directory is %s" % self.cache_dir)
 
@@ -63,7 +64,7 @@ class SmeaglePrediction(Prediction):
 
         # For each spliced binary/lib, generate facts, save to cache
         for lib in splice.spliced:
-            cache_key = self.generate_cle_data(lib)
+            cache_key = self.generate_cle_data(lib, prefix="smeagle")
             if cache_key:
                 spliced[lib] = cache_key
 
@@ -137,17 +138,25 @@ class SmeaglePrediction(Prediction):
         out = open(output_asp, "w")
 
         # Stability test compares A (the main library) against all deps, B
-        splice.predictions["smeagle"].append(
-            self.smeagle.compatible_test(facts_path, B_set, deps, out=out)
-        )
+        # Time how long it takes
+        t1 = time()
+        res = self.smeagle.compatible_test(facts_path, B_set, deps, out=out)
+        t2 = time()
+        res["seconds"] = t2 - t1
+        splice.predictions["smeagle"].append(res)
         out.close()
 
-    def generate_cle_data(self, lib):
+    def generate_cle_data(self, lib, prefix="smeagle"):
         """
         Given a library, run cle to generate facts and save to cache. Return key.
         """
         # Keep same path, but under cache
-        cache_key = os.path.join(self.cache_dir, lib.strip(os.sep) + ".json")
+        if prefix:
+            cache_key = os.path.join(
+                self.cache_dir, "%s-%s.json" % (prefix, lib.strip(os.sep))
+            )
+        else:
+            cache_key = os.path.join(self.cache_dir, lib.strip(os.sep) + ".json")
         if os.path.exists(cache_key):
             return cache_key
         logger.info("Generating facts for %s with cle..." % lib)
