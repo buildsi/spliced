@@ -139,7 +139,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_abi_laboratory">
 <span class="sig-name descname"><span class="pre">run_abi_laboratory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.run_abi_laboratory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_abi_laboratory" title="Permalink to this definition"></a></dt>
-<dd><p>Run abi-dumper + abi-compliance-checker with original and comparison library</p>
+<dd><p>Run abi-dumper + abi-compliance-checker with original and comparison library.
+This assumes we are in the container, and falls back to running a container.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_containerized_abi_laboratory">
+<span class="sig-name descname"><span class="pre">run_containerized_abi_laboratory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.run_containerized_abi_laboratory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_containerized_abi_laboratory" title="Permalink to this definition"></a></dt>
+<dd><p>Run containerized abi laboratory with singularity</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_local_abi_laboratory">
+<span class="sig-name descname"><span class="pre">run_local_abi_laboratory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.run_local_abi_laboratory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_local_abi_laboratory" title="Permalink to this definition"></a></dt>
+<dd><p>Run containerized abi laboratory with singularity</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.abi_laboratory.AbiLaboratoryPrediction.set_cache">
+<span class="sig-name descname"><span class="pre">set_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/abi_laboratory.html#AbiLaboratoryPrediction.set_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.set_cache" title="Permalink to this definition"></a></dt>
+<dd><p>Set the cache directory.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -290,7 +309,8 @@ abidiff for just between the libs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.spack.SpackTest.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/spack.html#SpackTest.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.spack.SpackTest.predict" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>The spack predictor runs spack test for the original and splice.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.spack.SpackTest.spack_test">

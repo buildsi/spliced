@@ -96,20 +96,22 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the ABI laboratory to add to the predictions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPLICED_ABILAB_CONTAINER&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;SPLICED_ABILAB_CONTAINER not defined or does not exist.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_cache</span><span class="p">()</span>
 
+        <span class="k">if</span> <span class="n">splice</span><span class="o">.</span><span class="n">different_libs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_different_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_equivalent_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AbiLaboratoryPrediction.set_cache"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.set_cache">[docs]</a>    <span class="k">def</span> <span class="nf">set_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the cache directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If we have defined a cache, use it</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="s2">&quot;SPLICED_ABILAB_CACHE_DIR&quot;</span><span class="p">,</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;spliced-cache&quot;</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Abi Laboratory cache directory is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">splice</span><span class="o">.</span><span class="n">different_libs</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_different_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_equivalent_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Abi Laboratory cache directory is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbiLaboratoryPrediction.splice_different_libs"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.splice_different_libs">[docs]</a>    <span class="k">def</span> <span class="nf">splice_different_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -120,7 +122,32 @@
 
 <div class="viewcode-block" id="AbiLaboratoryPrediction.run_abi_laboratory"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_abi_laboratory">[docs]</a>    <span class="k">def</span> <span class="nf">run_abi_laboratory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run abi-dumper + abi-compliance-checker with original and comparison library</span>
+<span class="sd">        Run abi-dumper + abi-compliance-checker with original and comparison library.</span>
+<span class="sd">        This assumes we are in the container, and falls back to running a container.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">script_path</span> <span class="o">=</span> <span class="s2">&quot;/code/scripts/run_abi_laboratory.sh&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script_path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_containerized_abi_laboratory</span><span class="p">(</span>
+                <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_local_abi_laboratory</span><span class="p">(</span><span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AbiLaboratoryPrediction.run_local_abi_laboratory"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_local_abi_laboratory">[docs]</a>    <span class="k">def</span> <span class="nf">run_local_abi_laboratory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run containerized abi laboratory with singularity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">script_path</span> <span class="o">=</span> <span class="s2">&quot;/code/scripts/run_abi_laboratory.sh&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;/bin/bash </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">script_path</span><span class="p">,</span>
+            <span class="n">original_lib</span><span class="p">,</span>
+            <span class="n">replace_lib</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_abi_laboratory</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AbiLaboratoryPrediction.run_containerized_abi_laboratory"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_containerized_abi_laboratory">[docs]</a>    <span class="k">def</span> <span class="nf">run_containerized_abi_laboratory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run containerized abi laboratory with singularity</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;singularity run </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="p">,</span>
@@ -128,6 +155,12 @@
             <span class="n">replace_lib</span><span class="p">,</span>
             <span class="n">name</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_abi_laboratory</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_abi_laboratory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shared function to run (and return a result)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">:</span>
             <span class="n">cache_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span>
@@ -146,7 +179,7 @@
         <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">])</span>
         <span class="n">res</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">res</span></div>
+        <span class="k">return</span> <span class="n">res</span>
 
 <div class="viewcode-block" id="AbiLaboratoryPrediction.splice_equivalent_libs"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.splice_equivalent_libs">[docs]</a>    <span class="k">def</span> <span class="nf">splice_equivalent_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

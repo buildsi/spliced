@@ -245,6 +245,7 @@
             <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">mkdir_p</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">cache_key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cache_key</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Cannot generate facts for </span><span class="si">%s</span><span class="s2">, will not be included in experiment.&quot;</span>
