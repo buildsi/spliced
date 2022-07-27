@@ -45,6 +45,7 @@ def run_spack_experiment(args, command):
     results = experiment.to_dict()
 
     if args.outfile:
+        utils.mkdir_p(os.path.dirname(args.outfile))
         utils.write_json(results, args.outfile)
     else:
         print(json.dumps(results, indent=4))
