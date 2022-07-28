@@ -284,7 +284,7 @@ class SpackExperiment(Experiment):
         # Look for appends to LD_LIBRARY_PATH
         for env in env_mod.env_modifications:
             if env.name == "LD_LIBRARY_PATH":
-                loads.add(env.value)
+                loads.add(env.value.strip())
         return list(loads)
 
     def _populate_splice(self, splice, spliced_spec, original):
