@@ -1,3 +1,3 @@
-package: curl
+package: 
+  name: curl
 splice: zlib
-command: curl --head https://linuxize.com/
