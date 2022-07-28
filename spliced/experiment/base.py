@@ -134,7 +134,11 @@ class Experiment:
         """
         Init config variables directly
         """
-        self.config = {"splice": splice, "package": package, "replace": replace}
+        self.config = {
+            "splice": splice,
+            "package": {"name": package},
+            "replace": replace,
+        }
         if experiment:
             self._experiment = experiment
         if splice_versions:
