@@ -83,28 +83,34 @@ class SpackExperiment(Experiment):
             return
 
         if self.splice != self.replace:
-            for version, vmeta in spec_spliced.package.versions.items():
-                if not version or vmeta.get("deprecated", False) == True:
-                    continue
+            for version in self.get_sorted_versions(spec_spliced):
                 splice = "%s@%s" % (self.splice, version)
                 self.mock_splice(splice, self.replace, spec_main)
 
         # Otherwise, splice all versions
         elif self.splice == self.replace:
-            for version, vmeta in spec_spliced.package.versions.items():
-
-                # Do not provide deprecated versions
-                if not version or vmeta.get("deprecated", False) == True:
-                    continue
-
-                # spec_spliced version goes into spec_main
+            for version in self.get_sorted_versions(spec_spliced):
                 splice = "%s@%s" % (self.splice, version)
                 self.do_splice(splice, spec_main, transitive)
+
         else:
             print(
                 "Splice is %s and replace spec is %s we do not handle this case"
                 % (self.splice, self.replace)
             )
+
+    def get_sorted_versions(self, spec):
+        """
+        Helper function to get sorted versions (for consistency)
+        """
+        versions = set()
+        for version, vmeta in spec.package.versions.items():
+
+            # Do not provide deprecated versions
+            if not version or vmeta.get("deprecated", False) == True:
+                continue
+            versions.add(str(version))
+        return sorted(list(versions))
 
     def do_install(self, spec, error_message, name=None, different_libs=False):
         """
