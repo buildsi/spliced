@@ -203,6 +203,7 @@ class Experiment:
         TODO can we cache the splice setup?
         # ALSO add cache variable to save cache for smeagle (add to spack experiment)
         """
+        print(f"*** ADDING SPLICE RESULT {result} ***")
         new_splice = Splice(
             package=self.package,
             splice=splice or self.splice,
