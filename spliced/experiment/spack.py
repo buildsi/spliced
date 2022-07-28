@@ -84,7 +84,7 @@ class SpackExperiment(Experiment):
 
         if self.splice != self.replace:
             for version in spec_spliced.package.versions:
-                if not version:
+                if not version or version.deprecated:
                     continue
                 splice = "%s@%s" % (self.splice, version)
                 self.mock_splice(splice, self.replace, spec_main)
@@ -92,7 +92,9 @@ class SpackExperiment(Experiment):
         # Otherwise, splice all versions
         elif self.splice == self.replace:
             for version in spec_spliced.package.versions:
-                if not version:
+
+                # Do not provide deprecated versions
+                if not version or version.deprecated:
                     continue
 
                 # spec_spliced version goes into spec_main
