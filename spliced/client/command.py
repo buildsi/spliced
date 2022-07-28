@@ -90,7 +90,7 @@ def generate_spack_commands(args, experiment):
     Generate a list of spliced commands
     """
     # These are package versions - splice versions come from list in config
-    versions = get_package_versions(experiment.package)
+    versions = get_package_versions(experiment.package["name"])
     splice_versions = get_splice_versions(experiment)
     commands = []
 
@@ -100,7 +100,7 @@ def generate_spack_commands(args, experiment):
         for splice_version in splice_versions:
 
             # versioned package
-            package = "%s@%s" % (experiment.package, version)
+            package = "%s@%s" % (experiment.package["name"], version)
             cmd = (
                 "spliced splice --package %s --splice %s --runner spack --replace %s --experiment %s"
                 % (
