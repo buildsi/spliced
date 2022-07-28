@@ -328,16 +328,21 @@ class SpackExperiment(Experiment):
                     dep_libs.add((m["lib"]["realpath"], key))
 
         # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
+        keepers = set()
         for lib in splice.original:
             res = self.run_elfcall(lib, ld_library_paths=loads["original"])
             if not res:
                 # If we fail to parse it, cannot be in analysis
                 splice.original.remove(lib)
                 continue
+            keepers.add(lib)
             iter_deps(res, "original")
             all_libs.add(lib)
             splice.metadata[lib] = res
 
+        # Update orignal set
+        splice.original = keepers
+        keepers = set()
         for lib in splice.spliced:
 
             # Some shared dependency, don't need to parse twice!
@@ -345,11 +350,14 @@ class SpackExperiment(Experiment):
                 continue
             res = self.run_elfcall(lib, ld_library_paths=loads["spliced"])
             if not res:
-                splice.spliced.remove(lib)
                 continue
+            keepers.add(lib)
             iter_deps(res, "spliced")
             all_libs.add(lib)
             splice.metadata[lib] = res
+
+        # Update spliced set
+        splice.spliced = keepers
 
         # Run elfcall on all non system libs
         for libset in dep_libs:
