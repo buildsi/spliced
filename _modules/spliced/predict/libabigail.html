@@ -247,10 +247,6 @@
             <span class="c1"># We must find a matching lib for each based on prefix</span>
             <span class="n">matches</span> <span class="o">=</span> <span class="n">match_by_prefix</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">],</span> <span class="n">spliced_meta</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">])</span>
 
-            <span class="c1"># If we don&#39;t have matches, nothing to look at</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
-                <span class="k">continue</span>
-
             <span class="c1"># Also cache the lib (original or after splice) if we don&#39;t have it yet</span>
             <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
 

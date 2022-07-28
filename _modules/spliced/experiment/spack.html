@@ -162,26 +162,34 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">spec_spliced</span><span class="o">.</span><span class="n">package</span><span class="o">.</span><span class="n">versions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
-                    <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sorted_versions</span><span class="p">(</span><span class="n">spec_spliced</span><span class="p">):</span>
                 <span class="n">splice</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mock_splice</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">,</span> <span class="n">spec_main</span><span class="p">)</span>
 
         <span class="c1"># Otherwise, splice all versions</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">spec_spliced</span><span class="o">.</span><span class="n">package</span><span class="o">.</span><span class="n">versions</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
-                    <span class="k">continue</span>
-
-                <span class="c1"># spec_spliced version goes into spec_main</span>
+            <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sorted_versions</span><span class="p">(</span><span class="n">spec_spliced</span><span class="p">):</span>
                 <span class="n">splice</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">do_splice</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">spec_main</span><span class="p">,</span> <span class="n">transitive</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="s2">&quot;Splice is </span><span class="si">%s</span><span class="s2"> and replace spec is </span><span class="si">%s</span><span class="s2"> we do not handle this case&quot;</span>
                 <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">)</span>
             <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpackExperiment.get_sorted_versions"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.spack.SpackExperiment.get_sorted_versions">[docs]</a>    <span class="k">def</span> <span class="nf">get_sorted_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper function to get sorted versions (for consistency)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">versions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">version</span><span class="p">,</span> <span class="n">vmeta</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">package</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="c1"># Do not provide deprecated versions</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span> <span class="ow">or</span> <span class="n">vmeta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">versions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">versions</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SpackExperiment.do_install"><a class="viewcode-back" href="../../../api_reference/spliced.experiment.html#spliced.experiment.spack.SpackExperiment.do_install">[docs]</a>    <span class="k">def</span> <span class="nf">do_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">error_message</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">different_libs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -292,6 +300,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">spliced_spec</span> <span class="o">=</span> <span class="n">spec_main</span><span class="o">.</span><span class="n">splice</span><span class="p">(</span><span class="n">dep</span><span class="p">,</span> <span class="n">transitive</span><span class="o">=</span><span class="n">transitive</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
             <span class="n">splice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_splice</span><span class="p">(</span><span class="s2">&quot;splice-failed&quot;</span><span class="p">,</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">splice</span><span class="o">=</span><span class="n">splice_name</span><span class="p">)</span>
             <span class="k">return</span>
 
@@ -354,7 +363,7 @@
         <span class="c1"># Look for appends to LD_LIBRARY_PATH</span>
         <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">env_mod</span><span class="o">.</span><span class="n">env_modifications</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">env</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">:</span>
-                <span class="n">loads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">loads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">loads</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_populate_splice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">spliced_spec</span><span class="p">,</span> <span class="n">original</span><span class="p">):</span>
@@ -405,16 +414,20 @@
                     <span class="n">dep_libs</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">][</span><span class="s2">&quot;realpath&quot;</span><span class="p">],</span> <span class="n">key</span><span class="p">))</span>
 
         <span class="c1"># Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH</span>
+        <span class="n">keepers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_elfcall</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">ld_library_paths</span><span class="o">=</span><span class="n">loads</span><span class="p">[</span><span class="s2">&quot;original&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
                 <span class="c1"># If we fail to parse it, cannot be in analysis</span>
-                <span class="n">splice</span><span class="o">.</span><span class="n">original</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
                 <span class="k">continue</span>
+            <span class="n">keepers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
             <span class="n">iter_deps</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="s2">&quot;original&quot;</span><span class="p">)</span>
             <span class="n">all_libs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
             <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
 
+        <span class="c1"># Update orignal set</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">original</span> <span class="o">=</span> <span class="n">keepers</span>
+        <span class="n">keepers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">:</span>
 
             <span class="c1"># Some shared dependency, don&#39;t need to parse twice!</span>
@@ -422,11 +435,14 @@
                 <span class="k">continue</span>
             <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_elfcall</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">ld_library_paths</span><span class="o">=</span><span class="n">loads</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
-                <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
                 <span class="k">continue</span>
+            <span class="n">keepers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
             <span class="n">iter_deps</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="s2">&quot;spliced&quot;</span><span class="p">)</span>
             <span class="n">all_libs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
             <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+
+        <span class="c1"># Update spliced set</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span> <span class="o">=</span> <span class="n">keepers</span>
 
         <span class="c1"># Run elfcall on all non system libs</span>
         <span class="k">for</span> <span class="n">libset</span> <span class="ow">in</span> <span class="n">dep_libs</span><span class="p">:</span>

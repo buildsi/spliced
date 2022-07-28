@@ -92,6 +92,8 @@
 
 
 <div class="viewcode-block" id="AbiLaboratoryPrediction"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction">[docs]</a><span class="k">class</span> <span class="nc">AbiLaboratoryPrediction</span><span class="p">(</span><span class="n">Prediction</span><span class="p">):</span>
+    <span class="n">container</span> <span class="o">=</span> <span class="s2">&quot;ghcr.io/buildsi/abi-laboratory-docker&quot;</span>
+
 <div class="viewcode-block" id="AbiLaboratoryPrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the ABI laboratory to add to the predictions</span>
@@ -127,10 +129,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">script_path</span> <span class="o">=</span> <span class="s2">&quot;/code/scripts/run_abi_laboratory.sh&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script_path</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_containerized_abi_laboratory</span><span class="p">(</span>
-                <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_local_abi_laboratory</span><span class="p">(</span><span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_local_abi_laboratory</span><span class="p">(</span><span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_containerized_abi_laboratory</span><span class="p">(</span><span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AbiLaboratoryPrediction.run_local_abi_laboratory"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.abi_laboratory.AbiLaboratoryPrediction.run_local_abi_laboratory">[docs]</a>    <span class="k">def</span> <span class="nf">run_local_abi_laboratory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -209,10 +209,6 @@
 
             <span class="c1"># We must find a matching lib for each based on prefix</span>
             <span class="n">matches</span> <span class="o">=</span> <span class="n">match_by_prefix</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">],</span> <span class="n">spliced_meta</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">])</span>
-
-            <span class="c1"># If we don&#39;t have matches, nothing to look at</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
-                <span class="k">continue</span>
 
             <span class="c1"># Also cache the lib (original or after splice) if we don&#39;t have it yet</span>
             <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
