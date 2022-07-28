@@ -47,7 +47,15 @@ def get_package_versions(package):
     if versions.status_code != 200:
         sys.exit("Failed to get package versions")
     versions = versions.json()
-    return list(set([x["name"] for x in versions["versions"]]))
+    return list(
+        set(
+            [
+                x["name"]
+                for x in versions["versions"]
+                if x.get("deprecated", False) == False
+            ]
+        )
+    )
 
 
 def get_compiler_labels(container):
@@ -122,7 +130,8 @@ def generate_spack_commands(args, experiment):
 
 
 def generate_spack_matrix(args, experiment):
-    """A spack matrix derives versions from spack, and prepares
+    """
+    A spack matrix derives versions from spack, and prepares
     to generate commands (and metadata) to support a spack splice
     experiment
     """
