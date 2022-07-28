@@ -221,6 +221,7 @@ class SpackExperiment(Experiment):
         try:
             spliced_spec = spec_main.splice(dep, transitive=transitive)
         except:
+            traceback.print_exc()
             splice = self.add_splice("splice-failed", success=False, splice=splice_name)
             return
 
