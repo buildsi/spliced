@@ -12,6 +12,8 @@ import os
 
 
 class AbiLaboratoryPrediction(Prediction):
+    container = "ghcr.io/buildsi/abi-laboratory-docker"
+
     def predict(self, splice):
         """
         Run the ABI laboratory to add to the predictions
@@ -47,10 +49,8 @@ class AbiLaboratoryPrediction(Prediction):
         """
         script_path = "/code/scripts/run_abi_laboratory.sh"
         if os.path.exists(script_path):
-            return self.run_containerized_abi_laboratory(
-                original_lib, replace_lib, name
-            )
-        return self.run_local_abi_laboratory(original_lib, replace_lib, name)
+            return self.run_local_abi_laboratory(original_lib, replace_lib, name)
+        return self.run_containerized_abi_laboratory(original_lib, replace_lib, name)
 
     def run_local_abi_laboratory(self, original_lib, replace_lib, name):
         """
