@@ -219,7 +219,7 @@ class Experiment:
 
     @property
     def package(self):
-        return self.config.get("package")
+        return self.config.get("package", {}).get("name")
 
     @property
     def splice(self):
