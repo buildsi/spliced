@@ -339,7 +339,6 @@ class SpackExperiment(Experiment):
             res = self.run_elfcall(lib, ld_library_paths=loads["original"])
             if not res:
                 # If we fail to parse it, cannot be in analysis
-                splice.original.remove(lib)
                 continue
             keepers.add(lib)
             iter_deps(res, "original")
