@@ -7,9 +7,13 @@ import os
 import sys
 import json
 import spliced.utils as utils
+from spliced.logger import logger
 
 
 def main(args, parser, extra, subparser):
+
+    if args.outfile:
+        logger.info("Results will be written to {args.outfile}")
 
     if args.runner == "spack":
         run_spack_experiment(args, command=" ".join(extra))
