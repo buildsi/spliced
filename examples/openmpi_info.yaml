@@ -1,3 +1,4 @@
-package: openmpi
+package:
+  name: openmpi
 splice: zlib
 command: ompi_info

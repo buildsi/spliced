@@ -1,3 +1,4 @@
-package: python
+package:
+  name: python
 splice: zlib
 command: python3 tests/python-version.py

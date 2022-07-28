@@ -10,7 +10,14 @@ schema_url = "https://json-schema.org/draft-07/schema/#"
 properties = {
     "splice": {"type": "string"},
     "splice_versions": {"type": "array", "items": {"type": "string"}},
-    "package": {"type": "string"},
+    "package": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+            "name": {"type": "string"},
+            "versions": {"type": "array", "items": {"type": "string"}},
+        },
+    },
     "replace": {"type": ["string", "null"]},
     "command": {"type": ["string", "null"]},
 }

@@ -134,7 +134,11 @@ class Experiment:
         """
         Init config variables directly
         """
-        self.config = {"splice": splice, "package": package, "replace": replace}
+        self.config = {
+            "splice": splice,
+            "package": {"name": package},
+            "replace": replace,
+        }
         if experiment:
             self._experiment = experiment
         if splice_versions:
@@ -199,6 +203,7 @@ class Experiment:
         TODO can we cache the splice setup?
         # ALSO add cache variable to save cache for smeagle (add to spack experiment)
         """
+        print(f"*** ADDING SPLICE RESULT {result} ***")
         new_splice = Splice(
             package=self.package,
             splice=splice or self.splice,
@@ -215,7 +220,7 @@ class Experiment:
 
     @property
     def package(self):
-        return self.config.get("package")
+        return self.config.get("package", {}).get("name")
 
     @property
     def splice(self):

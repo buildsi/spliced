@@ -47,7 +47,15 @@ def get_package_versions(package):
     if versions.status_code != 200:
         sys.exit("Failed to get package versions")
     versions = versions.json()
-    return list(set([x["name"] for x in versions["versions"]]))
+    return list(
+        set(
+            [
+                x["name"]
+                for x in versions["versions"]
+                if x.get("deprecated", False) == False
+            ]
+        )
+    )
 
 
 def get_compiler_labels(container):
@@ -90,7 +98,7 @@ def generate_spack_commands(args, experiment):
     Generate a list of spliced commands
     """
     # These are package versions - splice versions come from list in config
-    versions = get_package_versions(experiment.package)
+    versions = get_package_versions(experiment.package["name"])
     splice_versions = get_splice_versions(experiment)
     commands = []
 
@@ -100,7 +108,7 @@ def generate_spack_commands(args, experiment):
         for splice_version in splice_versions:
 
             # versioned package
-            package = "%s@%s" % (experiment.package, version)
+            package = "%s@%s" % (experiment.package["name"], version)
             cmd = (
                 "spliced splice --package %s --splice %s --runner spack --replace %s --experiment %s"
                 % (
@@ -122,7 +130,8 @@ def generate_spack_commands(args, experiment):
 
 
 def generate_spack_matrix(args, experiment):
-    """A spack matrix derives versions from spack, and prepares
+    """
+    A spack matrix derives versions from spack, and prepares
     to generate commands (and metadata) to support a spack splice
     experiment
     """

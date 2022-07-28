@@ -56,7 +56,7 @@ class SymbolsPrediction(Prediction):
                         "splice_type": "same_lib",
                         "command": "binary-checks-loader-missing-symbols-for-original",
                         "message": "Loader found missing symbols for original binary: %s"
-                        % "\n".join(meta["missing"]),
+                        % "\n".join(binary_symbols["missing"]),
                         "prediction": False,
                     }
                 )

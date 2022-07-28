@@ -83,26 +83,34 @@ class SpackExperiment(Experiment):
             return
 
         if self.splice != self.replace:
-            for version in spec_spliced.package.versions:
-                if not version:
-                    continue
+            for version in self.get_sorted_versions(spec_spliced):
                 splice = "%s@%s" % (self.splice, version)
                 self.mock_splice(splice, self.replace, spec_main)
 
         # Otherwise, splice all versions
         elif self.splice == self.replace:
-            for version in spec_spliced.package.versions:
-                if not version:
-                    continue
-
-                # spec_spliced version goes into spec_main
+            for version in self.get_sorted_versions(spec_spliced):
                 splice = "%s@%s" % (self.splice, version)
                 self.do_splice(splice, spec_main, transitive)
+
         else:
             print(
                 "Splice is %s and replace spec is %s we do not handle this case"
                 % (self.splice, self.replace)
             )
+
+    def get_sorted_versions(self, spec):
+        """
+        Helper function to get sorted versions (for consistency)
+        """
+        versions = set()
+        for version, vmeta in spec.package.versions.items():
+
+            # Do not provide deprecated versions
+            if not version or vmeta.get("deprecated", False) == True:
+                continue
+            versions.add(str(version))
+        return sorted(list(versions))
 
     def do_install(self, spec, error_message, name=None, different_libs=False):
         """
@@ -213,6 +221,7 @@ class SpackExperiment(Experiment):
         try:
             spliced_spec = spec_main.splice(dep, transitive=transitive)
         except:
+            traceback.print_exc()
             splice = self.add_splice("splice-failed", success=False, splice=splice_name)
             return
 
@@ -275,7 +284,7 @@ class SpackExperiment(Experiment):
         # Look for appends to LD_LIBRARY_PATH
         for env in env_mod.env_modifications:
             if env.name == "LD_LIBRARY_PATH":
-                loads.add(env.value)
+                loads.add(env.value.strip())
         return list(loads)
 
     def _populate_splice(self, splice, spliced_spec, original):
@@ -326,16 +335,20 @@ class SpackExperiment(Experiment):
                     dep_libs.add((m["lib"]["realpath"], key))
 
         # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
+        keepers = set()
         for lib in splice.original:
             res = self.run_elfcall(lib, ld_library_paths=loads["original"])
             if not res:
                 # If we fail to parse it, cannot be in analysis
-                splice.original.remove(lib)
                 continue
+            keepers.add(lib)
             iter_deps(res, "original")
             all_libs.add(lib)
             splice.metadata[lib] = res
 
+        # Update orignal set
+        splice.original = keepers
+        keepers = set()
         for lib in splice.spliced:
 
             # Some shared dependency, don't need to parse twice!
@@ -343,11 +356,14 @@ class SpackExperiment(Experiment):
                 continue
             res = self.run_elfcall(lib, ld_library_paths=loads["spliced"])
             if not res:
-                splice.spliced.remove(lib)
                 continue
+            keepers.add(lib)
             iter_deps(res, "spliced")
             all_libs.add(lib)
             splice.metadata[lib] = res
+
+        # Update spliced set
+        splice.spliced = keepers
 
         # Run elfcall on all non system libs
         for libset in dep_libs:
