@@ -31,4 +31,5 @@ class SpackTest(Prediction):
         for key, identifier in splice.ids.items():
             result = self.spack_test(identifier)
             tests[key] = result
+        print(tests)
         splice.predictions["spack-test"] = tests

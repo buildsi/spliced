@@ -193,7 +193,7 @@ def check_symbol_provisioner_change(splice, meta, spliced_meta):
             continue
         if spliced_symbols[symbol] != prefix:
             changed.append(
-                "symbol {symbol} was originally provided by {prefix}, after splice is provided by {spliced_symbols[symbol]}"
+                f"symbol {symbol} was originally provided by {prefix}, after splice is provided by {spliced_symbols[symbol]}"
             )
 
     # It is predicted to work if we don't have any changed
