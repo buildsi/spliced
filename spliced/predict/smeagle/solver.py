@@ -444,12 +444,17 @@ class GeneratorBase:
         Parse an opaque (recursive) type
         """
         direction = direction or "import"
+
+        loc = "unknown"
+        if "location" in param and param["location"]:
+            loc = param["location"]
+
         self.add_location(
             libname,
             top_name,
             direction,
             "Opaque",
-            "(" + param.get("location") + ")",
+            "(" + loc + ")",
         )
 
     def parse_array(
