@@ -333,6 +333,7 @@ class SpackExperiment(Experiment):
             for _, m in res["found"].items():
                 if "lib" in m:
                     dep_libs.add((m["lib"]["realpath"], key))
+                    all_libs.add(m["lib"]["realpath"])
 
         # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
         keepers = set()
