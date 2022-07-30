@@ -93,7 +93,7 @@ class SmeagleRunner:
         result = setup.solve(logic_programs=self.compatible_lp)
 
         # Assuming anything missing is failure
-        res = {"A": lib, "B": lib_set, "prediction": False}
+        res = {"A": lib, "B": lib_set, "prediction": True}
 
         # Keep a subset of data (missing stuff) for the result
         missing = {}
@@ -128,6 +128,7 @@ class SmeagleRunner:
         if lib1_res["return_code"] != 0 and lib2_res["return_code"] != 0:
             res.update(
                 {
+                    "prediction": False,
                     "return_code": -1,
                     "return_code_original": lib1_res["return_code"],
                     "return_code_splice": lib2_res["return_code"],
@@ -142,6 +143,7 @@ class SmeagleRunner:
         if lib1_res["return_code"] != 0:
             res.update(
                 {
+                    "prediction": False,
                     "return_code": -1,
                     "return_code_original": lib1_res["return_code"],
                     "return_code_splice": lib2_res["return_code"],
@@ -155,6 +157,7 @@ class SmeagleRunner:
         if lib2_res["return_code"] != 0:
             res.update(
                 {
+                    "prediction": False,
                     "return_code": -1,
                     "return_code_original": lib1_res["return_code"],
                     "return_code_splice": lib2_res["return_code"],

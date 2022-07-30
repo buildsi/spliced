@@ -89,6 +89,7 @@ class SmeaglePrediction(Prediction):
                 {
                     "return_code": -1,
                     "lib": lib,
+                    "prediction": False,
                     "data": splice.metadata[lib]["missing"],
                     "message": "Library is missing symbols, so smeagle model would fail.",
                 }
