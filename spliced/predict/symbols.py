@@ -129,7 +129,7 @@ def missing_previously_found_exports(binary, match, original_symbols, spliced_sy
         "splice_type": "same_lib",
         "original_lib": match["original"],
         "spliced_lib": match["spliced"],
-        "command": "missing-previously-found-symbols",
+        "command": "missing-previously-found-exports",
         "message": missing_symbols,
         "prediction": not missing_symbols,
     }
