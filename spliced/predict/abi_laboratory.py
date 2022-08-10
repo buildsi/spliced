@@ -12,13 +12,15 @@ import os
 
 
 class AbiLaboratoryPrediction(Prediction):
-    container = "ghcr.io/buildsi/abi-laboratory-docker"
+    container = "docker://ghcr.io/buildsi/abi-laboratory-docker"
 
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         """
         Run the ABI laboratory to add to the predictions
         """
         self.set_cache()
+        if predict_type == "diff":
+            return self.run_diff(splice)
 
         if splice.different_libs:
             return self.splice_different_libs(splice)
@@ -144,6 +146,35 @@ class AbiLaboratoryPrediction(Prediction):
                     predictions.append(res)
                     diffs.add(key)
                     count += 1
+
+        if predictions:
+            splice.predictions["abi-laboratory"] = predictions
+            print(splice.predictions)
+
+    def run_diff(self, splice):
+        """
+        Run pairwise diffs for libs we need.
+        """
+        # For each original (we assume working) binary, find its deps from elfcall,
+        # and then match to the equivalent lib (via basename) for the splice
+        original_deps = self.create_elfcall_deps_lookup(splice, splice.original)
+        spliced_deps = self.create_elfcall_deps_lookup(splice, splice.spliced)
+
+        # Create a set of predictions for each of libs combination
+        predictions = []
+
+        for libA, metaA in original_deps.items():
+            for libB, metaB in spliced_deps.items():
+
+                libA_fullpath = metaA["lib"]
+                libB_fullpath = metaB["lib"]
+                libs = [libA, libB]
+                libs.sort()
+                libs_uid = "|".join(libs).replace(".", "-")
+
+                res = self.run_abi_laboratory(libA_fullpath, libB_fullpath, libs_uid)
+                res["splice_type"] = "different_lib"
+                predictions.append(res)
 
         if predictions:
             splice.predictions["abi-laboratory"] = predictions

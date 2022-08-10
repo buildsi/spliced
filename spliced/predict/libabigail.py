@@ -71,13 +71,24 @@ class LibabigailPrediction(Prediction):
         # This is the executable path
         setattr(self, name, tool)
 
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         """
         Run libabigail to add to the predictions
         """
+        # Both should be found regardless of prediction type
         if not self.abicompat or not self.abidiff:
             self.find_tooling()
 
+        if not predict_type:
+            return self.full_prediction(splice)
+        if predict_type == "diff":
+            return self.diff_prediction(splice)
+        logger.warning(f"{predict_type} is not a known prediction type.")
+
+    def full_prediction(splice):
+        """
+        A full prediction is run with spliced splice, includes libs and binaries.
+        """
         # If no splice libs OR no tools, cut out early
         if (
             not splice.original
@@ -89,6 +100,34 @@ class LibabigailPrediction(Prediction):
         if splice.different_libs:
             return self.splice_different_libs(splice)
         return self.splice_equivalent_libs(splice)
+
+    def diff_prediction(self, splice):
+        """
+        Only do pairwise diffs between libs
+        """
+        if not splice.original or not splice.spliced or not self.abidiff:
+            return
+
+        # For each original (we assume working) binary, find its deps from elfcall,
+        # and then match to the equivalent lib (via basename) for the splice
+        original_deps = self.create_elfcall_deps_lookup(splice, splice.original)
+        spliced_deps = self.create_elfcall_deps_lookup(splice, splice.spliced)
+
+        # Create a set of predictions for each spliced binary / lib combination
+        predictions = []
+
+        for libA, metaA in original_deps.items():
+            for libB, metaB in spliced_deps.items():
+                libA_fullpath = metaA["lib"]
+                libB_fullpath = metaB["lib"]
+
+                res = self.run_abidiff(libA_fullpath, libB_fullpath)
+                res["splice_type"] = "different_lib"
+                predictions.append(res)
+
+        if predictions:
+            splice.predictions["libabigail"] = predictions
+            print(splice.predictions)
 
     def splice_different_libs(self, splice):
         """
@@ -141,7 +180,6 @@ class LibabigailPrediction(Prediction):
         we can do matching based on names. We can use abicomat with binaries, and
         abidiff for just between the libs.
         """
-
         # For each original (we assume working) binary, find its deps from elfcall,
         # and then match to the equivalent lib (via basename) for the splice
         original_deps = self.create_elfcall_deps_lookup(splice, splice.original)

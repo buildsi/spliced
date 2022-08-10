@@ -1,3 +1,4 @@
 package: 
   name: curl
-splice: zlib
+splice:
+  name: zlib

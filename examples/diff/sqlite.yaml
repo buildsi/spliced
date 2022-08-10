@@ -1,0 +1,6 @@
+package:
+  name: sqlite
+  so_prefix: libsqlite
+splice:
+  name: zlib
+  so_prefix: libz

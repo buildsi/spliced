@@ -28,11 +28,312 @@ except Exception as e:
 
 class SpackExperiment(Experiment):
     def __init__(self):
-        super().__init__()
+        super(Experiment, self).__init__()
 
         # Ensure we have debug flags added
         os.putenv("SPACK_ADD_DEBUG_FLAGS", "true")
         os.environ["SPACK_ADD_DEBUG_FLAGS"] = "true"
+
+    def get_sorted_versions(self, spec):
+        """
+        Helper function to get sorted versions (for consistency)
+        """
+        versions = set()
+        for version, vmeta in spec.package.versions.items():
+
+            # Do not provide deprecated versions
+            if not version or vmeta.get("deprecated", False) == True:
+                continue
+            versions.add(str(version))
+        return sorted(list(versions))
+
+    def do_install(self, spec, error_message, name=None, different_libs=False):
+        """
+        Helper function to do an install.
+        """
+        # Cut out early if installed
+        if spec.installed:
+            return True
+
+        if not name:
+            name = f"{spec.name}@{spec.version}"
+        # Failure case 1: the main package does not build
+        try:
+            logger.info(f"Installing spec {name}...")
+            spec.package.do_install(force=True)
+            return True
+        except:
+            traceback.print_exc()
+            self.add_splice(
+                error_message, success=False, splice=name, different_libs=different_libs
+            )
+            return False
+
+    def populate_elfcall(self, splice, original, spliced_spec):
+        """
+        Derive library metadata for each of the original and splice spec
+        """
+        # IMPORTANT we must emulate "spack load" in order for libs to be found...
+        loads = {}
+        with spack.store.db.read_transaction():
+            loads["original"] = self.get_spack_ld_library_paths(original)
+            loads["spliced"] = self.get_spack_ld_library_paths(spliced_spec)
+
+        # Save the ld library path loads
+        splice.paths["loads"] = loads
+
+        # Keep set of dependency libs to run elfcall on (other spack deps)
+        dep_libs = set()
+        all_libs = set()
+
+        def iter_deps(res, key):
+            for _, m in res["found"].items():
+                if "lib" in m:
+                    dep_libs.add((m["lib"]["realpath"], key))
+                    all_libs.add(m["lib"]["realpath"])
+
+        # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
+        keepers = set()
+        for lib in splice.original:
+            res = self.run_elfcall(lib, ld_library_paths=loads["original"])
+            if not res:
+                # If we fail to parse it, cannot be in analysis
+                continue
+            keepers.add(lib)
+            iter_deps(res, "original")
+            all_libs.add(lib)
+            splice.metadata[lib] = res
+
+        # Update orignal set
+        splice.original = keepers
+        keepers = set()
+        for lib in splice.spliced:
+
+            # Some shared dependency, don't need to parse twice!
+            if lib in splice.metadata:
+                continue
+            res = self.run_elfcall(lib, ld_library_paths=loads["spliced"])
+            if not res:
+                continue
+            keepers.add(lib)
+            iter_deps(res, "spliced")
+            all_libs.add(lib)
+            splice.metadata[lib] = res
+
+        # Update spliced set
+        splice.spliced = keepers
+
+        # Run elfcall on all non system libs
+        for libset in dep_libs:
+            lib, ld_path_type = libset
+            all_libs.add(lib)
+
+            # If the dep is a system lib, don't include for now
+            if re.search("^(/usr|/lib)", lib):
+                continue
+
+            key = "%s:%s" % (ld_path_type, lib)
+            if key in splice.metadata:
+                continue
+            res = self.run_elfcall(lib, ld_library_paths=loads[ld_path_type])
+            if res:
+                splice.metadata[key] = res
+
+        # Calculate sizes for all libs
+        for lib in all_libs:
+            splice.stats["sizes_bytes"][lib] = os.path.getsize(lib)
+        return splice
+
+    def concretize(
+        self,
+        spec_name=None,
+        error_message="spec-concretization-failed",
+        spec=None,
+        different_libs=False,
+    ):
+        """
+        A shared function to attempt concretization.
+        """
+        # Try to first concretize the splice dependency
+        try:
+            logger.info(f"Concretizing {spec_name}...")
+            if spec:
+                spec.concretize()
+                return spec
+            return Spec(spec_name).concretized()
+        except:
+            traceback.print_exc()
+            self.add_splice(
+                error_message,
+                success=False,
+                splice=spec_name,
+                different_libs=different_libs,
+            )
+
+    def _populate_spack_directory(self, path, prefix=None, suffix=None, contains=None):
+        """
+        Given a path, find all libraries and resolve links.
+        """
+        paths = set()
+        if not os.path.exists(path):
+            return paths
+        for contender in utils.recursive_find(path):
+            if os.path.islink(contender):
+                contender = os.path.realpath(contender)
+            basename = os.path.basename(contender)
+            if prefix and not basename.startswith(prefix):
+                continue
+            if contains and not contains in basename:
+                continue
+            if suffix and not basename.endswith(suffix):
+                continue
+            paths.add(contender)
+        return paths
+
+    def get_spack_ld_library_paths(self, original):
+        """
+        Get all of spack's changes to the LD_LIBRARY_PATH for elfcall
+        """
+        loads = set()
+
+        # Get all deps to add to path
+        env_mod = spack.util.environment.EnvironmentModifications()
+        for depspec in original.traverse(root=True, order="post"):
+            env_mod.extend(uenv.environment_modifications_for_spec(depspec))
+            env_mod.prepend_path(uenv.spack_loaded_hashes_var, depspec.dag_hash())
+
+        # Look for appends to LD_LIBRARY_PATH
+        for env in env_mod.env_modifications:
+            if env.name == "LD_LIBRARY_PATH":
+                loads.add(env.value.strip())
+        return list(loads)
+
+    def run_elfcall(self, lib, ld_library_paths=None):
+        """
+        A wrapper to run elfcall and ensure we add LD_LIBRARY_PATH additions
+        (usually from spack)
+        """
+        bi = BinaryInterface(lib)
+
+        # We don't want to include non-ELF files (and possible limitation - we cannot parse Non ELF)
+        try:
+            return bi.gen_output(
+                lib,
+                secure=False,
+                no_default_libs=False,
+                ld_library_paths=ld_library_paths,
+            )
+        except:
+            logger.warning(
+                "Cannot parse binary or library %s, not including in analysis." % lib
+            )
+
+
+class SpackDiffExperiment(SpackExperiment):
+    """
+    The main spack experiment does a diff.
+    """
+
+    def __init__(self):
+        super(SpackExperiment, self).__init__()
+
+    def run(self, *args, **kwargs):
+        """
+        Perform an install with spack of some spec A and some spec B,
+        across versions.
+
+        Arguments:
+        package (specA_name): the name of package A
+        replace (specB_name): the name of package B
+
+        For many cases, specA and specB might be the same, but not always.
+        """
+        versions = {self.package: [self.package], self.splice: [self.splice]}
+        main_spec = self.concretize(
+            self.package, error_message="package-concretization-failed"
+        )
+        splice_spec = self.concretize(
+            self.splice, error_message="splice-concretization-failed"
+        )
+
+        # If we weren't given a specific version, use all of them
+        if "@" not in self.package:
+            versions[self.package] = [
+                "%s@%s" % (self.package, x) for x in self.get_sorted_versions(main_spec)
+            ]
+        if "@" not in self.splice:
+            versions[self.splice] = [
+                "%s@%s" % (self.splice, x)
+                for x in self.get_sorted_versions(splice_spec)
+            ]
+
+        for versionA in versions[self.package]:
+            for versionB in versions[self.splice]:
+                self.diff(versionA, versionB)
+
+    def diff(self, specA, specB):
+        """
+        Prepare setup to do a diff.
+
+        specA: the main package
+        specB: the to splice
+        """
+        specs = {}
+
+        # If either package fails to install, no go.
+        for pkg in [specA, specB]:
+
+            pkg_spec = spack.spec.Spec(pkg)
+            pkg_spec = self.concretize(
+                pkg_spec, error_message="package-concretization-failed"
+            )
+            specs[pkg] = pkg_spec
+
+            # Failure case 1: the main package does not build
+            if not self.do_install(pkg_spec, "package-install-failed", name=pkg):
+                return []
+
+        # Find all libs for splice and package (don't care about binaries for diff)
+        splice = self.add_splice(
+            "package-splice-install-success",
+            success=True,
+            package=specA,
+            splice=specB,
+            different_libs=True,
+        )
+        self._populate_splice(splice, specs)
+
+    def _populate_splice(self, splice, specs):
+        """
+        Given a successful install of SpecA and SpecB, prepare known libs
+        """
+        original = specs[splice.package]
+        spliced_spec = specs[splice.splice]
+        original_dir = os.path.join(original.prefix, "lib")
+        splice_dir = os.path.join(spliced_spec.prefix, "lib")
+        [
+            splice.original.add(x)
+            for x in self._populate_spack_directory(
+                original_dir, self.package_so_prefix, contains=".so"
+            )
+        ]
+        [
+            splice.spliced.add(x)
+            for x in self._populate_spack_directory(
+                splice_dir, self.splice_so_prefix, contains=".so"
+            )
+        ]
+
+        self.populate_elfcall(splice, original, spliced_spec)
+
+        # Add the dag hash as the identifier
+        splice.add_spec("original", original)
+        splice.add_spec("spliced", spliced_spec)
+
+
+class SpackSpliceExperiment(SpackExperiment):
+    def __init__(self):
+        super(SpackExperiment, self).__init__()
 
     def run(self, *args, **kwargs):
         """
@@ -97,65 +398,6 @@ class SpackExperiment(Experiment):
             print(
                 "Splice is %s and replace spec is %s we do not handle this case"
                 % (self.splice, self.replace)
-            )
-
-    def get_sorted_versions(self, spec):
-        """
-        Helper function to get sorted versions (for consistency)
-        """
-        versions = set()
-        for version, vmeta in spec.package.versions.items():
-
-            # Do not provide deprecated versions
-            if not version or vmeta.get("deprecated", False) == True:
-                continue
-            versions.add(str(version))
-        return sorted(list(versions))
-
-    def do_install(self, spec, error_message, name=None, different_libs=False):
-        """
-        Helper function to do an install.
-        """
-        # Cut out early if installed
-        if spec.installed:
-            return True
-
-        if not name:
-            name = f"{spec.name}@{spec.version}"
-        # Failure case 1: the main package does not build
-        try:
-            spec.package.do_install(force=True)
-            return True
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                error_message, success=False, splice=name, different_libs=different_libs
-            )
-            return False
-
-    def concretize(
-        self,
-        spec_name=None,
-        error_message="spec-concretization-failed",
-        spec=None,
-        different_libs=False,
-    ):
-        """
-        A shared function to attempt concretization.
-        """
-        # Try to first concretize the splice dependency
-        try:
-            if spec:
-                spec.concretize()
-                return spec
-            return Spec(spec_name).concretized()
-        except:
-            traceback.print_exc()
-            self.add_splice(
-                error_message,
-                success=False,
-                splice=spec_name,
-                different_libs=different_libs,
             )
 
     def mock_splice(self, splice_name, replace_name, spec_main):
@@ -256,37 +498,6 @@ class SpackExperiment(Experiment):
         self._populate_splice(splice, spliced_spec, spec_main)
         return self.splices
 
-    def _populate_spack_directory(self, path):
-        """
-        Given a path, find all libraries and resolve links.
-        """
-        paths = set()
-        if not os.path.exists(path):
-            return paths
-        for contender in utils.recursive_find(path):
-            if os.path.islink(contender):
-                contender = os.path.realpath(contender)
-            paths.add(contender)
-        return paths
-
-    def get_spack_ld_library_paths(self, original):
-        """
-        Get all of spack's changes to the LD_LIBRARY_PATH for elfcall
-        """
-        loads = set()
-
-        # Get all deps to add to path
-        env_mod = spack.util.environment.EnvironmentModifications()
-        for depspec in original.traverse(root=True, order="post"):
-            env_mod.extend(uenv.environment_modifications_for_spec(depspec))
-            env_mod.prepend_path(uenv.spack_loaded_hashes_var, depspec.dag_hash())
-
-        # Look for appends to LD_LIBRARY_PATH
-        for env in env_mod.env_modifications:
-            if env.name == "LD_LIBRARY_PATH":
-                loads.add(env.value.strip())
-        return list(loads)
-
     def _populate_splice(self, splice, spliced_spec, original):
         """
         Prepare each splice to also include binaries and libs involved.
@@ -316,99 +527,11 @@ class SpackExperiment(Experiment):
             splice_dir = os.path.join(spliced_spec.prefix, subdir)
             [splice.spliced.add(x) for x in self._populate_spack_directory(splice_dir)]
 
-        # IMPORTANT we must emulate "spack load" in order for libs to be found...
-        loads = {}
-        with spack.store.db.read_transaction():
-            loads["original"] = self.get_spack_ld_library_paths(original)
-            loads["spliced"] = self.get_spack_ld_library_paths(spliced_spec)
-
-        # Save the ld library path loads
-        splice.paths["loads"] = loads
-
-        # Keep set of dependency libs to run elfcall on (other spack deps)
-        dep_libs = set()
-        all_libs = set()
-
-        def iter_deps(res, key):
-            for _, m in res["found"].items():
-                if "lib" in m:
-                    dep_libs.add((m["lib"]["realpath"], key))
-                    all_libs.add(m["lib"]["realpath"])
-
-        # Parse both original libs and spliced libs, ensuring to update LD_LIBRARY_PATH
-        keepers = set()
-        for lib in splice.original:
-            res = self.run_elfcall(lib, ld_library_paths=loads["original"])
-            if not res:
-                # If we fail to parse it, cannot be in analysis
-                continue
-            keepers.add(lib)
-            iter_deps(res, "original")
-            all_libs.add(lib)
-            splice.metadata[lib] = res
-
-        # Update orignal set
-        splice.original = keepers
-        keepers = set()
-        for lib in splice.spliced:
-
-            # Some shared dependency, don't need to parse twice!
-            if lib in splice.metadata:
-                continue
-            res = self.run_elfcall(lib, ld_library_paths=loads["spliced"])
-            if not res:
-                continue
-            keepers.add(lib)
-            iter_deps(res, "spliced")
-            all_libs.add(lib)
-            splice.metadata[lib] = res
-
-        # Update spliced set
-        splice.spliced = keepers
-
-        # Run elfcall on all non system libs
-        for libset in dep_libs:
-            lib, ld_path_type = libset
-            all_libs.add(lib)
-
-            # If the dep is a system lib, don't include for now
-            if re.search("^(/usr|/lib)", lib):
-                continue
-
-            key = "%s:%s" % (ld_path_type, lib)
-            if key in splice.metadata:
-                continue
-            res = self.run_elfcall(lib, ld_library_paths=loads[ld_path_type])
-            if res:
-                splice.metadata[key] = res
-
-        # Calculate sizes for all libs
-        for lib in all_libs:
-            splice.stats["sizes_bytes"][lib] = os.path.getsize(lib)
+        self.populate_elfcall(splice, original, spliced_spec)
 
         # Add the dag hash as the identifier
         splice.add_spec("original", original)
         splice.add_spec("spliced", spliced_spec)
-
-    def run_elfcall(self, lib, ld_library_paths=None):
-        """
-        A wrapper to run elfcall and ensure we add LD_LIBRARY_PATH additions
-        (usually from spack)
-        """
-        bi = BinaryInterface(lib)
-
-        # We don't want to include non-ELF files (and possible limitation - we cannot parse Non ELF)
-        try:
-            return bi.gen_output(
-                lib,
-                secure=False,
-                no_default_libs=False,
-                ld_library_paths=ld_library_paths,
-            )
-        except:
-            logger.warning(
-                "Cannot parse binary or library %s, not including in analysis." % lib
-            )
 
 
 def get_linked_deps(spec):

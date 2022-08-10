@@ -15,7 +15,7 @@ class Prediction:
     A prediction is a base for assessing a Splice and making predictions.
     """
 
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         raise NotImplementedError
 
     def __str__(self):

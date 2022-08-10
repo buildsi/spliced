@@ -8,10 +8,12 @@ from spliced.logger import logger
 
 
 class SymbolsPrediction(Prediction):
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         """
         Run symbolator to add to the predictions
         """
+        if predict_type == "diff":
+            return self.diff_libs(splice)
         if splice.different_libs:
             return self.splice_different_libs(splice)
         return self.splice_equivalent_libs(splice)
@@ -21,6 +23,36 @@ class SymbolsPrediction(Prediction):
         This is subbing in a library with a version of itself, and requires binaries
         """
         raise NotImplementedError
+
+    def diff_libs(self, splice):
+        """
+        Only do A vs B comparisons between two libs.
+        """
+        original_deps = self.create_elfcall_deps_lookup(splice, splice.original)
+        spliced_deps = self.create_elfcall_deps_lookup(splice, splice.spliced)
+
+        # Create a set of predictions for top level binary without considering
+        # level of a dependency (binary-checks-*) and each spliced binary / lib combination
+        predictions = []
+
+        for libA, metaA in original_deps.items():
+            for libB, metaB in spliced_deps.items():
+                libA_fullpath = metaA["lib"]
+                libB_fullpath = metaB["lib"]
+
+                libA_symbols = splice.metadata[libA_fullpath]
+                libB_symbols = splice.metadata[libB_fullpath]
+
+                # Case 4: missing previously found symbols (abicompat)
+                predictions.append(
+                    diff_missing_symbols(libA, libB, libA_symbols, libB_symbols)
+                )
+                predictions.append(
+                    diff_missing_exports(libA, libB, libA_symbols, libB_symbols)
+                )
+
+        if predictions:
+            splice.predictions["symbols"] = predictions
 
     def splice_equivalent_libs(self, splice):
         """
@@ -112,6 +144,29 @@ class SymbolsPrediction(Prediction):
 
 
 @time_run_decorator
+def diff_missing_exports(libA, libB, libA_symbols, libB_symbols):
+    """
+    If exports changed between an original and spliced, it won't work in different contexts
+    """
+    # Want to find symbols in main binary for this dependency of interest
+    before = [s for s, _ in libA_symbols["exported"].items()]
+    after = [s for s, _ in libB_symbols["exported"].items()]
+
+    # We cannot be missing symbols in original (before) that aren't in spliced (after)
+    missing_symbols = [x for x in before if x not in after]
+
+    # It is predicted to work if we don't have any missing symbols
+    return {
+        "splice_type": "different_lib",
+        "original_lib": libA,
+        "spliced_lib": libB,
+        "command": "missing-previously-found-exports",
+        "message": missing_symbols,
+        "prediction": not missing_symbols,
+    }
+
+
+@time_run_decorator
 def missing_previously_found_exports(binary, match, original_symbols, spliced_symbols):
     """
     If exports changed between an original and spliced, it won't work in different contexts
@@ -130,6 +185,37 @@ def missing_previously_found_exports(binary, match, original_symbols, spliced_sy
         "original_lib": match["original"],
         "spliced_lib": match["spliced"],
         "command": "missing-previously-found-exports",
+        "message": missing_symbols,
+        "prediction": not missing_symbols,
+    }
+
+
+@time_run_decorator
+def diff_missing_symbols(libA, libB, libA_symbols, libB_symbols):
+    """
+    A previously found (and thus needed) symbol cannot be missing after the splice.
+    """
+    # Want to find symbols in main binary for this dependency of interest
+    before = [
+        s
+        for s, x in libA_symbols["found"].items()
+        if "lib" in x and x["lib"]["realpath"] == libA
+    ]
+    after = [
+        s
+        for s, x in libB_symbols["found"].items()
+        if "lib" in x and x["lib"]["realpath"] == libB
+    ]
+
+    # We cannot be missing symbols in original (before) that aren't in spliced (after)
+    missing_symbols = [x for x in before if x not in after]
+
+    # It is predicted to work if we don't have any missing symbols
+    return {
+        "splice_type": "different_lib",
+        "original_lib": libA,
+        "spliced_lib": libB,
+        "command": "missing-previously-found-symbols",
         "message": missing_symbols,
         "prediction": not missing_symbols,
     }

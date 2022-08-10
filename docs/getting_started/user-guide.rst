@@ -15,6 +15,8 @@ Let's review some terminology first.
  - **splice**: We typically call the library we want to "cut out" the splice.
  - **replace** We typically call the library we want to replace the splice with (or "splice in" if you prefer) the replacement library.
  
+There are two main functions - a "splice" that is a more holistic comparison of two libraries and a binary, and a "diff" that is a direct comparison between A and B.
+ The splice commands "splice" and "diff" correspond to these two.
 
 What experiments are available?
 ===============================
@@ -133,24 +135,32 @@ for us.
     spliced splice --package curl@7.49.1 --splice zlib --runner spack --replace zlib --experiment curl curl --head https://linuxize.com/
 
 
+To generate a diff command instead:
+
+.. code-block:: console
+
+    $ spliced command --diff examples/curl.yaml
+
+
 It looks exactly as you'd expect - every version of curl with instruction to splice zlib (meaning different versions) and a command (the last part of the line)
 to test. Given the expeiment runner is spack, spack will receive this request and handle install, etc. We could then try running one of those commands, discussed
 next.
 
 
-Splice
-------
+Splice and Diff
+---------------
 
-The most basic functionality is to perform a splice! You can either [generate a matrix](#splice-matrix) via a config file, 
+The most basic functionality is to perform a splice or a diff! A diff is a simple comparison between A and B (useful for comparing tools) and a splice
+relies on spack splice and is thus more complex and error prone. You can either generate a matrix via a config file, 
 provide the same config file to splice (appropriate for runners with custom variables to include like library paths)
 or come up with your own.  Current runners supported include:
 
  - spack
  
-And likely we will add a "manual" runner soon. 
+For all commands, we will provide a splice and diff example.
 
-Spack Splice
-^^^^^^^^^^^^
+Spack Splice and Diff
+^^^^^^^^^^^^^^^^^^^^^
 
 Let's start with an example command that says:
 
@@ -159,14 +169,15 @@ Let's start with an example command that says:
 .. code-block:: console
   
     $ spliced splice --package curl@7.50.2 --splice zlib --runner spack --replace zlib --experiment curl
+    $ spliced diff --package curl@7.50.2 --splice zlib --runner spack --replace zlib --experiment curl
 
 
 Since we only have one runner (spack) that's currently the default, so this works too:
 
-
 .. code-block:: console
     
     $ spliced splice --package curl@7.50.2 --splice zlib --replace zlib --experiment curl
+    $ spliced diff --package curl@7.50.2 --splice zlib --replace zlib --experiment curl
 
 
 Also if you are splicing the same library in (e.g., different versions) you can leave out replace:
@@ -174,6 +185,7 @@ Also if you are splicing the same library in (e.g., different versions) you can 
 .. code-block:: console
 
     $ spliced splice --package curl@7.50.2 --splice zlib --experiment curl
+    $ spliced diff --package curl@7.50.2 --splice zlib --experiment curl
 
 
 The experiment is just a named identifier, for your use (to store with the results). When you do this
@@ -192,6 +204,7 @@ to a specific number of predictors, use `--predictor` for each.
 .. code-block:: console
 
     $ spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbols
+    $ spliced diff --package curl@7.50.2 --splice zlib --experiment curl --predictor symbols
 
 The above would run the experiment with a symbols prediction.
 Note that the "actual" run is always performed if a command is provided, but not if it isn't. 
@@ -225,25 +238,23 @@ Here is what an entire run looks like, with a testing command and  output saved 
 Matrix
 ------
 
-While you can perform a single splice manually, generally you'd want to instead create a matrix!
+While you can perform a single splice or diff manually, generally you'd want to instead create a matrix!
 You can do this with the `splice matrix` command, which will output json that you can use in GitHub or other CI workflows.
 The spliced format
 
 .. code-block:: console
     
     $ spliced matrix examples/curl.yaml 
-
+    $ spliced matrix examples/curl.yaml --diff
 
 If you provide a custom container base, it will be included in the matrix and compilers discovered from it:
-
 
 .. code-block:: console
 
     $ spliced matrix examples/curl.yaml --container ghcr.io/buildsi/spack-ubuntu-20.04
-
+    $ spliced matrix examples/curl.yaml --container ghcr.io/buildsi/spack-ubuntu-20.04 --diff
 
 This will output a matrix of commands and other metadata that you can use in GitHub actions or your CI tool of choice. 
-
 
 .. code-block:: console
 

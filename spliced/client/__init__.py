@@ -53,6 +53,11 @@ def get_parser():
 
     # print version and exit
     subparsers.add_parser("version", description="show software version")
+    diff = subparsers.add_parser(
+        "diff",
+        description="generate predictions for a diff (two libraries).",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
 
     splice = subparsers.add_parser(
         "splice",
@@ -60,53 +65,60 @@ def get_parser():
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
-    # For a splice, we provie a config OR the command line args as is
-    splice.add_argument(
-        "-c",
-        "--config",
-        dest="config_yaml",
-        help="read config values from yaml (overrides command line variables)",
-    )
+    for command in splice, diff:
+        command.add_argument(
+            "-c",
+            "--config",
+            dest="config_yaml",
+            help="read config values from yaml (overrides command line variables)",
+        )
+        command.add_argument(
+            "-s",
+            "--skip",
+            dest="skip",
+            action="append",
+            help="skip a named predictor",
+        )
 
-    splice.add_argument(
-        "-p",
-        "--package",
-        dest="package",
-        help="package to splice into (overridden by package in config yaml)",
-    )
+        command.add_argument(
+            "-p",
+            "--package",
+            dest="package",
+            help="package to splice into (overridden by package in config yaml)",
+        )
+
+        command.add_argument(
+            "--replace",
+            dest="replace",
+            help="splice IN this package or library (overridden by replace in config yaml)",
+        )
+
+        command.add_argument(
+            "--predictor",
+            dest="predictor",
+            help="A named predictor to use (if not defined, defaults to all)",
+            action="append",
+        )
+
+        command.add_argument(
+            "-r",
+            "--runner",
+            dest="runner",
+            help="experiment runner to use (defaults to spack)",
+            choices=["spack"],
+            default="spack",
+        )
+        command.add_argument(
+            "-e",
+            "--experiment",
+            dest="experiment",
+            help="experiment name or identifier",
+        )
 
     splice.add_argument(
         "--splice",
         dest="splice",
         help="splice OUT this package or library (overridden by splice in config yaml)",
-    )
-
-    splice.add_argument(
-        "--replace",
-        dest="replace",
-        help="splice IN this package or library (overridden by replace in config yaml)",
-    )
-
-    splice.add_argument(
-        "--predictor",
-        dest="predictor",
-        help="A named predictor to use (if not defined, defaults to all)",
-        action="append",
-    )
-
-    splice.add_argument(
-        "-r",
-        "--runner",
-        dest="runner",
-        help="experiment runner to use (defaults to spack)",
-        choices=["spack"],
-        default="spack",
-    )
-    splice.add_argument(
-        "-e",
-        "--experiment",
-        dest="experiment",
-        help="experiment name or identifier",
     )
 
     # Just generate a list of commands (no matrix!)
@@ -136,7 +148,12 @@ def get_parser():
             choices=["spack"],
             default="spack",
         )
-
+        cmd.add_argument(
+            "--diff",
+            help="run spliced diff instead of splice.",
+            default=False,
+            action="store_true",
+        )
         cmd.add_argument(
             "-l",
             "--limit",
@@ -158,7 +175,7 @@ def get_parser():
             help="A configuration file to run a splice prediction.",
         )
 
-    for subparser in [command, matrix, splice]:
+    for subparser in [command, matrix, splice, diff]:
         subparser.add_argument(
             "-o",
             "--outfile",
@@ -213,6 +230,8 @@ def run_spliced():
                 break
 
     # Does the user want a shell?
+    if args.command == "diff":
+        from .diff import main
     if args.command == "splice":
         from .splice import main
     if args.command == "matrix":

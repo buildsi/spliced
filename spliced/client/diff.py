@@ -31,7 +31,8 @@ def run_spack_experiment(args, command):
 
     import spliced.experiment.spack
 
-    experiment = spliced.experiment.spack.SpackSpliceExperiment()
+    # A general SpackExperiment does a replacement
+    experiment = spliced.experiment.spack.SpackDiffExperiment()
 
     # We either load a config, or the arguments provided
     if args.config_yaml:
@@ -41,9 +42,9 @@ def run_spack_experiment(args, command):
             args.package, args.splice, args.experiment, command, args.replace
         )
 
-    # Perform the splice!
+    # Perform the experiment
     experiment.run()
-    experiment.predict(args.predictor, skip=args.skip)
+    experiment.predict(args.predictor, skip=args.skip, predict_type="diff")
     results = experiment.to_dict()
 
     if args.outfile:
