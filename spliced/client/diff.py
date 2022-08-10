@@ -39,7 +39,7 @@ def run_spack_experiment(args, command):
         experiment.load(args.config_yaml)
     else:
         experiment.init(
-            args.package, args.splice, args.experiment, command, args.replace
+            package=args.package, splice=args.splice, experiment=args.experiment
         )
 
     # Perform the experiment

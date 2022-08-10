@@ -114,12 +114,11 @@ def get_parser():
             dest="experiment",
             help="experiment name or identifier",
         )
-
-    splice.add_argument(
-        "--splice",
-        dest="splice",
-        help="splice OUT this package or library (overridden by splice in config yaml)",
-    )
+        command.add_argument(
+            "--splice",
+            dest="splice",
+            help="splice OUT this package or library (overridden by splice in config yaml)",
+        )
 
     # Just generate a list of commands (no matrix!)
     matrix = subparsers.add_parser(
