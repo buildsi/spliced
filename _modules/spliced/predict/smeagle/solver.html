@@ -525,12 +525,17 @@
 <span class="sd">        Parse an opaque (recursive) type</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span> <span class="ow">or</span> <span class="s2">&quot;import&quot;</span>
+
+        <span class="n">loc</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;location&quot;</span> <span class="ow">in</span> <span class="n">param</span> <span class="ow">and</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">param</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">add_location</span><span class="p">(</span>
             <span class="n">libname</span><span class="p">,</span>
             <span class="n">top_name</span><span class="p">,</span>
             <span class="n">direction</span><span class="p">,</span>
             <span class="s2">&quot;Opaque&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">loc</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="GeneratorBase.parse_array"><a class="viewcode-back" href="../../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.solver.GeneratorBase.parse_array">[docs]</a>    <span class="k">def</span> <span class="nf">parse_array</span><span class="p">(</span>
