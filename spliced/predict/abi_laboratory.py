@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import os
+import shutil
 import tempfile
 
 from spliced.logger import logger
@@ -49,8 +50,8 @@ class AbiLaboratoryPrediction(Prediction):
         Run abi-dumper + abi-compliance-checker with original and comparison library.
         This assumes we are in the container, and falls back to running a container.
         """
-        script_path = "/code/scripts/run_abi_laboratory.sh"
-        if os.path.exists(script_path):
+        script_path = shutil.which("run_abi_laboratory.sh")
+        if script_path:
             return self.run_local_abi_laboratory(original_lib, replace_lib, name)
         return self.run_containerized_abi_laboratory(original_lib, replace_lib, name)
 
@@ -58,7 +59,7 @@ class AbiLaboratoryPrediction(Prediction):
         """
         Run containerized abi laboratory with singularity
         """
-        script_path = "/code/scripts/run_abi_laboratory.sh"
+        script_path = shutil.which("run_abi_laboratory.sh")
         command = "/bin/bash %s %s %s %s" % (
             script_path,
             original_lib,
