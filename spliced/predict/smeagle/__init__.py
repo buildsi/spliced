@@ -100,8 +100,8 @@ class SmeaglePrediction(Prediction):
         splice.stats[libs_uid] = {}
 
         # Look for dependency in facts cache
-        libA_cache = self.generate_cle_data(libA)
-        libB_cache = self.generate_cle_data(libB)
+        libA_cache = self.generate_cle_data(libA, prefix="smeagle")
+        libB_cache = self.generate_cle_data(libB, prefix="smeagle")
 
         # If we can't generate facts, we can't include in model
         if not libA_cache or not libB_cache:
