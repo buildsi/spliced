@@ -101,7 +101,11 @@ class AbiLaboratoryPrediction(Prediction):
         # If there is a libabigail output, print to see
         if res["message"] != "":
             print(res["message"])
-        res["prediction"] = res["return_code"] == 0
+        is_compatible = (
+            "Binary compatibility: 100%" in res["message"]
+            and "Source compatibility: 100%" in res["message"]
+        )
+        res["prediction"] = res["return_code"] == 0 and is_compatible
         return res
 
     def splice_equivalent_libs(self, splice):
