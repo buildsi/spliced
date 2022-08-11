@@ -105,8 +105,8 @@ def get_parser():
             "--runner",
             dest="runner",
             help="experiment runner to use (defaults to spack)",
-            choices=["spack"],
-            default="spack",
+            choices=["spack", "manual"],
+            default="manual",
         )
         command.add_argument(
             "-e",
