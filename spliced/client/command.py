@@ -22,6 +22,8 @@ def matrix(args, parser, extra, subparser):
 
     if args.generator == "spack":
         generate_spack_matrix(args, experiment)
+    elif args.generator == "manual":
+        raise NotImplementedError
 
 
 def command(args, parser, extra, subparser):
@@ -34,6 +36,8 @@ def command(args, parser, extra, subparser):
 
     if args.generator == "spack":
         generate_spack_commands(args, experiment)
+    elif args.generator == "manual":
+        raise NotImplementedError
 
 
 def get_package_versions(package):
