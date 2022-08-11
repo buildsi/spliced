@@ -141,8 +141,7 @@ class Experiment:
             "package": {"name": package},
             "replace": replace,
         }
-        if experiment:
-            self._experiment = experiment
+        self._experiment = experiment or "spliced-experiment"
         if splice_versions:
             self._splice_versions = splice_versions
         if validate:
