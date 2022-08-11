@@ -24,8 +24,8 @@ class ManualExperiment(Experiment):
         splice.original.add(libA)
         splice.spliced.add(libB)
 
-        splice.metadata[liba_res] = liba_res
-        splice.metadata[libb_res] = libb_res
+        splice.metadata[libA] = liba_res
+        splice.metadata[libB] = libb_res
 
         # Calculate sizes for all libs
         for lib in libA, libB:
