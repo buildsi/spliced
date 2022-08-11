@@ -6,14 +6,16 @@
 # An experiment loads in a splice setup, and runs a splice session.
 
 
-from spliced.logger import logger
-import spliced.predict
-import spliced.schemas
-import spliced.utils as utils
-import jsonschema
 import json
 import os
 import re
+
+import jsonschema
+
+import spliced.predict
+import spliced.schemas
+import spliced.utils as utils
+from spliced.logger import logger
 
 
 class Splice:

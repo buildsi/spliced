@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
+import json
+import random
+import sys
+
+import requests
+
 import spliced.experiment
 import spliced.utils as utils
-import random
-import requests
-import sys
-import json
 
 
 def matrix(args, parser, extra, subparser):

@@ -3,15 +3,15 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+import copy
 import os
 import re
 import sys
-import copy
+
+import spliced.utils as utils
+from spliced.logger import logger
 
 from .asp import PyclingoDriver, fn
-from spliced.logger import logger
-import spliced.utils as utils
-
 
 # We want the root
 class_types = ["Struct", "Union", "Array", "Enum", "Class"]

@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from .base import Prediction
-from spliced.logger import logger
-from .base import match_by_prefix, timed_run
-
-import tempfile
 import os
+import tempfile
+
+from spliced.logger import logger
+
+from .base import Prediction, match_by_prefix, timed_run
 
 
 class AbiLaboratoryPrediction(Prediction):

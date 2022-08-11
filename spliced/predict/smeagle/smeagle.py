@@ -3,13 +3,13 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import spliced.utils as utils
 import os
 import sys
 
-from .solver import FactGenerator, StabilitySetSolver, StabilitySolver
-
+import spliced.utils as utils
 from spliced.logger import logger
+
+from .solver import FactGenerator, StabilitySetSolver, StabilitySolver
 
 here = os.path.abspath(os.path.dirname(__file__))
 

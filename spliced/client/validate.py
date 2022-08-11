@@ -4,11 +4,13 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
-from spliced.schemas import spliced_result_schema
+import os
+
+import jsonschema
+
 import spliced.utils as utils
 from spliced.logger import logger
-import jsonschema
-import os
+from spliced.schemas import spliced_result_schema
 
 
 def main(args, parser, extra, subparser):

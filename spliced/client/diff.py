@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+import json
 import os
 import sys
-import json
+
 import spliced.utils as utils
 from spliced.logger import logger
 

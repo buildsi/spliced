@@ -3,16 +3,17 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from spliced.predict.base import Prediction
-from .smeagle import SmeagleRunner
-from spliced.logger import logger
-import spliced.utils as utils
-from time import time
-import tempfile
-
-import re
 import os
+import re
 import shutil
+import tempfile
+from time import time
+
+import spliced.utils as utils
+from spliced.logger import logger
+from spliced.predict.base import Prediction
+
+from .smeagle import SmeagleRunner
 
 
 class SmeaglePrediction(Prediction):
@@ -97,9 +98,6 @@ class SmeaglePrediction(Prediction):
         libs.sort()
         libs_uid = "|".join(libs)
         splice.stats[libs_uid] = {}
-
-        libA_meta = splice.metadata[libA]
-        libB_meta = splice.metadata[libB]
 
         # Look for dependency in facts cache
         libA_cache = self.generate_cle_data(libA)

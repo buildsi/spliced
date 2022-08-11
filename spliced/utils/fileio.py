@@ -3,16 +3,17 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-import hashlib
 import errno
+import hashlib
+import json
 import os
 import re
 import shutil
 import sys
 import tempfile
+
 import yaml
 
-import json
 from spliced.logger import logger
 
 

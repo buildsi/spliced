@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
-import spliced.utils as utils
+import os
 from time import time
 
-import os
+import spliced.utils as utils
 
 
 class Prediction:

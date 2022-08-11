@@ -5,22 +5,25 @@
 
 # An experiment loads in a splice setup, and runs a splice session.
 
-from .base import Experiment
-import re
 import os
+import re
 import sys
 import traceback
+
+from elfcall.main import BinaryInterface
+
 import spliced.utils as utils
 from spliced.logger import logger
-from elfcall.main import BinaryInterface
+
+from .base import Experiment
 
 try:
     import spack.binary_distribution as bindist
+    import spack.bootstrap
+    import spack.rewiring
+    import spack.store
     import spack.user_environment as uenv
     import spack.util.environment
-    import spack.rewiring
-    import spack.bootstrap
-    import spack.store
     from spack.spec import Spec
 except Exception as e:
     sys.exit("This needs to be run from spack python, also: %s" % e)
@@ -419,7 +422,7 @@ class SpackSpliceExperiment(SpackExperiment):
 
         # And install the dependency
         if not self.do_install(
-            dep, "mock-splice-install-failed", name=spec_name, different_libs=True
+            dep, "mock-splice-install-failed", name=splice_name, different_libs=True
         ):
             return
 

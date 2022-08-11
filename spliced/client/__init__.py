@@ -5,11 +5,12 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+import argparse
+import os
+import sys
+
 import spliced
 from spliced.logger import setup_logger
-import argparse
-import sys
-import os
 
 
 def get_parser():

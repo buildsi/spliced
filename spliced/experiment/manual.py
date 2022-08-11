@@ -5,14 +5,13 @@
 
 # An experiment loads in a splice setup, and runs a splice session.
 
-from .base import Experiment
-import re
 import os
-import sys
-import traceback
-import spliced.utils as utils
-from spliced.logger import logger
+
 from elfcall.main import BinaryInterface
+
+from spliced.logger import logger
+
+from .base import Experiment
 
 
 class ManualExperiment(Experiment):

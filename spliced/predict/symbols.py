@@ -3,8 +3,9 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from .base import Prediction, match_by_prefix, time_run_decorator, get_prefix
 from spliced.logger import logger
+
+from .base import Prediction, get_prefix, match_by_prefix, time_run_decorator
 
 
 class SymbolsPrediction(Prediction):

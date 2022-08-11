@@ -1,9 +1,9 @@
-from .base import Prediction
-from .symbols import SymbolsPrediction
-from .libabigail import LibabigailPrediction
-from .spack import SpackTest
-from .smeagle import SmeaglePrediction
 from .abi_laboratory import AbiLaboratoryPrediction
+from .base import Prediction
+from .libabigail import LibabigailPrediction
+from .smeagle import SmeaglePrediction
+from .spack import SpackTest
+from .symbols import SymbolsPrediction
 
 
 def get_predictors(names=None):

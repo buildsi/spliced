@@ -3,13 +3,12 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from .base import Prediction
-from spliced.logger import logger
-import spliced.utils as utils
-from .base import match_by_prefix, timed_run
-
-
 import os
+
+import spliced.utils as utils
+from spliced.logger import logger
+
+from .base import Prediction, match_by_prefix, timed_run
 
 
 def add_to_path(path):
@@ -85,7 +84,7 @@ class LibabigailPrediction(Prediction):
             return self.diff_prediction(splice)
         logger.warning(f"{predict_type} is not a known prediction type.")
 
-    def full_prediction(splice):
+    def full_prediction(self, splice):
         """
         A full prediction is run with spliced splice, includes libs and binaries.
         """
