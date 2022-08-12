@@ -175,7 +175,7 @@ class AbiLaboratoryPrediction(Prediction):
                 libB_fullpath = metaB["lib"]
                 libs = [libA, libB]
                 libs.sort()
-                libs_uid = "|".join(libs).replace(".", "-")
+                libs_uid = "-".join(libs).replace(".", "-")
 
                 res = self.run_abi_laboratory(libA_fullpath, libB_fullpath, libs_uid)
                 res["splice_type"] = "different_lib"
