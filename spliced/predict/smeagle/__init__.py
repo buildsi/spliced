@@ -118,7 +118,7 @@ class SmeaglePrediction(Prediction):
 
         # Write to output so we can have examples
         lib_a_dir = os.path.dirname(libA_cache)
-        output_asp = os.path.join(lib_a_dir, libs_uid + ".asp")       
+        output_asp = os.path.join(lib_a_dir, libs_uid.replace("|", "-") + ".asp")
         out = open(output_asp, "w")
 
         # Stability test compares A (the main library) against B
