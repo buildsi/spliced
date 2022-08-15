@@ -197,16 +197,14 @@ def diff_missing_symbols(libA, libB, libA_symbols, libB_symbols):
     A previously found (and thus needed) symbol cannot be missing after the splice.
     """
     # Want to find symbols in main binary for this dependency of interest
-    before = [
-        s
-        for s, x in libA_symbols["found"].items()
-        if "lib" in x and x["lib"]["realpath"] == libA
-    ]
-    after = [
-        s
-        for s, x in libB_symbols["found"].items()
-        if "lib" in x and x["lib"]["realpath"] == libB
-    ]
+    before = set(
+        list(libA_symbols.get("exported", {}).keys())
+        + list(libA_symbols.get("imported", {}).keys())
+    )
+    after = set(
+        list(libB_symbols.get("exported", {}).keys())
+        + list(libB_symbols.get("imported", {}).keys())
+    )
 
     # We cannot be missing symbols in original (before) that aren't in spliced (after)
     missing_symbols = [x for x in before if x not in after]
