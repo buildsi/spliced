@@ -149,6 +149,17 @@ def diff_missing_exports(libA, libB, libA_symbols, libB_symbols):
     """
     If exports changed between an original and spliced, it won't work in different contexts
     """
+    if not libA_symbols or not libB_symbols:
+        # It is predicted to work if we don't have any missing symbols
+        return {
+            "splice_type": "different_lib",
+            "original_lib": libA,
+            "spliced_lib": libB,
+            "command": "missing-previously-found-exports",
+            "message": "Cannot derive decision, symbols not found.",
+            "prediction": "Unknown",
+        }
+
     # Want to find symbols in main binary for this dependency of interest
     before = [s for s, _ in libA_symbols["exported"].items()]
     after = [s for s, _ in libB_symbols["exported"].items()]
@@ -196,6 +207,17 @@ def diff_missing_symbols(libA, libB, libA_symbols, libB_symbols):
     """
     A previously found (and thus needed) symbol cannot be missing after the splice.
     """
+    if not libA_symbols or not libB_symbols:
+        # It is predicted to work if we don't have any missing symbols
+        return {
+            "splice_type": "different_lib",
+            "original_lib": libA,
+            "spliced_lib": libB,
+            "command": "missing-previously-found-symbols",
+            "message": "Cannot derive decision, symbols not found.",
+            "prediction": "Unknown",
+        }
+
     # Want to find symbols in main binary for this dependency of interest
     before = set(
         list(libA_symbols.get("exported", {}).keys())
