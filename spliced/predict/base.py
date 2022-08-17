@@ -30,6 +30,8 @@ class Prediction:
         find libraries that the linker is assumed to hit and find symbols.
         """
         deps = set()
+        if lib not in splice.metadata or not splice.metadata[lib]:
+            return deps
         for _, symbols in splice.metadata[lib].items():
             for _, meta in symbols.items():
                 if "lib" not in meta:
