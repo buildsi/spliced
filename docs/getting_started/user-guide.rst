@@ -41,6 +41,14 @@ spliced currently has the following predictors:
  - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is added but considered to be in experimental state. It requires `my branch of cle <https://github.com/vsoch/cle>`_.
 
 
+Debug information
+=================
+
+Some predictors rely on debug information to perform their analysis, so it is important that analyzed binaries are built with debugging options
+enabled. Some compilers like gcc allow for moving the debug information out of a library and into a separate file. These **Separate Debug Files**
+(usually with the .debug extension) are often available when using Linux distributions like RedHat or Fedora. For predictors that can use separate
+debug files, there are environment variables available for specifying their locations.
+
 
 Abi Laboratory Predictor
 ------------------------
