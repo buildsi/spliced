@@ -66,12 +66,14 @@ The ABI Laboratory also supports using a cache for results:
 
     $ export SPLICED_ABILAB_CACHE=/p/vast1/build/smeagle-cache
 
-To export a custom set of directories for debug information:
+To export a custom set of directories for separate debug files:
 
 .. code-block:: console
 
     $ export ABILAB_DEBUGINFO_DIR1=/path/to/debug1
     $ export ABILAB_DEBUGINFO_DIR2=/path/to/debug2
+
+The suffix ``1`` indicates the old library and ``2`` is for the new library.
 
 
 Libabigail
