@@ -79,12 +79,16 @@ The suffix ``1`` indicates the old library and ``2`` is for the new library.
 Libabigail
 ----------
 
-Also to export a custom set of directories for debug information:
+The libabigail predictor uses the ``abicompat`` or ``abidiff`` utilities located in the user's PATH.
+
+Also to export a custom set of directories for separate debug files:
 
 .. code-block:: console
 
     $ export LIBABIGAIL_DEBUGINFO_DIR1=/path/to/debug1
     $ export LIBABIGAIL_DEBUGINFO_DIR2=/path/to/debug2
+
+The suffix ``1`` indicates the original library and ``2`` is for the comparison library.
 
 Smeagle
 -------
