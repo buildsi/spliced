@@ -41,7 +41,6 @@ spliced currently has the following predictors:
  - **smeagle**: is `another library being developed here <https://github.com/buildsi/Smeagle>`_ that is added but considered to be in experimental state. It requires `my branch of cle <https://github.com/vsoch/cle>`_.
 
 
-
 Abi Laboratory Predictor
 ------------------------
 
@@ -58,23 +57,29 @@ The ABI Laboratory also supports using a cache for results:
 
     $ export SPLICED_ABILAB_CACHE=/p/vast1/build/smeagle-cache
 
-To export a custom set of directories for debug information:
+To export a custom set of directories for separate debug files (see :ref:`debug-info`):
 
 .. code-block:: console
 
     $ export ABILAB_DEBUGINFO_DIR1=/path/to/debug1
     $ export ABILAB_DEBUGINFO_DIR2=/path/to/debug2
 
+The suffix ``1`` indicates the old library and ``2`` is for the new library.
+
 
 Libabigail
 ----------
 
-Also to export a custom set of directories for debug information:
+The libabigail predictor uses the ``abicompat`` or ``abidiff`` utilities located in the user's PATH.
+
+Also to export a custom set of directories for separate debug files (see :ref:`debug-info`):
 
 .. code-block:: console
 
     $ export LIBABIGAIL_DEBUGINFO_DIR1=/path/to/debug1
     $ export LIBABIGAIL_DEBUGINFO_DIR2=/path/to/debug2
+
+The suffix ``1`` indicates the original library and ``2`` is for the comparison library.
 
 Smeagle
 -------
@@ -90,7 +95,15 @@ a cache to save facts. For example:
 Note that it will output facts json files, and they will be prefixed with smeagle
 and organized by library location so you can share the cache between predictors.
 
+.. _debug-info:
 
+Debug information
+-----------------
+
+Some predictors rely on debug information to perform their analysis, so it is important that analyzed binaries are built with debugging options
+enabled. Some compilers like gcc allow for moving the debug information out of a library and into a separate file. These **Separate Debug Files**
+(usually with the .debug extension) are often available when using Linux distributions like RedHat or Fedora. For predictors that can use separate
+debug files, there are environment variables available for specifying their locations.
 
 Config File
 ===========
