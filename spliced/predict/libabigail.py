@@ -139,14 +139,14 @@ class LibabigailPrediction(Prediction):
         """
         Run abi diff with an original and comparison library
         """
-        debug1=""
-        if os.environ['LIBABIGAIL_DEBUGINFO_DIR1']:
-          debug1="--debug-info-dir1 %s" % os.environ['LIBABIGAIL_DEBUGINFO_DIR1']
+        debug1 = os.environ.get("LIBABIGAIL_DEBUGINFO_DIR1", "")
+        if debug1:
+          debug1 = f"--debug-info-dir1 {debug1}"
         
-        debug2=""
-        if os.environ['LIBABIGAIL_DEBUGINFO_DIR2']:
-          debug2="--debug-info-dir2 %s" % os.environ['LIBABIGAIL_DEBUGINFO_DIR2']
-        
+        debug2 = os.environ.get("LIBABIGAIL_DEBUGINFO_DIR2", "")
+        if debug2:
+          debug2 = f"--debug-info-dir2 {debug2}"
+
         command = "%s %s %s %s %s" % (self.abidiff, debug1, debug2, original_lib, replace_lib)
         res = timed_run(command)
         res["command"] = command
