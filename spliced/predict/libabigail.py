@@ -158,7 +158,7 @@ class LibabigailPrediction(Prediction):
             self.abidiff,
             debug1,
             debug2,
-            "--fail-no-debug-info"
+            "--fail-no-debug-info",
             original_lib,
             replace_lib,
         )
