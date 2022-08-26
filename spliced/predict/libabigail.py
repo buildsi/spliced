@@ -154,10 +154,15 @@ class LibabigailPrediction(Prediction):
         if debug2:
             debug2 = f"--debug-info-dir2 {debug2}"
 
-        command = "%s %s %s %s %s" % (
+        require_debug = os.environ.get("LIBABIGAIL_REQUIRE_DEBUGINFO", "")
+        if require_debug:
+            require_debug = "--fail-no-debug-info"
+
+        command = "%s %s %s %s %s %s" % (
             self.abidiff,
             debug1,
             debug2,
+            require_debug,
             original_lib,
             replace_lib,
         )

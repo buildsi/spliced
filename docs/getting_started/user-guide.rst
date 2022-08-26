@@ -81,6 +81,10 @@ Also to export a custom set of directories for separate debug files (see :ref:`d
 
 The suffix ``1`` indicates the original library and ``2`` is for the comparison library.
 
+libabigail can work both with and without debugging information. To require libabigail to use
+debugging information, you can set the environment variable ``LIBABIGAIL_REQUIRE_DEBUGINFO``.
+This has the same effect as passing ``--fail-no-debug-info`` directly to ``abidiff``.
+
 Smeagle
 -------
 
