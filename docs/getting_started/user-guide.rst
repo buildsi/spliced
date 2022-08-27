@@ -72,6 +72,12 @@ The ABI Laboratory also supports using a cache for results:
 
     $ export SPLICED_ABILAB_CACHE=/p/vast1/build/smeagle-cache
 
+Or disabling reporting all together (no .html files generated)
+
+.. code-block:: console
+
+    $ export ABILAB_DISABLE_REPORTS=true
+
 
 Config File
 ===========

@@ -84,7 +84,8 @@ class AbiLaboratoryPrediction(Prediction):
         """
         Shared function to run (and return a result)
         """
-        if self.cache_dir:
+        disable_reports = os.environ.get("ABILAB_DISABLE_REPORTS") is not None
+        if self.cache_dir and not disable_reports:
             cache_key = os.path.join(
                 self.cache_dir,
                 "%s-abi-laboratory-%s.html" % (original_lib.strip(os.sep), name),
