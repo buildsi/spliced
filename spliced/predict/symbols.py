@@ -167,6 +167,12 @@ def diff_missing_exports(libA, libB, libA_symbols, libB_symbols):
     # We cannot be missing symbols in original (before) that aren't in spliced (after)
     missing_symbols = [x for x in before if x not in after]
 
+    print("LibA Symbols %s" % libA_symbols)
+    print("LibB Symbols %s" % libB_symbols)
+    print("Symbols before %s" % before)
+    print("Symbols after %s" % after)
+    print("Missing %s" % missing_symbols)
+
     # It is predicted to work if we don't have any missing symbols
     return {
         "splice_type": "different_lib",
@@ -227,9 +233,14 @@ def diff_missing_symbols(libA, libB, libA_symbols, libB_symbols):
         list(libB_symbols.get("exported", {}).keys())
         + list(libB_symbols.get("imported", {}).keys())
     )
-
     # We cannot be missing symbols in original (before) that aren't in spliced (after)
     missing_symbols = [x for x in before if x not in after]
+
+    print("LibA Symbols %s" % libA_symbols)
+    print("LibB Symbols %s" % libB_symbols)
+    print("Symbols before %s" % before)
+    print("Symbols after %s" % after)
+    print("Missing %s" % missing_symbols)
 
     # It is predicted to work if we don't have any missing symbols
     return {
