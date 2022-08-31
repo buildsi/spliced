@@ -14,6 +14,7 @@ and **Merged pull requests**. Critical items to know are:
 The versions coincide with releases on pip. Only major versions will be released as tags on Github.
 
 ## [0.0.x](https://github.com/buildsi/spliced/tree/main) (0.0.x)
+ - refactor to use smeagle-py instead of cle (moving target) (0.0.18)
  - working version for analysis with cle (0.0.17) 
  - add smeagle predict (via singularity container) (0.0.16)
  - libabigail should also run abidiff (0.0.15)

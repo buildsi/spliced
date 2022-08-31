@@ -77,7 +77,7 @@ class SmeaglePrediction(Prediction):
 
         # For each spliced binary/lib, generate facts, save to cache
         for lib in splice.spliced:
-            cache_key = self.generate_cle_data(lib, prefix="smeagle")
+            cache_key = self.generate_smeagle_data(lib, prefix="smeagle")
             if cache_key:
                 spliced[lib] = cache_key
 
@@ -100,8 +100,8 @@ class SmeaglePrediction(Prediction):
         splice.stats[libs_uid] = {}
 
         # Look for dependency in facts cache
-        libA_cache = self.generate_cle_data(libA, prefix="smeagle")
-        libB_cache = self.generate_cle_data(libB, prefix="smeagle")
+        libA_cache = self.generate_smeagle_data(libA, prefix="smeagle")
+        libB_cache = self.generate_smeagle_data(libB, prefix="smeagle")
 
         # If we can't generate facts, we can't include in model
         if not libA_cache or not libB_cache:
@@ -177,7 +177,7 @@ class SmeaglePrediction(Prediction):
                 continue
 
             # Look for dependency in facts cache
-            cache_key = self.generate_cle_data(dep)
+            cache_key = self.generate_smeagle_data(dep)
 
             # If we can't generate facts, we can't include in model
             if not cache_key:
@@ -211,9 +211,9 @@ class SmeaglePrediction(Prediction):
         splice.predictions["smeagle"].append(res)
         out.close()
 
-    def generate_cle_data(self, lib, prefix="smeagle"):
+    def generate_smeagle_data(self, lib, prefix="smeagle"):
         """
-        Given a library, run cle to generate facts and save to cache. Return key.
+        Given a library, run smeagle to generate facts and save to cache. Return key.
         """
         # Keep same path, but under cache
         if prefix:
@@ -224,7 +224,7 @@ class SmeaglePrediction(Prediction):
             cache_key = os.path.join(self.cache_dir, lib.strip(os.sep) + ".json")
         if os.path.exists(cache_key):
             return cache_key
-        logger.info("Generating facts for %s with cle..." % lib)
+        logger.info("Generating facts for %s with smeagle..." % lib)
         data = self.smeagle.get_smeagle_data(lib)
         if "data" in data and data["data"] and data["return_code"] == 0:
             cache_dir = os.path.dirname(cache_key)

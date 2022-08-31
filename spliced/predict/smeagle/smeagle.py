@@ -67,13 +67,13 @@ class SmeagleRunner:
             logger.exit("Library %s does not exist!" % lib)
 
         try:
-            import cle
+            from smeagle.loader import Loader
         except ImportError:
-            logger.exit("cle is required to run the smeagle predictor.")
+            logger.exit("smeagle-py (smeagle) is required to run the smeagle predictor.")
 
         # Get a smeagle corpus (facts.json)
         try:
-            ld = cle.Loader(lib, load_debug_info=True, auto_load_libs=False)
+            ld = Loader(lib)
             return {"return_code": 0, "data": ld.corpus.to_dict(), "message": "success"}
         except Exception as exc:
             msg = "Cannot load corpus: %s" % exc
