@@ -1,8 +1,6 @@
 package: 
-  name: hdf5
+  name: openmpi
 splice: mpich
 splice_versions:
   - 3.4.2
   - 3.2.1
-replace: openmpi
-command: h5import -h

@@ -3,12 +3,12 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+import inspect
 import logging as _logging
+import os
 import platform
 import sys
-import os
 import threading
-import inspect
 
 
 class ColorizingStreamHandler(_logging.StreamHandler):

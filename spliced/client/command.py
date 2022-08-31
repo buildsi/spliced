@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
+import json
+import random
+import sys
+
+import requests
+
 import spliced.experiment
 import spliced.utils as utils
-import random
-import requests
-import sys
-import json
 
 
 def matrix(args, parser, extra, subparser):
@@ -22,6 +24,8 @@ def matrix(args, parser, extra, subparser):
 
     if args.generator == "spack":
         generate_spack_matrix(args, experiment)
+    elif args.generator == "manual":
+        raise NotImplementedError
 
 
 def command(args, parser, extra, subparser):
@@ -34,6 +38,8 @@ def command(args, parser, extra, subparser):
 
     if args.generator == "spack":
         generate_spack_commands(args, experiment)
+    elif args.generator == "manual":
+        raise NotImplementedError
 
 
 def get_package_versions(package):
@@ -98,20 +104,22 @@ def generate_spack_commands(args, experiment):
     Generate a list of spliced commands
     """
     # These are package versions - splice versions come from list in config
-    versions = get_package_versions(experiment.package["name"])
+    versions = get_package_versions(experiment.package)
     splice_versions = get_splice_versions(experiment)
-    commands = []
+    func = "splice" if not args.diff else "diff"
 
+    commands = []
     # Generate list of commands
     for version in versions:
 
         for splice_version in splice_versions:
 
             # versioned package
-            package = "%s@%s" % (experiment.package["name"], version)
+            package = "%s@%s" % (experiment.package, version)
             cmd = (
-                "spliced splice --package %s --splice %s --runner spack --replace %s --experiment %s"
+                "spliced %s --package %s --splice %s --runner spack --replace %s --experiment %s"
                 % (
+                    func,
                     package,
                     splice_version,
                     experiment.replace,
@@ -137,6 +145,7 @@ def generate_spack_matrix(args, experiment):
     """
     versions = get_package_versions(experiment.package)
     splice_versions = get_splice_versions(experiment)
+    func = "splice" if not args.diff else "diff"
 
     # We will build up a matrix of container and associated compilers
     matrix = []
@@ -149,8 +158,9 @@ def generate_spack_matrix(args, experiment):
             # versioned package
             package = "%s@%s" % (experiment.package, version)
             cmd = (
-                "spliced splice --package %s --splice %s --runner spack --replace %s --experiment %s"
+                "spliced %s --package %s --splice %s --runner spack --replace %s --experiment %s"
                 % (
+                    func,
                     package,
                     splice_version,
                     experiment.replace,

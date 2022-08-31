@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 
-import spliced.utils as utils
+import os
 from time import time
 
-import os
+import spliced.utils as utils
 
 
 class Prediction:
@@ -15,7 +15,7 @@ class Prediction:
     A prediction is a base for assessing a Splice and making predictions.
     """
 
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         raise NotImplementedError
 
     def __str__(self):
@@ -30,6 +30,8 @@ class Prediction:
         find libraries that the linker is assumed to hit and find symbols.
         """
         deps = set()
+        if lib not in splice.metadata or not splice.metadata[lib]:
+            return deps
         for _, symbols in splice.metadata[lib].items():
             for _, meta in symbols.items():
                 if "lib" not in meta:

@@ -7,17 +7,18 @@
 
 schema_url = "https://json-schema.org/draft-07/schema/#"
 
-properties = {
-    "splice": {"type": "string"},
-    "splice_versions": {"type": "array", "items": {"type": "string"}},
-    "package": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-            "name": {"type": "string"},
-            "versions": {"type": "array", "items": {"type": "string"}},
-        },
+package_type = {
+    "type": "object",
+    "required": ["name"],
+    "properties": {
+        "so_prefix": {"type": "string"},
+        "name": {"type": "string"},
+        "versions": {"type": "array", "items": {"type": "string"}},
     },
+}
+properties = {
+    "splice": package_type,
+    "package": package_type,
     "replace": {"type": ["string", "null"]},
     "command": {"type": ["string", "null"]},
 }

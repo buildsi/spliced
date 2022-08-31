@@ -3,20 +3,21 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from spliced.predict.base import Prediction
-from .smeagle import SmeagleRunner
-from spliced.logger import logger
-import spliced.utils as utils
-from time import time
-import tempfile
-
-import re
 import os
+import re
 import shutil
+import tempfile
+from time import time
+
+import spliced.utils as utils
+from spliced.logger import logger
+from spliced.predict.base import Prediction
+
+from .smeagle import SmeagleRunner
 
 
 class SmeaglePrediction(Prediction):
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         """
         Run smeagle to add to the predictions
         # Testing command:
@@ -56,11 +57,23 @@ class SmeaglePrediction(Prediction):
         # Create a smeagle runner!
         self.smeagle = SmeagleRunner()
 
-        # Keep subset of spliced libs->data we can generate facts for
-        spliced = {}
-
         # Prepare to add predictions to splice
         splice.predictions["smeagle"] = []
+
+        if predict_type == "diff":
+            self.run_stability_tests(splice)
+        else:
+            self.run_compatibility_tests(splice)
+
+        if cleanup and os.path.exists(self.cache_dir):
+            shutil.rmtree(self.cache_dir)
+
+    def run_compatibility_tests(self, splice):
+        """
+        Run the original full compatibility tests.
+        """
+        # Keep subset of spliced libs->data we can generate facts for
+        spliced = {}
 
         # For each spliced binary/lib, generate facts, save to cache
         for lib in splice.spliced:
@@ -70,18 +83,57 @@ class SmeaglePrediction(Prediction):
 
         # For each library/binary we can test, make predictions
         for lib, facts_path in spliced.items():
-            self.test_lib(splice, lib, facts_path)
+            self.compatibility_test_lib(splice, lib, facts_path)
 
-        if cleanup and os.path.exists(self.cache_dir):
-            shutil.rmtree(self.cache_dir)
+    def run_stability_tests(self, splice):
+        for libA in splice.original:
+            for libB in splice.spliced:
+                self.stability_test_lib(splice, libA, libB)
 
-    def test_lib(self, splice, lib, facts_path):
+    def stability_test_lib(self, splice, libA, libB):
         """
-        Given an initial library (lib) that we have facts (facts_path) for, use the
-        splice lookup to derive the exact dependency libraries (and set of symbols)
-        that are needed. IF a dependency library fails to generate facts, we simply
-        don't include its symbols. We do this so we can still make a prediction on
-        imperfect information.
+        A stability test can only look at the subset of symbols.
+        """
+        libs = [os.path.basename(libA), os.path.basename(libB)]
+        libs.sort()
+        libs_uid = "-".join(libs)
+        splice.stats[libs_uid] = {}
+
+        # Look for dependency in facts cache
+        libA_cache = self.generate_cle_data(libA, prefix="smeagle")
+        libB_cache = self.generate_cle_data(libB, prefix="smeagle")
+
+        # If we can't generate facts, we can't include in model
+        if not libA_cache or not libB_cache:
+            splice.predictions["smeagle"].append(
+                {
+                    "return_code": -1,
+                    "original_lib": libA,
+                    "lib": libB,
+                    "prediction": False,
+                    "message": "One or both of libraries failed to generate Smeagle facts.",
+                }
+            )
+            return
+
+        # Write to output so we can have examples
+        lib_a_dir = os.path.dirname(libA_cache)
+        output_asp = os.path.join(lib_a_dir, libs_uid + ".asp")
+        out = open(output_asp, "w")
+
+        # Stability test compares A (the main library) against B
+        t1 = time()
+        res = self.smeagle.stability_test(
+            libA, libB, data1=libA_cache, data2=libB_cache, out=out
+        )
+        t2 = time()
+        res["seconds"] = t2 - t1
+        splice.predictions["smeagle"].append(res)
+        out.close()
+
+    def check_missing_symbols(self, splice, lib):
+        """
+        Ensure no missing symbols as determined by elfcall off the bat.
         """
         # If any symbols missing, fail fast - the model couldn't work
         if splice.metadata[lib]["missing"]:
@@ -94,6 +146,18 @@ class SmeaglePrediction(Prediction):
                     "message": "Library is missing symbols, so smeagle model would fail.",
                 }
             )
+            return True
+        return False
+
+    def compatibility_test_lib(self, splice, lib, facts_path):
+        """
+        Given an initial library (lib) that we have facts (facts_path) for, use the
+        splice lookup to derive the exact dependency libraries (and set of symbols)
+        that are needed. IF a dependency library fails to generate facts, we simply
+        don't include its symbols. We do this so we can still make a prediction on
+        imperfect information.
+        """
+        if self.check_missing_symbols(lib):
             return
 
         # Keep stats for the splice and lib

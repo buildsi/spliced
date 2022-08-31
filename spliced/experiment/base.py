@@ -6,14 +6,16 @@
 # An experiment loads in a splice setup, and runs a splice session.
 
 
-from spliced.logger import logger
-import spliced.predict
-import spliced.schemas
-import spliced.utils as utils
-import jsonschema
 import json
 import os
 import re
+
+import jsonschema
+
+import spliced.predict
+import spliced.schemas
+import spliced.utils as utils
+from spliced.logger import logger
 
 
 class Splice:
@@ -135,12 +137,11 @@ class Experiment:
         Init config variables directly
         """
         self.config = {
-            "splice": splice,
+            "splice": {"name": splice},
             "package": {"name": package},
             "replace": replace,
         }
-        if experiment:
-            self._experiment = experiment
+        self._experiment = experiment or "spliced-experiment"
         if splice_versions:
             self._splice_versions = splice_versions
         if validate:
@@ -152,25 +153,27 @@ class Experiment:
         """
         raise NotImplementedError
 
-    def run_parallel(self):
-        # TODO- will be nice to possibly speed things up!
-        pass
-
-    def predict(self, names=None):
+    def predict(self, names=None, skip=None, predict_type=None):
         """
         Given a single named predictor (or a list to skip) make predictions.
         """
+        if skip and not isinstance(skip, list):
+            skip = [skip]
+
         predictors = spliced.predict.get_predictors(names)
         if not predictors:
             logger.warning("No matching predictors were found.")
             return
 
         for name, predictor in predictors.items():
+            if skip and name in skip:
+                logger.info("Skipping %s" % name)
+                continue
             logger.info("Making predictions for %s" % name)
 
             # Result is added to splice
             for splice in self.splices:
-                predictor.predict(splice)
+                predictor.predict(splice, predict_type)
 
     def to_json(self):
         """
@@ -191,7 +194,13 @@ class Experiment:
         jsonschema.validate(instance=self.config, schema=spliced.schemas.spliced_schema)
 
     def add_splice(
-        self, result, success=False, splice=None, command=None, different_libs=False
+        self,
+        result,
+        success=False,
+        splice=None,
+        command=None,
+        different_libs=False,
+        package=None,
     ):
         """
         Add a splice to the experiment
@@ -205,7 +214,7 @@ class Experiment:
         """
         print(f"*** ADDING SPLICE RESULT {result} ***")
         new_splice = Splice(
-            package=self.package,
+            package=package or self.package,
             splice=splice or self.splice,
             result=result,
             success=success,
@@ -224,11 +233,21 @@ class Experiment:
 
     @property
     def splice(self):
-        return self.config.get("splice")
+        return self.config.get("splice", {}).get("name")
+
+    @property
+    def package_so_prefix(self):
+        return self.config.get("package", {}).get("so_prefix")
+
+    @property
+    def splice_so_prefix(self):
+        return self.config.get("splice", {}).get("so_prefix")
 
     @property
     def splice_versions(self):
-        return self.config.get("splice_versions") or self._splice_versions
+        return self._splice_versions or self.config.get("splice", {}).get(
+            "versions", []
+        )
 
     @property
     def name(self):

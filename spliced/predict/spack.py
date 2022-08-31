@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
 import spliced.utils as utils
+
 from .base import Prediction, timed_run
 
 
@@ -23,7 +24,7 @@ class SpackTest(Prediction):
         res["command"] = cmd
         return res
 
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         """
         The spack predictor runs spack test for the original and splice.
         """

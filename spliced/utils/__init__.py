@@ -1,12 +1,3 @@
-from .terminal import (
-    add_spack_to_path,
-    run_command,
-    check_install,
-    get_installdir,
-    which,
-    confirm_action,
-    confirm_uninstall,
-)
 from .fileio import (
     copyfile,
     get_file_hash,
@@ -21,4 +12,13 @@ from .fileio import (
     recursive_find,
     write_file,
     write_json,
+)
+from .terminal import (
+    add_spack_to_path,
+    check_install,
+    confirm_action,
+    confirm_uninstall,
+    get_installdir,
+    run_command,
+    which,
 )

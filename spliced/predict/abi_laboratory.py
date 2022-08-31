@@ -3,22 +3,25 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from .base import Prediction
-from spliced.logger import logger
-from .base import match_by_prefix, timed_run
-
-import tempfile
 import os
+import shutil
+import tempfile
+
+from spliced.logger import logger
+
+from .base import Prediction, match_by_prefix, timed_run
 
 
 class AbiLaboratoryPrediction(Prediction):
-    container = "ghcr.io/buildsi/abi-laboratory-docker"
+    container = "docker://ghcr.io/buildsi/abi-laboratory-docker"
 
-    def predict(self, splice):
+    def predict(self, splice, predict_type=None):
         """
         Run the ABI laboratory to add to the predictions
         """
         self.set_cache()
+        if predict_type == "diff":
+            return self.run_diff(splice)
 
         if splice.different_libs:
             return self.splice_different_libs(splice)
@@ -47,8 +50,8 @@ class AbiLaboratoryPrediction(Prediction):
         Run abi-dumper + abi-compliance-checker with original and comparison library.
         This assumes we are in the container, and falls back to running a container.
         """
-        script_path = "/code/scripts/run_abi_laboratory.sh"
-        if os.path.exists(script_path):
+        script_path = shutil.which("run_abi_laboratory.sh")
+        if script_path:
             return self.run_local_abi_laboratory(original_lib, replace_lib, name)
         return self.run_containerized_abi_laboratory(original_lib, replace_lib, name)
 
@@ -56,7 +59,7 @@ class AbiLaboratoryPrediction(Prediction):
         """
         Run containerized abi laboratory with singularity
         """
-        script_path = "/code/scripts/run_abi_laboratory.sh"
+        script_path = shutil.which("run_abi_laboratory.sh")
         command = "/bin/bash %s %s %s %s" % (
             script_path,
             original_lib,
@@ -81,7 +84,8 @@ class AbiLaboratoryPrediction(Prediction):
         """
         Shared function to run (and return a result)
         """
-        if self.cache_dir:
+        disable_reports = os.environ.get("ABILAB_DISABLE_REPORTS") is not None
+        if self.cache_dir and not disable_reports:
             cache_key = os.path.join(
                 self.cache_dir,
                 "%s-abi-laboratory-%s.html" % (original_lib.strip(os.sep), name),
@@ -98,7 +102,11 @@ class AbiLaboratoryPrediction(Prediction):
         # If there is a libabigail output, print to see
         if res["message"] != "":
             print(res["message"])
-        res["prediction"] = res["return_code"] == 0
+        is_compatible = (
+            "Binary compatibility: 100%" in res["message"]
+            and "Source compatibility: 100%" in res["message"]
+        )
+        res["prediction"] = res["return_code"] == 0 and is_compatible
         return res
 
     def splice_equivalent_libs(self, splice):
@@ -144,6 +152,35 @@ class AbiLaboratoryPrediction(Prediction):
                     predictions.append(res)
                     diffs.add(key)
                     count += 1
+
+        if predictions:
+            splice.predictions["abi-laboratory"] = predictions
+            print(splice.predictions)
+
+    def run_diff(self, splice):
+        """
+        Run pairwise diffs for libs we need.
+        """
+        # For each original (we assume working) binary, find its deps from elfcall,
+        # and then match to the equivalent lib (via basename) for the splice
+        original_deps = self.create_elfcall_deps_lookup(splice, splice.original)
+        spliced_deps = self.create_elfcall_deps_lookup(splice, splice.spliced)
+
+        # Create a set of predictions for each of libs combination
+        predictions = []
+
+        for libA, metaA in original_deps.items():
+            for libB, metaB in spliced_deps.items():
+
+                libA_fullpath = metaA["lib"]
+                libB_fullpath = metaB["lib"]
+                libs = [libA, libB]
+                libs.sort()
+                libs_uid = "-".join(libs).replace(".", "-")
+
+                res = self.run_abi_laboratory(libA_fullpath, libB_fullpath, libs_uid)
+                res["splice_type"] = "different_lib"
+                predictions.append(res)
 
         if predictions:
             splice.predictions["abi-laboratory"] = predictions

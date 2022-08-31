@@ -3,12 +3,13 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-from spliced.logger import logger
-from subprocess import Popen, PIPE, STDOUT
 import os
-import sys
 import shlex
 import shutil
+import sys
+from subprocess import PIPE, STDOUT, Popen
+
+from spliced.logger import logger
 
 
 def which(software, strip_newline=True):

@@ -18,7 +18,7 @@ def main(args, parser, extra, subparser):
 
     if args.runner == "spack":
         run_spack_experiment(args, command=" ".join(extra))
-    if args.runner == "manual":
+    elif args.runner == "manual":
         run_manual_experiment(args, command=" ".join(extra))
     elif not args.runner:
         sys.exit("You must provide an experiment runner.")
@@ -45,7 +45,7 @@ def run_manual_experiment(args, command):
 
     # Perform the experiment
     experiment.run()
-    experiment.predict(args.predictor, skip=args.skip)
+    experiment.predict(args.predictor, skip=args.skip, predict_type="diff")
     results = experiment.to_dict()
 
     if args.outfile:
@@ -63,19 +63,20 @@ def run_spack_experiment(args, command):
 
     import spliced.experiment.spack
 
-    experiment = spliced.experiment.spack.SpackSpliceExperiment()
+    # A general SpackExperiment does a replacement
+    experiment = spliced.experiment.spack.SpackDiffExperiment()
 
     # We either load a config, or the arguments provided
     if args.config_yaml:
         experiment.load(args.config_yaml)
     else:
         experiment.init(
-            args.package, args.splice, args.experiment, command, args.replace
+            package=args.package, splice=args.splice, experiment=args.experiment
         )
 
-    # Perform the splice!
+    # Perform the experiment
     experiment.run()
-    experiment.predict(args.predictor, skip=args.skip)
+    experiment.predict(args.predictor, skip=args.skip, predict_type="diff")
     results = experiment.to_dict()
 
     if args.outfile:
