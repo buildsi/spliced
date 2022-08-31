@@ -84,12 +84,14 @@
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
 
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
 <span class="kn">import</span> <span class="nn">spliced.experiment</span>
 <span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
 
 
 <div class="viewcode-block" id="matrix"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.matrix">[docs]</a><span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">subparser</span><span class="p">):</span>
@@ -101,7 +103,9 @@
     <span class="n">experiment</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">generator</span> <span class="o">==</span> <span class="s2">&quot;spack&quot;</span><span class="p">:</span>
-        <span class="n">generate_spack_matrix</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span></div>
+        <span class="n">generate_spack_matrix</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">generator</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="command"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.command">[docs]</a><span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">subparser</span><span class="p">):</span>
@@ -113,7 +117,9 @@
     <span class="n">experiment</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">generator</span> <span class="o">==</span> <span class="s2">&quot;spack&quot;</span><span class="p">:</span>
-        <span class="n">generate_spack_commands</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span></div>
+        <span class="n">generate_spack_commands</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">generator</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="get_package_versions"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.command.get_package_versions">[docs]</a><span class="k">def</span> <span class="nf">get_package_versions</span><span class="p">(</span><span class="n">package</span><span class="p">):</span>
@@ -178,20 +184,22 @@
 <span class="sd">    Generate a list of spliced commands</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># These are package versions - splice versions come from list in config</span>
-    <span class="n">versions</span> <span class="o">=</span> <span class="n">get_package_versions</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">get_package_versions</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
     <span class="n">splice_versions</span> <span class="o">=</span> <span class="n">get_splice_versions</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
-    <span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="s2">&quot;splice&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">diff</span> <span class="k">else</span> <span class="s2">&quot;diff&quot;</span>
 
+    <span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Generate list of commands</span>
     <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">:</span>
 
         <span class="k">for</span> <span class="n">splice_version</span> <span class="ow">in</span> <span class="n">splice_versions</span><span class="p">:</span>
 
             <span class="c1"># versioned package</span>
-            <span class="n">package</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">version</span><span class="p">)</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;spliced splice --package </span><span class="si">%s</span><span class="s2"> --splice </span><span class="si">%s</span><span class="s2"> --runner spack --replace </span><span class="si">%s</span><span class="s2"> --experiment </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;spliced </span><span class="si">%s</span><span class="s2"> --package </span><span class="si">%s</span><span class="s2"> --splice </span><span class="si">%s</span><span class="s2"> --runner spack --replace </span><span class="si">%s</span><span class="s2"> --experiment </span><span class="si">%s</span><span class="s2">&quot;</span>
                 <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">func</span><span class="p">,</span>
                     <span class="n">package</span><span class="p">,</span>
                     <span class="n">splice_version</span><span class="p">,</span>
                     <span class="n">experiment</span><span class="o">.</span><span class="n">replace</span><span class="p">,</span>
@@ -217,6 +225,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">versions</span> <span class="o">=</span> <span class="n">get_package_versions</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
     <span class="n">splice_versions</span> <span class="o">=</span> <span class="n">get_splice_versions</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="s2">&quot;splice&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">diff</span> <span class="k">else</span> <span class="s2">&quot;diff&quot;</span>
 
     <span class="c1"># We will build up a matrix of container and associated compilers</span>
     <span class="n">matrix</span> <span class="o">=</span> <span class="p">[]</span>
@@ -229,8 +238,9 @@
             <span class="c1"># versioned package</span>
             <span class="n">package</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;spliced splice --package </span><span class="si">%s</span><span class="s2"> --splice </span><span class="si">%s</span><span class="s2"> --runner spack --replace </span><span class="si">%s</span><span class="s2"> --experiment </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;spliced </span><span class="si">%s</span><span class="s2"> --package </span><span class="si">%s</span><span class="s2"> --splice </span><span class="si">%s</span><span class="s2"> --runner spack --replace </span><span class="si">%s</span><span class="s2"> --experiment </span><span class="si">%s</span><span class="s2">&quot;</span>
                 <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">func</span><span class="p">,</span>
                     <span class="n">package</span><span class="p">,</span>
                     <span class="n">splice_version</span><span class="p">,</span>
                     <span class="n">experiment</span><span class="o">.</span><span class="n">replace</span><span class="p">,</span>

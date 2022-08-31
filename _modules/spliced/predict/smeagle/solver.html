@@ -84,15 +84,15 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
 
 <span class="kn">from</span> <span class="nn">.asp</span> <span class="kn">import</span> <span class="n">PyclingoDriver</span><span class="p">,</span> <span class="n">fn</span>
-<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
-
 
 <span class="c1"># We want the root</span>
 <span class="n">class_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Struct&quot;</span><span class="p">,</span> <span class="s2">&quot;Union&quot;</span><span class="p">,</span> <span class="s2">&quot;Array&quot;</span><span class="p">,</span> <span class="s2">&quot;Enum&quot;</span><span class="p">,</span> <span class="s2">&quot;Class&quot;</span><span class="p">]</span>

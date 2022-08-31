@@ -83,20 +83,21 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
-<span class="kn">from</span> <span class="nn">spliced.predict.base</span> <span class="kn">import</span> <span class="n">Prediction</span>
-<span class="kn">from</span> <span class="nn">.smeagle</span> <span class="kn">import</span> <span class="n">SmeagleRunner</span>
-<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">spliced.predict.base</span> <span class="kn">import</span> <span class="n">Prediction</span>
+
+<span class="kn">from</span> <span class="nn">.smeagle</span> <span class="kn">import</span> <span class="n">SmeagleRunner</span>
 
 
 <div class="viewcode-block" id="SmeaglePrediction"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction">[docs]</a><span class="k">class</span> <span class="nc">SmeaglePrediction</span><span class="p">(</span><span class="n">Prediction</span><span class="p">):</span>
-<div class="viewcode-block" id="SmeaglePrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+<div class="viewcode-block" id="SmeaglePrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">predict_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run smeagle to add to the predictions</span>
 <span class="sd">        # Testing command:</span>
@@ -136,11 +137,23 @@
         <span class="c1"># Create a smeagle runner!</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smeagle</span> <span class="o">=</span> <span class="n">SmeagleRunner</span><span class="p">()</span>
 
-        <span class="c1"># Keep subset of spliced libs-&gt;data we can generate facts for</span>
-        <span class="n">spliced</span> <span class="o">=</span> <span class="p">{}</span>
-
         <span class="c1"># Prepare to add predictions to splice</span>
         <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">predict_type</span> <span class="o">==</span> <span class="s2">&quot;diff&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_stability_tests</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_compatibility_tests</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cleanup</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SmeaglePrediction.run_compatibility_tests"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.run_compatibility_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_compatibility_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the original full compatibility tests.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Keep subset of spliced libs-&gt;data we can generate facts for</span>
+        <span class="n">spliced</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># For each spliced binary/lib, generate facts, save to cache</span>
         <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">:</span>
@@ -150,18 +163,57 @@
 
         <span class="c1"># For each library/binary we can test, make predictions</span>
         <span class="k">for</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span> <span class="ow">in</span> <span class="n">spliced</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">test_lib</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compatibility_test_lib</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span><span class="p">)</span></div>
 
-        <span class="k">if</span> <span class="n">cleanup</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">):</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">)</span></div>
+<div class="viewcode-block" id="SmeaglePrediction.run_stability_tests"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.run_stability_tests">[docs]</a>    <span class="k">def</span> <span class="nf">run_stability_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">libA</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">libB</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stability_test_lib</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">libA</span><span class="p">,</span> <span class="n">libB</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SmeaglePrediction.test_lib"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.test_lib">[docs]</a>    <span class="k">def</span> <span class="nf">test_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span><span class="p">):</span>
+<div class="viewcode-block" id="SmeaglePrediction.stability_test_lib"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.stability_test_lib">[docs]</a>    <span class="k">def</span> <span class="nf">stability_test_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">libA</span><span class="p">,</span> <span class="n">libB</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given an initial library (lib) that we have facts (facts_path) for, use the</span>
-<span class="sd">        splice lookup to derive the exact dependency libraries (and set of symbols)</span>
-<span class="sd">        that are needed. IF a dependency library fails to generate facts, we simply</span>
-<span class="sd">        don&#39;t include its symbols. We do this so we can still make a prediction on</span>
-<span class="sd">        imperfect information.</span>
+<span class="sd">        A stability test can only look at the subset of symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">libs</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">libA</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">libB</span><span class="p">)]</span>
+        <span class="n">libs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">libs_uid</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">libs</span><span class="p">)</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="n">libs_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Look for dependency in facts cache</span>
+        <span class="n">libA_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">libA</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
+        <span class="n">libB_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">libB</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If we can&#39;t generate facts, we can&#39;t include in model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">libA_cache</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">libB_cache</span><span class="p">:</span>
+            <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;return_code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;original_lib&quot;</span><span class="p">:</span> <span class="n">libA</span><span class="p">,</span>
+                    <span class="s2">&quot;lib&quot;</span><span class="p">:</span> <span class="n">libB</span><span class="p">,</span>
+                    <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;One or both of libraries failed to generate Smeagle facts.&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Write to output so we can have examples</span>
+        <span class="n">lib_a_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">libA_cache</span><span class="p">)</span>
+        <span class="n">output_asp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lib_a_dir</span><span class="p">,</span> <span class="n">libs_uid</span> <span class="o">+</span> <span class="s2">&quot;.asp&quot;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_asp</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Stability test compares A (the main library) against B</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smeagle</span><span class="o">.</span><span class="n">stability_test</span><span class="p">(</span>
+            <span class="n">libA</span><span class="p">,</span> <span class="n">libB</span><span class="p">,</span> <span class="n">data1</span><span class="o">=</span><span class="n">libA_cache</span><span class="p">,</span> <span class="n">data2</span><span class="o">=</span><span class="n">libB_cache</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span>
+        <span class="p">)</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span>
+        <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SmeaglePrediction.check_missing_symbols"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.check_missing_symbols">[docs]</a>    <span class="k">def</span> <span class="nf">check_missing_symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure no missing symbols as determined by elfcall off the bat.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If any symbols missing, fail fast - the model couldn&#39;t work</span>
         <span class="k">if</span> <span class="n">splice</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">lib</span><span class="p">][</span><span class="s2">&quot;missing&quot;</span><span class="p">]:</span>
@@ -174,6 +226,18 @@
                     <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Library is missing symbols, so smeagle model would fail.&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SmeaglePrediction.compatibility_test_lib"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.compatibility_test_lib">[docs]</a>    <span class="k">def</span> <span class="nf">compatibility_test_lib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">facts_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an initial library (lib) that we have facts (facts_path) for, use the</span>
+<span class="sd">        splice lookup to derive the exact dependency libraries (and set of symbols)</span>
+<span class="sd">        that are needed. IF a dependency library fails to generate facts, we simply</span>
+<span class="sd">        don&#39;t include its symbols. We do this so we can still make a prediction on</span>
+<span class="sd">        imperfect information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_missing_symbols</span><span class="p">(</span><span class="n">lib</span><span class="p">):</span>
             <span class="k">return</span>
 
         <span class="c1"># Keep stats for the splice and lib</span>

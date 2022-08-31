@@ -50,15 +50,17 @@
 <li class="toctree-l2"><a class="reference internal" href="#why-spliced">Why spliced?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-experiments-are-available">What experiments are available?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-predictors-are-available">What predictors are available?</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#smeagle">Smeagle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#abi-laboratory-predictor">Abi Laboratory Predictor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#libabigail">Libabigail</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#smeagle">Smeagle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#debug-information">Debug information</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#config-file">Config File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#spliced-commands">Spliced Commands</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#command">Command</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#splice">Splice</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#spack-splice">Spack Splice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#splice-and-diff">Splice and Diff</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spack-splice-and-diff">Spack Splice and Diff</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#matrix">Matrix</a></li>
@@ -118,6 +120,10 @@ Let’s review some terminology first.</p>
 <li><p><strong>replace</strong> We typically call the library we want to replace the splice with (or “splice in” if you prefer) the replacement library.</p></li>
 </ul>
 </div></blockquote>
+<dl class="simple">
+<dt>There are two main functions - a “splice” that is a more holistic comparison of two libraries and a binary, and a “diff” that is a direct comparison between A and B.</dt><dd><p>The splice commands “splice” and “diff” correspond to these two.</p>
+</dd>
+</dl>
 </section>
 <section id="what-experiments-are-available">
 <h2>What experiments are available?<a class="headerlink" href="#what-experiments-are-available" title="Permalink to this heading"></a></h2>
@@ -140,16 +146,6 @@ spliced currently has the following predictors:</p>
 <li><p><strong>smeagle</strong>: is <a class="reference external" href="https://github.com/buildsi/Smeagle">another library being developed here</a> that is added but considered to be in experimental state. It requires <a class="reference external" href="https://github.com/vsoch/cle">my branch of cle</a>.</p></li>
 </ul>
 </div></blockquote>
-<section id="smeagle">
-<h3>Smeagle<a class="headerlink" href="#smeagle" title="Permalink to this heading"></a></h3>
-<p>Smeagle (under development) will run given that its dependencies are installed, and that you have set
-a cache to save facts. For example:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">SPLICED_SMEAGLE_CACHE</span><span class="o">=</span>/p/vast1/build/smeagle-cache
-</pre></div>
-</div>
-<p>Note that it will output facts json files, and they will be prefixed with smeagle
-and organized by library location so you can share the cache between predictors.</p>
-</section>
 <section id="abi-laboratory-predictor">
 <h3>Abi Laboratory Predictor<a class="headerlink" href="#abi-laboratory-predictor" title="Permalink to this heading"></a></h3>
 <p>The ABI Laboratory predictor uses <a class="reference external" href="https://github.com/buildsi/abi-laboratory-docker">this GitHub packages container</a> to run the prediction. This means that you need to pull it and export to the environment:</p>
@@ -161,6 +157,46 @@ and organized by library location so you can share the cache between predictors.
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">SPLICED_ABILAB_CACHE</span><span class="o">=</span>/p/vast1/build/smeagle-cache
 </pre></div>
 </div>
+<p>To export a custom set of directories for separate debug files (see <a class="reference internal" href="#debug-info"><span class="std std-ref">Debug information</span></a>):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">ABILAB_DEBUGINFO_DIR1</span><span class="o">=</span>/path/to/debug1
+<span class="gp">$ </span><span class="nb">export</span> <span class="nv">ABILAB_DEBUGINFO_DIR2</span><span class="o">=</span>/path/to/debug2
+</pre></div>
+</div>
+<p>The suffix <code class="docutils literal notranslate"><span class="pre">1</span></code> indicates the old library and <code class="docutils literal notranslate"><span class="pre">2</span></code> is for the new library.</p>
+</section>
+<section id="libabigail">
+<h3>Libabigail<a class="headerlink" href="#libabigail" title="Permalink to this heading"></a></h3>
+<p>The libabigail predictor uses the <code class="docutils literal notranslate"><span class="pre">abicompat</span></code> or <code class="docutils literal notranslate"><span class="pre">abidiff</span></code> utilities located in the user’s PATH.</p>
+<p>Also to export a custom set of directories for separate debug files (see <a class="reference internal" href="#debug-info"><span class="std std-ref">Debug information</span></a>):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">LIBABIGAIL_DEBUGINFO_DIR1</span><span class="o">=</span>/path/to/debug1
+<span class="gp">$ </span><span class="nb">export</span> <span class="nv">LIBABIGAIL_DEBUGINFO_DIR2</span><span class="o">=</span>/path/to/debug2
+</pre></div>
+</div>
+<p>The suffix <code class="docutils literal notranslate"><span class="pre">1</span></code> indicates the original library and <code class="docutils literal notranslate"><span class="pre">2</span></code> is for the comparison library.</p>
+<p>libabigail can work both with and without debugging information. To require libabigail to use
+debugging information, you can set the environment variable <code class="docutils literal notranslate"><span class="pre">LIBABIGAIL_REQUIRE_DEBUGINFO</span></code>.
+This has the same effect as passing <code class="docutils literal notranslate"><span class="pre">--fail-no-debug-info</span></code> directly to <code class="docutils literal notranslate"><span class="pre">abidiff</span></code>.</p>
+</section>
+<section id="smeagle">
+<h3>Smeagle<a class="headerlink" href="#smeagle" title="Permalink to this heading"></a></h3>
+<p>Smeagle (under development) will run given that its dependencies are installed, and that you have set
+a cache to save facts. For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">SPLICED_SMEAGLE_CACHE</span><span class="o">=</span>/p/vast1/build/smeagle-cache
+</pre></div>
+</div>
+<p>Note that it will output facts json files, and they will be prefixed with smeagle
+and organized by library location so you can share the cache between predictors.</p>
+</section>
+<section id="debug-information">
+<span id="debug-info"></span><h3>Debug information<a class="headerlink" href="#debug-information" title="Permalink to this heading"></a></h3>
+<p>Or disabling reporting all together (no .html files generated)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">ABILAB_DISABLE_REPORTS</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Some predictors rely on debug information to perform their analysis, so it is important that analyzed binaries are built with debugging options
+enabled. Some compilers like gcc allow for moving the debug information out of a library and into a separate file. These <strong>Separate Debug Files</strong>
+(usually with the .debug extension) are often available when using Linux distributions like RedHat or Fedora. For predictors that can use separate
+debug files, there are environment variables available for specifying their locations.</p>
 </section>
 </section>
 <section id="config-file">
@@ -210,13 +246,18 @@ for us.</p>
 <span class="go">spliced splice --package curl@7.49.1 --splice zlib --runner spack --replace zlib --experiment curl curl --head https://linuxize.com/</span>
 </pre></div>
 </div>
+<p>To generate a diff command instead:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced <span class="nb">command</span> --diff examples/curl.yaml
+</pre></div>
+</div>
 <p>It looks exactly as you’d expect - every version of curl with instruction to splice zlib (meaning different versions) and a command (the last part of the line)
 to test. Given the expeiment runner is spack, spack will receive this request and handle install, etc. We could then try running one of those commands, discussed
 next.</p>
 </section>
-<section id="splice">
-<h3>Splice<a class="headerlink" href="#splice" title="Permalink to this heading"></a></h3>
-<p>The most basic functionality is to perform a splice! You can either [generate a matrix](#splice-matrix) via a config file,
+<section id="splice-and-diff">
+<h3>Splice and Diff<a class="headerlink" href="#splice-and-diff" title="Permalink to this heading"></a></h3>
+<p>The most basic functionality is to perform a splice or a diff! A diff is a simple comparison between A and B (useful for comparing tools) and a splice
+relies on spack splice and is thus more complex and error prone. You can either generate a matrix via a config file,
 provide the same config file to splice (appropriate for runners with custom variables to include like library paths)
 or come up with your own.  Current runners supported include:</p>
 <blockquote>
@@ -224,22 +265,25 @@ or come up with your own.  Current runners supported include:</p>
 <li><p>spack</p></li>
 </ul>
 </div></blockquote>
-<p>And likely we will add a “manual” runner soon.</p>
-<section id="spack-splice">
-<h4>Spack Splice<a class="headerlink" href="#spack-splice" title="Permalink to this heading"></a></h4>
+<p>For all commands, we will provide a splice and diff example.</p>
+<section id="spack-splice-and-diff">
+<h4>Spack Splice and Diff<a class="headerlink" href="#spack-splice-and-diff" title="Permalink to this heading"></a></h4>
 <p>Let’s start with an example command that says:</p>
 <div class="line-block">
 <div class="line">splice all versions of zlib to replace the current version of zlib in curl</div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --runner spack --replace zlib --experiment curl
+<span class="gp">$ </span>spliced diff --package curl@7.50.2 --splice zlib --runner spack --replace zlib --experiment curl
 </pre></div>
 </div>
 <p>Since we only have one runner (spack) that’s currently the default, so this works too:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --replace zlib --experiment curl
+<span class="gp">$ </span>spliced diff --package curl@7.50.2 --splice zlib --replace zlib --experiment curl
 </pre></div>
 </div>
 <p>Also if you are splicing the same library in (e.g., different versions) you can leave out replace:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --experiment curl
+<span class="gp">$ </span>spliced diff --package curl@7.50.2 --splice zlib --experiment curl
 </pre></div>
 </div>
 <p>The experiment is just a named identifier, for your use (to store with the results). When you do this
@@ -254,6 +298,7 @@ you’ll see:</p>
 any predictor dependency is missing, a warning will be printed and it will be skipped. If you want to filter
 to a specific number of predictors, use <cite>–predictor</cite> for each.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced splice --package curl@7.50.2 --splice zlib --experiment curl --predictor symbols
+<span class="gp">$ </span>spliced diff --package curl@7.50.2 --splice zlib --experiment curl --predictor symbols
 </pre></div>
 </div>
 <p>The above would run the experiment with a symbols prediction.
@@ -287,14 +332,16 @@ Here is what an entire run looks like, with a testing command and  output saved 
 </section>
 <section id="matrix">
 <h3>Matrix<a class="headerlink" href="#matrix" title="Permalink to this heading"></a></h3>
-<p>While you can perform a single splice manually, generally you’d want to instead create a matrix!
+<p>While you can perform a single splice or diff manually, generally you’d want to instead create a matrix!
 You can do this with the <cite>splice matrix</cite> command, which will output json that you can use in GitHub or other CI workflows.
 The spliced format</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced matrix examples/curl.yaml
+<span class="gp">$ </span>spliced matrix examples/curl.yaml --diff
 </pre></div>
 </div>
 <p>If you provide a custom container base, it will be included in the matrix and compilers discovered from it:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>spliced matrix examples/curl.yaml --container ghcr.io/buildsi/spack-ubuntu-20.04
+<span class="gp">$ </span>spliced matrix examples/curl.yaml --container ghcr.io/buildsi/spack-ubuntu-20.04 --diff
 </pre></div>
 </div>
 <p>This will output a matrix of commands and other metadata that you can use in GitHub actions or your CI tool of choice.</p>

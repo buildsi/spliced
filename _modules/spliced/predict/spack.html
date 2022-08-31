@@ -84,6 +84,7 @@
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
 <span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span><span class="p">,</span> <span class="n">timed_run</span>
 
 
@@ -103,7 +104,7 @@
         <span class="n">res</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmd</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
-<div class="viewcode-block" id="SpackTest.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.spack.SpackTest.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+<div class="viewcode-block" id="SpackTest.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.spack.SpackTest.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">predict_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The spack predictor runs spack test for the original and splice.</span>
 <span class="sd">        &quot;&quot;&quot;</span>

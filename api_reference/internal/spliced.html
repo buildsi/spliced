@@ -306,7 +306,7 @@ Prints the output to the console.
 <p>A base Experiment holds information for a splice experiment!</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.experiment.base.Experiment.add_splice">
-<span class="sig-name descname"><span class="pre">add_splice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">different_libs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/base.html#Experiment.add_splice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.base.Experiment.add_splice" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_splice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">success</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">different_libs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/base.html#Experiment.add_splice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.base.Experiment.add_splice" title="Permalink to this definition"></a></dt>
 <dd><p>Add a splice to the experiment</p>
 <p>A splice can either be successful (so it will have libs, binaries, etc)
 or it can represent a failed state (for any number of reasons)</p>
@@ -337,9 +337,14 @@ TODO can we cache the splice setup?
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">package</span></span><a class="headerlink" href="#spliced.experiment.base.Experiment.package" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="spliced.experiment.base.Experiment.package_so_prefix">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">package_so_prefix</span></span><a class="headerlink" href="#spliced.experiment.base.Experiment.package_so_prefix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.experiment.base.Experiment.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/base.html#Experiment.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.base.Experiment.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/base.html#Experiment.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.base.Experiment.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Given a single named predictor (or a list to skip) make predictions.</p>
 </dd></dl>
 
@@ -354,14 +359,14 @@ TODO can we cache the splice setup?
 <dd><p>run the experiment.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="spliced.experiment.base.Experiment.run_parallel">
-<span class="sig-name descname"><span class="pre">run_parallel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/base.html#Experiment.run_parallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.base.Experiment.run_parallel" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="spliced.experiment.base.Experiment.splice">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">splice</span></span><a class="headerlink" href="#spliced.experiment.base.Experiment.splice" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="spliced.experiment.base.Experiment.splice_so_prefix">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">splice_so_prefix</span></span><a class="headerlink" href="#spliced.experiment.base.Experiment.splice_so_prefix" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -430,6 +435,32 @@ will hold a result. A default splice result is not successful</p>
 <section id="module-spliced.experiment.spack">
 <span id="spliced-experiment-spack-module"></span><h2>spliced.experiment.spack module<a class="headerlink" href="#module-spliced.experiment.spack" title="Permalink to this heading"></a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackDiffExperiment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.experiment.spack.</span></span><span class="sig-name descname"><span class="pre">SpackDiffExperiment</span></span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackDiffExperiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackDiffExperiment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../spliced.experiment.html#spliced.experiment.spack.SpackExperiment" title="spliced.experiment.spack.SpackExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpackExperiment</span></code></a></p>
+<p>The main spack experiment does a diff.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackDiffExperiment.diff">
+<span class="sig-name descname"><span class="pre">diff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specB</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackDiffExperiment.diff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackDiffExperiment.diff" title="Permalink to this definition"></a></dt>
+<dd><p>Prepare setup to do a diff.</p>
+<p>specA: the main package
+specB: the to splice</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackDiffExperiment.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackDiffExperiment.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackDiffExperiment.run" title="Permalink to this definition"></a></dt>
+<dd><p>Perform an install with spack of some spec A and some spec B,
+across versions.</p>
+<p>Arguments:
+package (specA_name): the name of package A
+replace (specB_name): the name of package B</p>
+<p>For many cases, specA and specB might be the same, but not always.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.experiment.spack.</span></span><span class="sig-name descname"><span class="pre">SpackExperiment</span></span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../spliced.experiment.html#spliced.experiment.base.Experiment" title="spliced.experiment.base.Experiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Experiment</span></code></a></p>
@@ -446,12 +477,6 @@ will hold a result. A default splice result is not successful</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.do_splice">
-<span class="sig-name descname"><span class="pre">do_splice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_main</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.do_splice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.do_splice" title="Permalink to this definition"></a></dt>
-<dd><p>do the splice, the spliced spec goes into the main spec</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.get_sorted_versions">
 <span class="sig-name descname"><span class="pre">get_sorted_versions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.get_sorted_versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.get_sorted_versions" title="Permalink to this definition"></a></dt>
 <dd><p>Helper function to get sorted versions (for consistency)</p>
@@ -464,8 +489,33 @@ will hold a result. A default splice result is not successful</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.mock_splice">
-<span class="sig-name descname"><span class="pre">mock_splice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_main</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.mock_splice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.mock_splice" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.populate_elfcall">
+<span class="sig-name descname"><span class="pre">populate_elfcall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spliced_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.populate_elfcall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.populate_elfcall" title="Permalink to this definition"></a></dt>
+<dd><p>Derive library metadata for each of the original and splice spec</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.run_elfcall">
+<span class="sig-name descname"><span class="pre">run_elfcall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld_library_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.run_elfcall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.run_elfcall" title="Permalink to this definition"></a></dt>
+<dd><p>A wrapper to run elfcall and ensure we add LD_LIBRARY_PATH additions
+(usually from spack)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackSpliceExperiment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.experiment.spack.</span></span><span class="sig-name descname"><span class="pre">SpackSpliceExperiment</span></span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackSpliceExperiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackSpliceExperiment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../spliced.experiment.html#spliced.experiment.spack.SpackExperiment" title="spliced.experiment.spack.SpackExperiment"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpackExperiment</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackSpliceExperiment.do_splice">
+<span class="sig-name descname"><span class="pre">do_splice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_main</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackSpliceExperiment.do_splice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackSpliceExperiment.do_splice" title="Permalink to this definition"></a></dt>
+<dd><p>do the splice, the spliced spec goes into the main spec</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackSpliceExperiment.mock_splice">
+<span class="sig-name descname"><span class="pre">mock_splice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spec_main</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackSpliceExperiment.mock_splice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackSpliceExperiment.mock_splice" title="Permalink to this definition"></a></dt>
 <dd><p>A mock splice is not possible with spack (it usually means replacing one
 dependency with another that isn’t an actual dependency) but we can still
 install the needed specs and then add their libs / binaries for other
@@ -474,8 +524,8 @@ on the splice.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.run" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="spliced.experiment.spack.SpackSpliceExperiment.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackSpliceExperiment.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackSpliceExperiment.run" title="Permalink to this definition"></a></dt>
 <dd><p>Perform a splice with a SpecA (a specific spec with a binary),
 and SpecB (the high level spec that is a dependency that we can test
 across versions).</p>
@@ -484,13 +534,6 @@ package (specA_name): the name of the main package we are splicing up
 splice (specB_name): the spec we are removing / switching out
 replace (specC_name): the spec we are splicing in (replacing with)</p>
 <p>For many cases, specB and specC might be the same, but not always.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="spliced.experiment.spack.SpackExperiment.run_elfcall">
-<span class="sig-name descname"><span class="pre">run_elfcall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld_library_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/experiment/spack.html#SpackExperiment.run_elfcall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.experiment.spack.SpackExperiment.run_elfcall" title="Permalink to this definition"></a></dt>
-<dd><p>A wrapper to run elfcall and ensure we add LD_LIBRARY_PATH additions
-(usually from spack)</p>
 </dd></dl>
 
 </dd></dl>
@@ -546,7 +589,7 @@ find libraries that the linker is assumed to hit and find symbols.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.base.Prediction.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/base.html#Prediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.Prediction.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/base.html#Prediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.base.Prediction.predict" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -595,6 +638,12 @@ basename -&gt; split at . -&gt; match first piece</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.diff_prediction">
+<span class="sig-name descname"><span class="pre">diff_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/libabigail.html#LibabigailPrediction.diff_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.diff_prediction" title="Permalink to this definition"></a></dt>
+<dd><p>Only do pairwise diffs between libs</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.find_tool">
 <span class="sig-name descname"><span class="pre">find_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/libabigail.html#LibabigailPrediction.find_tool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.find_tool" title="Permalink to this definition"></a></dt>
 <dd><p>Find a specific named tool (abidiff or abicompat)</p>
@@ -607,8 +656,14 @@ basename -&gt; split at . -&gt; match first piece</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.full_prediction">
+<span class="sig-name descname"><span class="pre">full_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/libabigail.html#LibabigailPrediction.full_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.full_prediction" title="Permalink to this definition"></a></dt>
+<dd><p>A full prediction is run with spliced splice, includes libs and binaries.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/libabigail.html#LibabigailPrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/libabigail.html#LibabigailPrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Run libabigail to add to the predictions</p>
 </dd></dl>
 
@@ -622,6 +677,14 @@ basename -&gt; split at . -&gt; match first piece</p>
 <dt class="sig sig-object py" id="spliced.predict.libabigail.LibabigailPrediction.run_abidiff">
 <span class="sig-name descname"><span class="pre">run_abidiff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_lib</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/spliced/predict/libabigail.html#LibabigailPrediction.run_abidiff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.libabigail.LibabigailPrediction.run_abidiff" title="Permalink to this definition"></a></dt>
 <dd><p>Run abi diff with an original and comparison library</p>
+<dl class="simple">
+<dt>debuginfo files:</dt><dd><p>By default, libabigail will look in /usr/lib/debug for separate
+debug files (.debug) generated by gcc. Alternate locations can
+be specified by using the environment variables
+LIBABIGAIL_DEBUGINFO_DIR{1,2} for the original and comparison
+libraries, respectively.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

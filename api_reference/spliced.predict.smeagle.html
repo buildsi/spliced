@@ -217,7 +217,7 @@ Each is optional to be provided, and we are flexible to accept either.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.smeagle.smeagle.SmeagleRunner.stability_test">
-<span class="sig-name descname"><span class="pre">stability_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.stability_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.stability_test" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">stability_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle/smeagle.html#SmeagleRunner.stability_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.smeagle.SmeagleRunner.stability_test" title="Permalink to this definition"></a></dt>
 <dd><p>Run the stability test for two entries.</p>
 </dd></dl>
 
@@ -430,6 +430,22 @@ for one function.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spliced.predict.smeagle.</span></span><span class="sig-name descname"><span class="pre">SmeaglePrediction</span></span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="spliced.predict.html#spliced.predict.base.Prediction" title="spliced.predict.base.Prediction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Prediction</span></code></a></p>
 <dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.check_missing_symbols">
+<span class="sig-name descname"><span class="pre">check_missing_symbols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.check_missing_symbols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.check_missing_symbols" title="Permalink to this definition"></a></dt>
+<dd><p>Ensure no missing symbols as determined by elfcall off the bat.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.compatibility_test_lib">
+<span class="sig-name descname"><span class="pre">compatibility_test_lib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facts_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.compatibility_test_lib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.compatibility_test_lib" title="Permalink to this definition"></a></dt>
+<dd><p>Given an initial library (lib) that we have facts (facts_path) for, use the
+splice lookup to derive the exact dependency libraries (and set of symbols)
+that are needed. IF a dependency library fails to generate facts, we simply
+don’t include its symbols. We do this so we can still make a prediction on
+imperfect information.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.generate_cle_data">
 <span class="sig-name descname"><span class="pre">generate_cle_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'smeagle'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.generate_cle_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.generate_cle_data" title="Permalink to this definition"></a></dt>
 <dd><p>Given a library, run cle to generate facts and save to cache. Return key.</p>
@@ -437,7 +453,7 @@ for one function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Run smeagle to add to the predictions
 # Testing command:
 # spliced splice –package <a class="reference external" href="mailto:swig&#37;&#52;&#48;3&#46;0&#46;8">swig<span>&#64;</span>3<span>&#46;</span>0<span>&#46;</span>8</a> –splice pcre –runner spack –replace pcre –experiment experiment</p>
@@ -467,13 +483,20 @@ If no splice libs OR no tools, cut out early</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.test_lib">
-<span class="sig-name descname"><span class="pre">test_lib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lib</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facts_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.test_lib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.test_lib" title="Permalink to this definition"></a></dt>
-<dd><p>Given an initial library (lib) that we have facts (facts_path) for, use the
-splice lookup to derive the exact dependency libraries (and set of symbols)
-that are needed. IF a dependency library fails to generate facts, we simply
-don’t include its symbols. We do this so we can still make a prediction on
-imperfect information.</p>
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.run_compatibility_tests">
+<span class="sig-name descname"><span class="pre">run_compatibility_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.run_compatibility_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.run_compatibility_tests" title="Permalink to this definition"></a></dt>
+<dd><p>Run the original full compatibility tests.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.run_stability_tests">
+<span class="sig-name descname"><span class="pre">run_stability_tests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.run_stability_tests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.run_stability_tests" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="spliced.predict.smeagle.SmeaglePrediction.stability_test_lib">
+<span class="sig-name descname"><span class="pre">stability_test_lib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">splice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libB</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spliced/predict/smeagle.html#SmeaglePrediction.stability_test_lib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spliced.predict.smeagle.SmeaglePrediction.stability_test_lib" title="Permalink to this definition"></a></dt>
+<dd><p>A stability test can only look at the subset of symbols.</p>
 </dd></dl>
 
 </dd></dl>

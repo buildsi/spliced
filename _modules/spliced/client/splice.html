@@ -83,9 +83,10 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
+
 <span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
 <span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
 
@@ -97,10 +98,41 @@
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span> <span class="o">==</span> <span class="s2">&quot;spack&quot;</span><span class="p">:</span>
         <span class="n">run_spack_experiment</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+        <span class="n">run_manual_experiment</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;You must provide an experiment runner.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Runner </span><span class="si">%s</span><span class="s2"> is not recognized&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="o">.</span><span class="n">runner</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_manual_experiment"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.splice.run_manual_experiment">[docs]</a><span class="k">def</span> <span class="nf">run_manual_experiment</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a manual experiment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">spliced.experiment.manual</span>
+
+    <span class="c1"># A general SpackExperiment does a replacement</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">spliced</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">manual</span><span class="o">.</span><span class="n">ManualExperiment</span><span class="p">()</span>
+
+    <span class="c1"># We either load a config, or the arguments provided</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">:</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+            <span class="n">package</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">package</span><span class="p">,</span> <span class="n">splice</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">splice</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">experiment</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Perform the experiment</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">predictor</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">skip</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdir_p</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)))</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="run_spack_experiment"><a class="viewcode-back" href="../../../api_reference/spliced.client.html#spliced.client.splice.run_spack_experiment">[docs]</a><span class="k">def</span> <span class="nf">run_spack_experiment</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
@@ -111,7 +143,7 @@
 
     <span class="kn">import</span> <span class="nn">spliced.experiment.spack</span>
 
-    <span class="n">experiment</span> <span class="o">=</span> <span class="n">spliced</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">spack</span><span class="o">.</span><span class="n">SpackExperiment</span><span class="p">()</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">spliced</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">spack</span><span class="o">.</span><span class="n">SpackSpliceExperiment</span><span class="p">()</span>
 
     <span class="c1"># We either load a config, or the arguments provided</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">config_yaml</span><span class="p">:</span>
@@ -123,14 +155,11 @@
 
     <span class="c1"># Perform the splice!</span>
     <span class="n">experiment</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-
-    <span class="c1"># TODO can we run_parallel here as an option? And do splice -&gt; predict as such</span>
-    <span class="c1"># And make predictions</span>
-    <span class="n">experiment</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">predictor</span><span class="p">)</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">predictor</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">skip</span><span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">:</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">mkdir_p</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">))</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdir_p</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)))</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span></div>

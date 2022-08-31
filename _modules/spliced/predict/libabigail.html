@@ -83,13 +83,12 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: (Apache-2.0 OR MIT)</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span>
-<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">match_by_prefix</span><span class="p">,</span> <span class="n">timed_run</span>
-
-
 <span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">spliced.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">spliced.logger</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Prediction</span><span class="p">,</span> <span class="n">match_by_prefix</span><span class="p">,</span> <span class="n">timed_run</span>
 
 
 <div class="viewcode-block" id="add_to_path"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.add_to_path">[docs]</a><span class="k">def</span> <span class="nf">add_to_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -151,13 +150,24 @@
         <span class="c1"># This is the executable path</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">tool</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LibabigailPrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.LibabigailPrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+<div class="viewcode-block" id="LibabigailPrediction.predict"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.LibabigailPrediction.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">,</span> <span class="n">predict_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run libabigail to add to the predictions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Both should be found regardless of prediction type</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abicompat</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abidiff</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">find_tooling</span><span class="p">()</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">predict_type</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_prediction</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">predict_type</span> <span class="o">==</span> <span class="s2">&quot;diff&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff_prediction</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">predict_type</span><span class="si">}</span><span class="s2"> is not a known prediction type.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LibabigailPrediction.full_prediction"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.LibabigailPrediction.full_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">full_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A full prediction is run with spliced splice, includes libs and binaries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If no splice libs OR no tools, cut out early</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span>
@@ -170,6 +180,34 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_different_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_equivalent_libs</span><span class="p">(</span><span class="n">splice</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="LibabigailPrediction.diff_prediction"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.LibabigailPrediction.diff_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">diff_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Only do pairwise diffs between libs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">abidiff</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># For each original (we assume working) binary, find its deps from elfcall,</span>
+        <span class="c1"># and then match to the equivalent lib (via basename) for the splice</span>
+        <span class="n">original_deps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_elfcall_deps_lookup</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span><span class="p">)</span>
+        <span class="n">spliced_deps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_elfcall_deps_lookup</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">)</span>
+
+        <span class="c1"># Create a set of predictions for each spliced binary / lib combination</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">libA</span><span class="p">,</span> <span class="n">metaA</span> <span class="ow">in</span> <span class="n">original_deps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">libB</span><span class="p">,</span> <span class="n">metaB</span> <span class="ow">in</span> <span class="n">spliced_deps</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">libA_fullpath</span> <span class="o">=</span> <span class="n">metaA</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">]</span>
+                <span class="n">libB_fullpath</span> <span class="o">=</span> <span class="n">metaB</span><span class="p">[</span><span class="s2">&quot;lib&quot;</span><span class="p">]</span>
+
+                <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_abidiff</span><span class="p">(</span><span class="n">libA_fullpath</span><span class="p">,</span> <span class="n">libB_fullpath</span><span class="p">)</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;splice_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;different_lib&quot;</span>
+                <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;libabigail&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictions</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="LibabigailPrediction.splice_different_libs"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.LibabigailPrediction.splice_different_libs">[docs]</a>    <span class="k">def</span> <span class="nf">splice_different_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        In the case of splicing &quot;the same lib&quot; into itself (a different version)</span>
@@ -180,8 +218,34 @@
 <div class="viewcode-block" id="LibabigailPrediction.run_abidiff"><a class="viewcode-back" href="../../../api_reference/spliced.predict.html#spliced.predict.libabigail.LibabigailPrediction.run_abidiff">[docs]</a>    <span class="k">def</span> <span class="nf">run_abidiff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run abi diff with an original and comparison library</span>
+
+<span class="sd">        debuginfo files:</span>
+<span class="sd">          By default, libabigail will look in /usr/lib/debug for separate</span>
+<span class="sd">          debug files (.debug) generated by gcc. Alternate locations can</span>
+<span class="sd">          be specified by using the environment variables</span>
+<span class="sd">          LIBABIGAIL_DEBUGINFO_DIR{1,2} for the original and comparison</span>
+<span class="sd">          libraries, respectively.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abidiff</span><span class="p">,</span> <span class="n">original_lib</span><span class="p">,</span> <span class="n">replace_lib</span><span class="p">)</span>
+        <span class="n">debug1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LIBABIGAIL_DEBUGINFO_DIR1&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug1</span><span class="p">:</span>
+            <span class="n">debug1</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;--debug-info-dir1 </span><span class="si">{</span><span class="n">debug1</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">debug2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LIBABIGAIL_DEBUGINFO_DIR2&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug2</span><span class="p">:</span>
+            <span class="n">debug2</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;--debug-info-dir2 </span><span class="si">{</span><span class="n">debug2</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">require_debug</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;LIBABIGAIL_REQUIRE_DEBUGINFO&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">require_debug</span><span class="p">:</span>
+            <span class="n">require_debug</span> <span class="o">=</span> <span class="s2">&quot;--fail-no-debug-info&quot;</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abidiff</span><span class="p">,</span>
+            <span class="n">debug1</span><span class="p">,</span>
+            <span class="n">debug2</span><span class="p">,</span>
+            <span class="n">require_debug</span><span class="p">,</span>
+            <span class="n">original_lib</span><span class="p">,</span>
+            <span class="n">replace_lib</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">timed_run</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="n">res</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
 
@@ -221,7 +285,6 @@
 <span class="sd">        we can do matching based on names. We can use abicomat with binaries, and</span>
 <span class="sd">        abidiff for just between the libs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># For each original (we assume working) binary, find its deps from elfcall,</span>
         <span class="c1"># and then match to the equivalent lib (via basename) for the splice</span>
         <span class="n">original_deps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_elfcall_deps_lookup</span><span class="p">(</span><span class="n">splice</span><span class="p">,</span> <span class="n">splice</span><span class="o">.</span><span class="n">original</span><span class="p">)</span>
