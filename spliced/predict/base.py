@@ -33,6 +33,9 @@ class Prediction:
         if lib not in splice.metadata or not splice.metadata[lib]:
             return deps
         for _, symbols in splice.metadata[lib].items():
+            # Skip metadata that isn't symbols
+            if not isinstance(symbols, dict):
+                continue
             for _, meta in symbols.items():
                 if "lib" not in meta:
                     continue
