@@ -69,7 +69,9 @@ class SmeagleRunner:
         try:
             from smeagle.loader import Loader
         except ImportError:
-            logger.exit("smeagle-py (smeagle) is required to run the smeagle predictor.")
+            logger.exit(
+                "smeagle-py (smeagle) is required to run the smeagle predictor."
+            )
 
         # Get a smeagle corpus (facts.json)
         try:
