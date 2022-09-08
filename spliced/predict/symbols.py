@@ -157,8 +157,6 @@ def diff_missing_exports(libA, libB, libA_symbols, libB_symbols):
         return {
             "splice_type": "different_lib",
             "original_lib": libA,
-            "is_stripped_original": libA_symbols.get("is_stripped", "Unknown"),
-            "is_stripped_splice": libB_symbols.get("is_stripped", "Unknown"),
             "spliced_lib": libB,
             "command": "missing-previously-found-exports",
             "message": "Cannot derive decision, symbols not found.",
@@ -224,8 +222,6 @@ def diff_missing_symbols(libA, libB, libA_symbols, libB_symbols):
             "splice_type": "different_lib",
             "original_lib": libA,
             "spliced_lib": libB,
-            "is_stripped_original": libA_symbols.get("is_stripped", "Unknown"),
-            "is_stripped_splice": libB_symbols.get("is_stripped", "Unknown"),
             "command": "missing-previously-found-symbols",
             "message": "Cannot derive decision, symbols not found.",
             "prediction": "Unknown",
