@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>spliced.predict.smeagle &mdash; Spliced 0.0.17 documentation</title>
+  <title>spliced.predict.smeagle &mdash; Spliced 0.0.18 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/sphinx-argparse.css" type="text/css" />
@@ -30,7 +30,7 @@
             <a href="../../../index.html" class="icon icon-home"> Spliced
           </a>
               <div class="version">
-                0.0.17
+                0.0.18
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -157,7 +157,7 @@
 
         <span class="c1"># For each spliced binary/lib, generate facts, save to cache</span>
         <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">splice</span><span class="o">.</span><span class="n">spliced</span><span class="p">:</span>
-            <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_smeagle_data</span><span class="p">(</span><span class="n">lib</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cache_key</span><span class="p">:</span>
                 <span class="n">spliced</span><span class="p">[</span><span class="n">lib</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache_key</span>
 
@@ -180,8 +180,8 @@
         <span class="n">splice</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="n">libs_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Look for dependency in facts cache</span>
-        <span class="n">libA_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">libA</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
-        <span class="n">libB_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">libB</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
+        <span class="n">libA_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_smeagle_data</span><span class="p">(</span><span class="n">libA</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
+        <span class="n">libB_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_smeagle_data</span><span class="p">(</span><span class="n">libB</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">)</span>
 
         <span class="c1"># If we can&#39;t generate facts, we can&#39;t include in model</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">libA_cache</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">libB_cache</span><span class="p">:</span>
@@ -257,7 +257,7 @@
                 <span class="k">continue</span>
 
             <span class="c1"># Look for dependency in facts cache</span>
-            <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_cle_data</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_smeagle_data</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
 
             <span class="c1"># If we can&#39;t generate facts, we can&#39;t include in model</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_key</span><span class="p">:</span>
@@ -291,9 +291,9 @@
         <span class="n">splice</span><span class="o">.</span><span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;smeagle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
         <span class="n">out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SmeaglePrediction.generate_cle_data"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.generate_cle_data">[docs]</a>    <span class="k">def</span> <span class="nf">generate_cle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="SmeaglePrediction.generate_smeagle_data"><a class="viewcode-back" href="../../../api_reference/spliced.predict.smeagle.html#spliced.predict.smeagle.SmeaglePrediction.generate_smeagle_data">[docs]</a>    <span class="k">def</span> <span class="nf">generate_smeagle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;smeagle&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given a library, run cle to generate facts and save to cache. Return key.</span>
+<span class="sd">        Given a library, run smeagle to generate facts and save to cache. Return key.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Keep same path, but under cache</span>
         <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
@@ -304,7 +304,7 @@
             <span class="n">cache_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_key</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">cache_key</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating facts for </span><span class="si">%s</span><span class="s2"> with cle...&quot;</span> <span class="o">%</span> <span class="n">lib</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating facts for </span><span class="si">%s</span><span class="s2"> with smeagle...&quot;</span> <span class="o">%</span> <span class="n">lib</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smeagle</span><span class="o">.</span><span class="n">get_smeagle_data</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;data&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;return_code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
