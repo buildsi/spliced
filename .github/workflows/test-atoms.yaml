@@ -12,11 +12,6 @@ jobs:
         submodules: recursive
     - name: Install Library
       run: |
-        # archinfo, pyvex, pyelftools, then cle
-        pip install git+https://github.com/angr/archinfo
-        pip install git+https://github.com/angr/pyvex
-        pip install git+https://github.com/eliben/pyelftools
-        pip install git+https://github.com/vsoch/cle
         pip install pytest deepdiff
         pip install -e .
 

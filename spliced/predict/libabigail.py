@@ -172,10 +172,6 @@ class LibabigailPrediction(Prediction):
         # The spliced lib and original
         res["spliced_lib"] = replace_lib
         res["original_lib"] = original_lib
-
-        # If there is a libabigail output, print to see
-        if res["message"] != "":
-            print(res["message"])
         res["prediction"] = res["message"] == "" and res["return_code"] == 0
         return res
 
@@ -192,10 +188,6 @@ class LibabigailPrediction(Prediction):
         # The spliced lib and original
         res["original_lib"] = lib
         res["spliced_lib"] = original
-
-        # If there is a libabigail output, print to see
-        if res["message"] != "":
-            print(res["message"])
         res["prediction"] = res["message"] == "" and res["return_code"] == 0
         return res
 
